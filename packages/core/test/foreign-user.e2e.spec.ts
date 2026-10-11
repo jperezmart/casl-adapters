@@ -103,7 +103,7 @@ describe('a user shaped by its identity provider (e2e)', () => {
     request(server()).get('/notes/t2').set('x-user', 'ana').expect(404));
 
   it('grants nothing when every Role is foreign', () =>
-    request(server()).get('/notes/t1').set('x-user', 'ben').expect(404));
+    request(server()).get('/notes/t1').set('x-user', 'ben').expect(403));
 
   it('hands the handler the user untouched', () =>
     request(server()).get('/me').set('x-user', 'ana').expect(200).expect(ana));

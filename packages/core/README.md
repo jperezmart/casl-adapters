@@ -191,23 +191,32 @@ the decorator is not a registered provider and the guard cannot resolve it.
 
 ### Denials: 404 or 403
 
-The guard does not answer every denial with 403. A 403 confirms the record
-exists, so a denied check against an instance the user cannot even read is a
-404 instead:
+The guard does not answer every denial with 403. A 403 for one record confirms
+it exists, so a denied check against an instance the user cannot even read is a
+404 instead. The first row that matches decides:
 
 | Request                                                    | Response |
 | ---------------------------------------------------------- | -------- |
 | no authenticated user                                      | 401      |
-| denied against a subject type (no hook)                    | 403      |
-| denied against an instance the user **can** read           | 403      |
-| denied against an instance the user **cannot** read either | 404      |
+| denied against the subject type (with or without a hook)   | 403      |
 | the subject hook loads nothing                             | 404      |
+| denied against an instance the user **cannot** read either | 404      |
+| denied against an instance the user **can** read           | 403      |
+
+With a hook, the guard checks the subject type first and does not run the hook
+when that check fails: a user whose rules allow the action on no record at all
+gets the same 403 for every id, existing or not, so it reveals nothing. The
+subject type in `@UseAbility` must therefore name the type the way your rules
+name it, which is what `detectSubjectType` reports for what the hook loads.
+`'Article'` and the class `Article` are different types to CASL: with rules
+written for `'Article'`, declare `'Article'` even when the hook returns class
+instances. A mismatch denies everyone but the superuser.
 
 The 404 carries Nest's default body, identical to a genuine not-found, so
 someone probing IDs learns nothing; an author who can read an article still
-gets an honest 403 when they may not edit it. A hook that loads nothing never
-falls back to a check against the subject type: that would let a conditional
-rule through without its conditions. The reasons are in
+gets an honest 403 when they may not edit it. The check against the subject
+type only ever denies: a hook that loads nothing is never allowed through on
+it, as that would let a conditional rule through without its conditions. The reasons are in
 [ADR 0004](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md).
 
 "Can read" means the `'read'` action. If your app names it differently, set it
@@ -276,13 +285,15 @@ the conditions outside the guard from getting no restriction at all.
 `action` on `subject`, and otherwise throws the exception the guard would throw
 for the same decision. It is a plain function — no guard, no dependency
 injection — so services, background jobs and grouped oRPC handlers get the
-same answer as `@UseAbility`, which calls it too:
+same answer as `@UseAbility`, which calls it too. The first row that matches
+decides:
 
-| Denied check                                     | Throws               |
-| ------------------------------------------------ | -------------------- |
-| against a subject type (`'Article'`, a class)    | `ForbiddenException` |
-| against an instance the user **can** read        | `ForbiddenException` |
-| against an instance the user **cannot** read too | `NotFoundException`  |
+| Denied check                                           | Throws               |
+| ------------------------------------------------------ | -------------------- |
+| against a subject type (`'Article'`, a class)          | `ForbiddenException` |
+| against an instance whose type it is denied on as well | `ForbiddenException` |
+| against an instance the user **cannot** read too       | `NotFoundException`  |
+| against an instance the user **can** read              | `ForbiddenException` |
 
 The 404 carries Nest's default message, so it is indistinguishable from a
 genuine not-found ([why](#denials-404-or-403)).

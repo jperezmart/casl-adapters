@@ -19,9 +19,10 @@ import type {
 } from '../src/index.js';
 import { CaslModule, CaslSubject, UseAbility } from '../src/index.js';
 
-// ADR 0004: a denied instance the user cannot read is a 404, anything else 403.
+// ADR 0004: denied on the subject type is a 403, before the hook runs; then a
+// denied instance the user cannot read is a 404, anything else 403.
 
-type Role = 'reader' | 'owner' | 'viewer';
+type Role = 'reader' | 'owner' | 'viewer' | 'lurker';
 
 interface User {
   id: string;
@@ -55,18 +56,24 @@ class DocHook implements SubjectBeforeFilterHook<Doc> {
 }
 
 const permissions: RolePermissions<Role, User> = {
-  // Reads every doc, changes none.
-  reader(_user, { can }) {
+  // Reads every doc, changes only their own.
+  reader(user, { can }) {
     can('read', 'Doc');
+    can('update', 'Doc', { ownerId: user.id });
   },
   // Reads and changes only their own docs.
   owner(user, { can }) {
     can('read', 'Doc', { ownerId: user.id });
     can('update', 'Doc', { ownerId: user.id });
   },
-  // An app whose read action is `view`: sees every doc, changes none.
-  viewer(_user, { can }) {
+  // An app whose read action is `view`: sees every doc, changes only their own.
+  viewer(user, { can }) {
     can('view', 'Doc');
+    can('update', 'Doc', { ownerId: user.id });
+  },
+  // Reads only their own docs and changes none.
+  lurker(user, { can }) {
+    can('read', 'Doc', { ownerId: user.id });
   },
 };
 
@@ -169,6 +176,13 @@ describe('AccessGuard denial rule (ADR 0004)', () => {
       .expect(404);
     expect(res.body).toEqual(genuine.body);
   });
+
+  it('403 for an instance when the user may change no doc at all, even one they cannot read', () =>
+    request(server()).patch('/docs/1').set(as('bob', 'lurker')).expect(403));
+
+  it('403 before the subject hook runs when the user may change no doc at all', () =>
+    // The hook would load nothing (404); a user denied on the type is answered first.
+    request(server()).patch('/docs/999').set(as('bob', 'lurker')).expect(403));
 
   it('403 for a denial against the subject type (no hook)', () =>
     request(server()).post('/docs').set(as('carol', 'reader')).expect(403));

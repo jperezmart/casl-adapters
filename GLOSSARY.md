@@ -29,7 +29,7 @@ The CASL object built for one user from the Everyone permissions and every Role 
 _Avoid_: permissions (for the built object)
 
 **Denial rule**:
-How a denied check answers: 404 when the user cannot read the instance either (or a subject hook loaded nothing), 403 otherwise, and always 403 against a subject type. The guard and `assertCan` share its one implementation (ADR 0004).
+How a denied check answers: always 403 when the action is denied on the subject type, before any subject hook runs; otherwise 404 when the user cannot read the instance either (or a subject hook loaded nothing), and 403 when they can. The guard and `assertCan` share its one implementation (ADR 0004).
 _Avoid_: policy, 404/403 policy
 
 **Access conditions**:
