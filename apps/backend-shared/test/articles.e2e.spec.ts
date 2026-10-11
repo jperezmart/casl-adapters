@@ -1,16 +1,16 @@
-import { useApp } from './app.js';
+import { APP, useApp } from './app.js';
 
 /**
- * End-to-end coverage of the article routes: boots the real Nest app
- * (controllers, `ArticleHook` and nest-casl) and drives it over HTTP. Lists are
- * filtered by each user's Access conditions; checks on one article follow the
- * Denial rule.
+ * End-to-end coverage of the article routes: boots the real Nest app with
+ * nest-casl and drives it over HTTP. Lists are filtered by each user's Access
+ * conditions; checks on one article follow the Denial rule, whether the REST
+ * apps' subject hook or the oRPC handler's `assertCan` loads the article.
  *
  * Seed: alice's #1 (published) and #2 (draft), bob's #3 (published) and #4
  * (draft). carol is a plain user, alice and bob are authors, admin is the
  * superuser.
  */
-describe('backend-shared articles (e2e)', () => {
+describe(`${APP.name} articles (e2e)`, () => {
   const api = useApp();
   const ids = (body: Array<{ id: string }>) => body.map(a => a.id).sort();
 
@@ -64,7 +64,7 @@ describe('backend-shared articles (e2e)', () => {
       const res = await api('alice')
         .post('/articles')
         .send({ title: 'Brand new', published: true })
-        .expect(201);
+        .expect(APP.createdStatus);
       expect(res.body).toMatchObject({ title: 'Brand new', authorId: 'alice' });
     });
   });
@@ -105,8 +105,8 @@ describe('backend-shared articles (e2e)', () => {
       expect(res.body).toEqual({ deleted: true });
     });
 
-    it("a plain user gets 404 for someone else's draft they cannot read", () =>
-      api('carol').delete('/articles/2').expect(404));
+    it('a plain user gets 403 for an article they can read', () =>
+      api('carol').delete('/articles/3').expect(403));
 
     it("an author gets 403 for someone else's article they can read", () =>
       api('alice').delete('/articles/3').expect(403));
