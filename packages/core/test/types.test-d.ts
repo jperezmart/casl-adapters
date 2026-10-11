@@ -147,6 +147,16 @@ describe('types', () => {
   });
 
   it('takes getUserFromRequest sync or async, inferring the user from either', () => {
+    // The user `forRoot` infers from the options, whichever form they take.
+    type UserOf<O> =
+      O extends CaslModuleOptions<string, infer TUser, never> ? TUser : never;
+    expectTypeOf<
+      UserOf<{ getUserFromRequest: () => TenantUser | undefined }>
+    >().toEqualTypeOf<TenantUser>();
+    expectTypeOf<
+      UserOf<{ getUserFromRequest: () => Promise<TenantUser | undefined> }>
+    >().toEqualTypeOf<TenantUser>();
+
     type Req = AuthorizableRequest<TenantUser>;
     const tenantUser: TenantUser = { username: 'ana', roles: [], tenants: [] };
 

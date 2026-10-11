@@ -30,7 +30,10 @@ interface TenantUser extends BaseUser {
 
 @Injectable()
 class TenantsService {
-  private readonly tenants: Record<string, string[]> = { ana: ['t1'] };
+  private readonly tenants: Record<string, string[]> = {
+    ana: ['t1'],
+    bea: ['t2'],
+  };
 
   async tenantsOf(username: string): Promise<string[]> {
     await Promise.resolve();
@@ -83,6 +86,7 @@ class NotesModule {}
 
 const BASE_USERS: Record<string, BaseUser> = {
   ana: { username: 'ana', roles: ['editor'] },
+  bea: { username: 'bea', roles: ['editor'] },
 };
 
 describe('an async getUserFromRequest (e2e)', () => {
@@ -128,8 +132,8 @@ describe('an async getUserFromRequest (e2e)', () => {
   it('builds the Ability from the user it resolves', () =>
     request(server()).get('/notes/t1').set('x-user', 'ana').expect(200));
 
-  it('scopes by the field the injected service loaded', () =>
-    request(server()).get('/notes/t2').set('x-user', 'ana').expect(404));
+  it('denies the same request when the injected service loads other data', () =>
+    request(server()).get('/notes/t1').set('x-user', 'bea').expect(404));
 
   it('hands the handler the user it resolves', () =>
     request(server())
@@ -141,7 +145,7 @@ describe('an async getUserFromRequest (e2e)', () => {
   it('answers 401 when it resolves to no user', () =>
     request(server()).get('/notes/t1').expect(401));
 
-  it('lets an UnauthorizedException it rejects with answer 401', () =>
+  it('answers 401 when it rejects with an UnauthorizedException', () =>
     request(server()).get('/notes/t1').set('x-user', 'expired').expect(401));
 
   it('lets any other HttpException it rejects with through unchanged', () =>
