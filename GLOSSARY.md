@@ -31,3 +31,7 @@ _Avoid_: permissions (for the built object)
 **Denial rule**:
 How a denied check answers: 404 when the user cannot read the instance either (or a subject hook loaded nothing), 403 otherwise, and always 403 against a subject type. The guard and `assertCan` share its one implementation (ADR 0004).
 _Avoid_: policy, 404/403 policy
+
+**Access conditions**:
+What a record must satisfy for the Ability to allow one action on it, given only the subject type. They join every rule that allows the action and exclude every rule that denies it, so filtering by them returns exactly the records the user may act on.
+_Avoid_: relevant rule conditions, filter, query
