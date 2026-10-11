@@ -219,6 +219,43 @@ CaslModule.forRoot<Role>({ readAction: 'view' });
 The guard makes this decision with [`assertCan`](#assertcan-the-guards-answer-anywhere),
 so the guard and your own checks cannot disagree.
 
+### Filtering lists: `@CaslConditions()`
+
+A list route has no instance to check, so the guard can only check the subject
+type. `@CaslConditions()` hands the handler the **Access conditions** for the
+guarded `(action, subjectType)`: what a record must satisfy for the ability to
+allow the action on it. Filtering by them returns exactly the records
+`ability.can(action, record)` allows, no more and no fewer.
+
+```ts
+@UseAbility(DefaultActions.read, 'Article')
+@Get()
+list(@CaslConditions() conditions: ConditionsProxy) {
+  return this.articles.findMany(conditions.toMongo());
+}
+```
+
+They join every rule, not only one: allowing rules are OR-ed, and each denying
+rule with conditions is excluded with `$nor`. With `can('read', 'Article')` and
+`cannot('read', 'Article', { secret: true })`, `toMongo()` is
+`{ $nor: [{ secret: true }] }`.
+
+| Ability             | `hasConditions` | `get()`               | `toMongo()`           |
+| ------------------- | --------------- | --------------------- | --------------------- |
+| allows every record | `false`         | `undefined`           | `{}`                  |
+| allows some records | `true`          | them, in Mongo syntax | them, in Mongo syntax |
+| allows no record    | `true`          | `ForbiddenException`  | `ForbiddenException`  |
+
+A lone allowing rule with no denials comes back as its own conditions
+(`{ authorId: 'u1' }`). They are written in Mongo syntax, built with CASL's
+`rulesToCondition` from `@casl/ability/extra`; for another database, translate
+them, or build your own from the ability (`@CaslAbility()`) with
+`rulesToCondition` or `rulesToAST`.
+
+An ability that allows no record seldom gets this far: the guard has already
+answered 403 against the subject type. The exception keeps a handler that reads
+the conditions outside the guard from getting no restriction at all.
+
 ## `assertCan`: the guard's answer, anywhere
 
 `assertCan(ability, action, subject, options?)` returns when the ability allows

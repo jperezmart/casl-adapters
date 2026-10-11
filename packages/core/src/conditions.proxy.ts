@@ -1,18 +1,20 @@
 import type { AnyAbility, SubjectType } from '@casl/ability';
+import { rulesToCondition } from '@casl/ability/extra';
+import { ForbiddenException } from '@nestjs/common';
 
 import type { ConditionsProxy } from './interfaces/conditions-proxy.interface.js';
 import type { AnyObject } from './types.js';
 
 /**
- * Default {@link ConditionsProxy} implementation, backed by the CASL rule that
- * matched the guarded `(action, subject)`.
+ * Default {@link ConditionsProxy} implementation: the Access conditions of the
+ * guarded `(action, subjectType)`, built from every rule of the ability with
+ * CASL's `rulesToCondition` (`@casl/ability/extra`). Allowing rules are OR-ed,
+ * each denying rule with conditions is excluded with `$nor`, so filtering by
+ * them returns exactly the records `ability.can(action, record)` allows.
  *
- * Scope: this exposes the conditions of the single **most relevant** rule, via
- * CASL's `relevantRuleFor` (the same primitive CASL documents for inspecting a
- * decision). It is **not** a full query builder: it does not OR-combine the
- * conditions of several matching `can` rules, nor fold `cannot` rules into
- * exclusions. To turn an ability into a complete database query, use CASL's
- * `accessibleBy` / `rulesToQuery` from `@casl/ability/extra` instead.
+ * When no record is allowed, `get()` and `toMongo()` throw a
+ * `ForbiddenException` rather than hand back conditions that let records
+ * through.
  */
 export class ConditionsProxyImpl<
   TConditions extends AnyObject = AnyObject,
@@ -24,15 +26,37 @@ export class ConditionsProxyImpl<
   ) {}
 
   get hasConditions(): boolean {
-    return this.get() !== undefined;
+    return this.accessConditions() !== undefined;
   }
 
   get(): TConditions | undefined {
-    const rule = this.ability.relevantRuleFor(this.action, this.subject);
-    return rule?.conditions as TConditions | undefined;
+    const conditions = this.accessConditions();
+    if (conditions === null) throw new ForbiddenException();
+    return conditions;
   }
 
   toMongo(): TConditions {
     return this.get() ?? ({} as TConditions);
   }
+
+  /** `undefined` when every record is allowed, `null` when none is. */
+  private accessConditions(): TConditions | undefined | null {
+    return rulesToCondition<AnyAbility, AnyObject, AnyObject | undefined>(
+      this.ability.rulesFor(this.action, this.subject),
+      rule =>
+        rule.inverted
+          ? { $nor: [rule.conditions] }
+          : (rule.conditions as AnyObject),
+      {
+        and: conditions => single(conditions) ?? { $and: conditions },
+        or: conditions => single(conditions) ?? { $or: conditions },
+        empty: () => undefined,
+      },
+    ) as TConditions | undefined | null;
+  }
+}
+
+/** One condition stays unwrapped, so a lone rule reads as its own conditions. */
+function single(conditions: AnyObject[]): AnyObject | undefined {
+  return conditions.length === 1 ? conditions[0] : undefined;
 }

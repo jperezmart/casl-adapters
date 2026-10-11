@@ -63,6 +63,7 @@ catalog:
   vitest: ^4.1.9
   # testing
   supertest: ^7.2.2
+  '@ucast/mongo2js': ^2.0.0
   # types
   '@types/node': ^24.13.2
   '@types/supertest': ^7.2.0
