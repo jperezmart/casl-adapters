@@ -4,9 +4,9 @@ import { createParamDecorator } from '@nestjs/common';
 import { getCaslContext } from './extract-context.helper.js';
 
 /**
- * Injects a {@link ConditionsProxy} for the rule that matched the guarded
- * `(action, subject)`, so the handler can filter DB queries to the records the
- * user may access.
+ * Injects a {@link ConditionsProxy} with the Access conditions of the guarded
+ * `(action, subject)`, so the handler can filter DB queries to exactly the
+ * records the user may act on.
  *
  * @example `list(@CaslConditions() conditions: ConditionsProxy) {}`
  */

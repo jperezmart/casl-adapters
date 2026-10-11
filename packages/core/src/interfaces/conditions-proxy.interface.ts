@@ -1,19 +1,30 @@
 import type { AnyObject } from '../types.js';
 
 /**
- * Wrapper around the CASL rule conditions that matched the current request,
- * injected via `@CaslConditions()`. Use it to filter DB queries so that a user
- * only ever reads/writes records they are actually permitted to.
+ * The Access conditions of the guarded `(action, subjectType)`, injected via
+ * `@CaslConditions()`: what a record must satisfy for the ability to allow the
+ * action on it. Every allowing rule is OR-ed and every denying rule with
+ * conditions excluded, so filtering a DB query by them returns exactly the
+ * records the user may act on.
  *
- * @typeParam TConditions - Shape of the raw conditions object (Mongo-style query).
+ * @typeParam TConditions - Shape of the conditions object (Mongo syntax).
  */
 export interface ConditionsProxy<TConditions extends AnyObject = AnyObject> {
-  /** `true` when the matched rule carries conditions to filter by. */
+  /** `false` only when the ability allows the action on every record. */
   readonly hasConditions: boolean;
 
-  /** Raw CASL conditions, or `undefined` when the rule is unconditional. */
+  /**
+   * The Access conditions in Mongo syntax, or `undefined` when every record is
+   * allowed.
+   *
+   * @throws ForbiddenException when no record is allowed.
+   */
   get(): TConditions | undefined;
 
-  /** Conditions as a plain object, falling back to `{}` when unconditional. */
+  /**
+   * The Access conditions in Mongo syntax, `{}` when every record is allowed.
+   *
+   * @throws ForbiddenException when no record is allowed.
+   */
   toMongo(): TConditions;
 }

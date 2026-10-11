@@ -67,6 +67,7 @@
     "@nestjs/testing": "catalog:",
     "@types/node": "catalog:",
     "@types/supertest": "catalog:",
+    "@ucast/mongo2js": "catalog:",
     "eslint": "catalog:",
     "reflect-metadata": "catalog:",
     "rxjs": "catalog:",
