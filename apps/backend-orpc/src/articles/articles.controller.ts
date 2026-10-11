@@ -1,7 +1,14 @@
-import { assertCan, CaslAbility, CaslUser } from '@jperezmart/nest-casl';
+import type { MongoQuery } from '@casl/ability';
+import type { ConditionsProxy } from '@jperezmart/nest-casl';
+import {
+  assertCan,
+  CaslAbility,
+  CaslConditions,
+  CaslUser,
+} from '@jperezmart/nest-casl';
 import type { AppAbility } from '@jperezmart/orpc-abilities';
 import { contract } from '@jperezmart/orpc-contract';
-import type { AppUser } from '@jperezmart/orpc-domain';
+import type { AppUser, Article } from '@jperezmart/orpc-domain';
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { ORPCError } from '@orpc/server';
@@ -14,9 +21,10 @@ import { ArticlesService } from './articles.service.js';
  *
  * Two layers:
  * - **`@UseAbility(action, 'Article')`** — the coarse, role-level gate. Its guard
- *   runs before the oRPC interceptor and injects the built ability (`@CaslAbility`)
- *   / user (`@CaslUser`). No subject hook here: the guard runs before oRPC has
- *   parsed the request, so it shouldn't reach into raw `req.params`.
+ *   runs before the oRPC interceptor and injects the built ability
+ *   (`@CaslAbility`), its Access conditions (`@CaslConditions`) or the user
+ *   (`@CaslUser`). No subject hook here: the guard runs before oRPC has parsed
+ *   the request, so it shouldn't reach into raw `req.params`.
  * - **inside the handler** — the per-record check, against the subject loaded from
  *   the **validated `input`** (oRPC has done its parsing/validation by now, so the
  *   id is guaranteed present and well-formed). A missing record is a real 404, and
@@ -28,12 +36,17 @@ import { ArticlesService } from './articles.service.js';
 export class ArticlesController {
   constructor(private readonly articles: ArticlesService) {}
 
-  /** List — gated at the role level, then filtered by the injected ability. */
+  /** List — gated at the role level, then filtered by the Access conditions. */
   @Implement(contract.articles.list)
   @UseAbility('read', 'Article')
-  list(@CaslAbility() ability: AppAbility) {
+  list(
+    // The type asserts the conditions' shape; the decorator does not check it.
+    @CaslConditions() conditions: ConditionsProxy<MongoQuery<Article>>,
+  ) {
+    // On a store that does not speak Mongo, translate `conditions.toAst()`
+    // instead. See "Filtering lists" in the core README.
     return implement(contract.articles.list).handler(() =>
-      this.articles.findAll().filter(article => ability.can('read', article)),
+      this.articles.findMany(conditions.toMongo()),
     );
   }
 

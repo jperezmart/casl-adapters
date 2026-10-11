@@ -30,6 +30,7 @@ it costs nothing at the API level.
 ```bash
 pnpm build                            # build the package graph first
 pnpm --filter backend-shared start    # http://localhost:3000
+pnpm --filter backend-shared test     # e2e: the list endpoint per user
 pnpm --filter frontend dev            # http://localhost:5173
 ```
 

@@ -1,4 +1,6 @@
-import { AbilityFactory, CaslSubject, CaslUser } from '@jperezmart/nest-casl';
+import type { MongoQuery } from '@casl/ability';
+import type { ConditionsProxy } from '@jperezmart/nest-casl';
+import { CaslConditions, CaslSubject, CaslUser } from '@jperezmart/nest-casl';
 import {
   Body,
   Controller,
@@ -10,10 +12,9 @@ import {
   Post,
 } from '@nestjs/common';
 
-import { CurrentUser } from '../auth/current-user.decorator.js';
 import type { AppUser } from '../auth/user.js';
 import { UseAbility } from '../casl.js';
-import type { AppAbility, Article } from './article.entity.js';
+import type { Article } from './article.entity.js';
 import { ArticleHook } from './article.hook.js';
 import { ArticlesService } from './articles.service.js';
 
@@ -24,24 +25,21 @@ interface ArticleBody {
 
 @Controller('articles')
 export class ArticlesController {
-  constructor(
-    private readonly articles: ArticlesService,
-    // Typing the injected factory makes `createForUser(user)` return the typed
-    // `AppAbility` (not the loose `AnyMongoAbility`) — no per-call generic.
-    private readonly abilityFactory: AbilityFactory<AppAbility>,
-  ) {}
+  constructor(private readonly articles: ArticlesService) {}
 
   /**
-   * List endpoint — builds the ability manually and filters in-memory, so it
-   * works for users whose read access is conditional. Demonstrates using
-   * `AbilityFactory` directly (no `@UseAbility`).
+   * List — no record to check, so the guard checks the subject type and
+   * `@CaslConditions()` hands over the Access conditions to filter the store by.
    */
   @Get()
-  list(@CurrentUser() user: AppUser): Article[] {
-    const ability = this.abilityFactory.createForUser(user);
-    return this.articles
-      .findAll()
-      .filter(article => ability.can('read', article));
+  @UseAbility('read', 'Article')
+  list(
+    // The type asserts the conditions' shape; the decorator does not check it.
+    @CaslConditions() conditions: ConditionsProxy<MongoQuery<Article>>,
+  ): Article[] {
+    // On a store that does not speak Mongo, translate `conditions.toAst()`
+    // instead. See "Filtering lists" in the core README.
+    return this.articles.findMany(conditions.toMongo());
   }
 
   /** Read one — the hook loads the article so conditional read is enforced. */

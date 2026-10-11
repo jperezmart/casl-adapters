@@ -1,13 +1,16 @@
+import type { MongoQuery } from '@casl/ability';
 import type {
   Article,
   ArticleCreate,
   ArticleUpdate,
 } from '@jperezmart/orpc-domain';
 import { Injectable } from '@nestjs/common';
+import { guard } from '@ucast/mongo2js';
 
 /**
  * Articles data + business logic. In-memory (same seed and shape as the REST
  * examples) — no database; this example is purely Nest + oRPC + CASL + React.
+ * It plays "your store": a real one would run the query in the database.
  */
 @Injectable()
 export class ArticlesService {
@@ -19,8 +22,9 @@ export class ArticlesService {
     { kind: 'Article', id: '4', title: 'Bob — draft', authorId: 'bob', published: false }, // prettier-ignore
   ];
 
-  findAll(): Article[] {
-    return this.articles;
+  /** The articles matching a Mongo query, e.g. the Access conditions. */
+  findMany(query: MongoQuery<Article>): Article[] {
+    return this.articles.filter(guard<Article>(query));
   }
 
   findById(id: string): Article | undefined {

@@ -51,6 +51,14 @@ describe('backend-orpc (e2e)', () => {
     expect(ids(res.body)).toEqual(['1', '2', '3']); // alice's #2, not bob's #4
   });
 
+  it('the superuser lists every article', async () => {
+    const res = await request(server())
+      .get('/api/articles')
+      .set(as('admin'))
+      .expect(200);
+    expect(ids(res.body)).toEqual(['1', '2', '3', '4']);
+  });
+
   it("a plain user cannot read someone else's draft, nor learn it exists", async () => {
     const genuine = await request(server())
       .get('/api/articles/999')

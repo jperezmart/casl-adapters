@@ -5,11 +5,12 @@
   "description": "Example NestJS REST app — @jperezmart/nest-casl with permissions defined inline (no shared package).",
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist .turbo *.tsbuildinfo",
     "dev": "nest start --watch",
     "lint": "eslint .",
     "start": "node dist/main.js",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "@nestjs/common": "catalog:",
     "@nestjs/core": "catalog:",
     "@nestjs/platform-express": "catalog:",
+    "@ucast/mongo2js": "catalog:",
     "reflect-metadata": "catalog:",
     "rxjs": "catalog:"
   },
@@ -25,8 +27,12 @@
     "@jperezmart/eslint-config": "catalog:",
     "@jperezmart/typescript-config": "catalog:",
     "@nestjs/cli": "catalog:",
+    "@nestjs/testing": "catalog:",
     "@types/node": "catalog:",
+    "@types/supertest": "catalog:",
     "eslint": "catalog:",
-    "typescript": "catalog:"
+    "supertest": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

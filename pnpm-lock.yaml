@@ -170,6 +170,9 @@ importers:
       '@orpc/server':
         specifier: 'catalog:'
         version: 1.14.6
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
       express:
         specifier: 'catalog:'
         version: 5.2.1(supports-color@8.1.1)
@@ -234,6 +237,9 @@ importers:
       '@nestjs/platform-express':
         specifier: 'catalog:'
         version: 11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@11.1.26)(supports-color@8.1.1)
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
       reflect-metadata:
         specifier: 'catalog:'
         version: 0.2.2
@@ -250,15 +256,27 @@ importers:
       '@nestjs/cli':
         specifier: 'catalog:'
         version: 11.0.23(@types/node@24.13.2)(lightningcss@1.32.0)(postcss@8.5.15)(prettier@3.8.4)
+      '@nestjs/testing':
+        specifier: 'catalog:'
+        version: 11.1.27(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@11.1.26)(@nestjs/platform-express@11.1.26)
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.2
+      '@types/supertest':
+        specifier: 'catalog:'
+        version: 7.2.0
       eslint:
         specifier: 'catalog:'
         version: 10.5.0(supports-color@8.1.1)
+      supertest:
+        specifier: 'catalog:'
+        version: 7.2.2(supports-color@8.1.1)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(terser@5.48.0)(yaml@2.9.0)
 
   apps/backend-simple:
     dependencies:
@@ -277,6 +295,9 @@ importers:
       '@nestjs/platform-express':
         specifier: 'catalog:'
         version: 11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@11.1.26)(supports-color@8.1.1)
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
       reflect-metadata:
         specifier: 'catalog:'
         version: 0.2.2
@@ -293,15 +314,27 @@ importers:
       '@nestjs/cli':
         specifier: 'catalog:'
         version: 11.0.23(@types/node@24.13.2)(lightningcss@1.32.0)(postcss@8.5.15)(prettier@3.8.4)
+      '@nestjs/testing':
+        specifier: 'catalog:'
+        version: 11.1.27(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@11.1.26)(@nestjs/platform-express@11.1.26)
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.2
+      '@types/supertest':
+        specifier: 'catalog:'
+        version: 7.2.0
       eslint:
         specifier: 'catalog:'
         version: 10.5.0(supports-color@8.1.1)
+      supertest:
+        specifier: 'catalog:'
+        version: 7.2.2(supports-color@8.1.1)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(terser@5.48.0)(yaml@2.9.0)
 
   apps/frontend:
     dependencies:

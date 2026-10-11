@@ -12,6 +12,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'eslint.config.js'],
+    ignores: ['dist/', 'node_modules/', 'eslint.config.js', 'vitest.config.ts'],
   },
 ];
