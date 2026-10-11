@@ -29,9 +29,13 @@ export interface CaslModuleOptions<
 
   /**
    * Extracts the authenticated user from the request. Defaults to reading
-   * `request.user` (as populated by most NestJS auth strategies).
+   * `request.user` (as populated by most NestJS auth strategies). It may be
+   * async, to load more about the user before the ability is built: with
+   * `forRootAsync`, `inject` the services it needs and close over them.
    */
-  getUserFromRequest?: (request: TRequest) => TUser | undefined;
+  getUserFromRequest?: (
+    request: TRequest,
+  ) => TUser | undefined | Promise<TUser | undefined>;
 
   /**
    * Customises how CASL resolves a subject's type from a subject instance,
