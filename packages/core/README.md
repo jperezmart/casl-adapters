@@ -113,6 +113,28 @@ may declare its own `everyone`; they all apply. The `superuserRole` still skips
 every rule, `everyone` included. An unauthenticated request never gets them: it
 is a 401 before any rule runs.
 
+### Loading more about the user
+
+When a rule reads something your auth layer does not put on the request (say,
+the user's tenants, kept in the database), make `getUserFromRequest` async and
+reach your services through `forRootAsync`:
+
+```ts
+CaslModule.forRootAsync({
+  imports: [UsersModule],
+  inject: [UsersService],
+  useFactory: (users: UsersService) => ({
+    getUserFromRequest: async (req: AuthorizableRequest<AuthUser>) =>
+      req.user && { ...req.user, tenants: await users.tenantsOf(req.user.id) },
+  }),
+});
+```
+
+The guard awaits it on every route with `@UseAbility`, before the subject hook
+and before building the ability, and `@CaslUser()` hands the handler the user
+it resolved. Resolving to `undefined` is a 401; an exception it throws reaches
+the client unchanged.
+
 ### Subject hooks
 
 The third argument of `@UseAbility` is a subject hook: an injectable provider

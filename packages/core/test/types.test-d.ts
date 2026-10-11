@@ -146,6 +146,26 @@ describe('types', () => {
     });
   });
 
+  it('takes getUserFromRequest sync or async, inferring the user from either', () => {
+    type Req = AuthorizableRequest<TenantUser>;
+    const tenantUser: TenantUser = { username: 'ana', roles: [], tenants: [] };
+
+    CaslModule.forRoot({ getUserFromRequest: (req: Req) => req.user });
+    CaslModule.forRoot({
+      getUserFromRequest: (req: Req) => Promise.resolve(req.user),
+    });
+    CaslModule.forRootAsync({
+      useFactory: () => ({
+        getUserFromRequest: async () => tenantUser,
+      }),
+    });
+
+    CaslModule.forRoot({
+      // @ts-expect-error — the user it resolves carries no `roles`
+      getUserFromRequest: async () => ({ username: 'ana' }),
+    });
+  });
+
   it('takes a subject hook as a class, never as a tuple', () => {
     class DocHook implements SubjectBeforeFilterHook {
       run(request: AuthorizableRequest) {

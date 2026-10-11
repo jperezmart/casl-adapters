@@ -4,7 +4,8 @@ import { createParamDecorator } from '@nestjs/common';
 import { getCaslContext } from './extract-context.helper.js';
 
 /**
- * Injects the authenticated user resolved by `getUserFromRequest`.
+ * Injects the authenticated user resolved by `getUserFromRequest` (awaited,
+ * when it is async): the same user the ability was built from.
  *
  * @example `findMine(@CaslUser() user: AppUser) {}`
  */

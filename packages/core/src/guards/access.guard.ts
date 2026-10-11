@@ -52,7 +52,7 @@ export class AccessGuard implements CanActivate {
     const getUser =
       this.options.getUserFromRequest ??
       ((req: AuthorizableRequest) => req.user);
-    const user = getUser(request);
+    const user = await getUser(request);
     if (!user) {
       throw new UnauthorizedException(
         'No authenticated user available for the CASL ability check.',
