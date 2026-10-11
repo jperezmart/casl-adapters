@@ -65,6 +65,29 @@ describe('assertCan', () => {
     ).toBeInstanceOf(NotFoundException);
   });
 
+  it('is 403 for an instance when the ability allows the action on no instance, readable or not', () => {
+    // The author has no `delete` rule at all: a 403 for every id says nothing
+    // about which records exist.
+    expect(
+      thrown(() => assertCan(author, 'delete', othersDraft)),
+    ).toBeInstanceOf(ForbiddenException);
+    expect(
+      thrown(() => assertCan(author, 'delete', new Article('u2', false))),
+    ).toBeInstanceOf(ForbiddenException);
+  });
+
+  it('is 403 for an instance an unconditional denial forbids, even an unreadable one', () => {
+    const banned = createMongoAbility([
+      { action: 'read', subject: 'Article', conditions: { published: true } },
+      { action: 'update', subject: 'Article', conditions: { authorId: 'u1' } },
+      { action: 'update', subject: 'Article', inverted: true },
+    ]);
+
+    expect(
+      thrown(() => assertCan(banned, 'update', othersDraft)),
+    ).toBeInstanceOf(ForbiddenException);
+  });
+
   it('gives the 404 the message of a genuine not-found', () => {
     const error = thrown(() => assertCan(author, 'update', othersDraft));
 
@@ -89,6 +112,8 @@ describe('assertCan', () => {
     const viewer = createMongoAbility([
       { action: 'view', subject: 'Article', conditions: { published: true } },
       { action: 'read', subject: 'Article' },
+      // Updates some articles, so a denial is decided by visibility.
+      { action: 'update', subject: 'Article', conditions: { authorId: 'u1' } },
     ]);
     const draft = subject('Article', { authorId: 'u2', published: false });
     const published = subject('Article', { authorId: 'u2', published: true });

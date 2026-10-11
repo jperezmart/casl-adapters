@@ -97,6 +97,10 @@ describe(`${APP.name} articles (e2e)`, () => {
 
     it('the superuser gets 404 for a missing article', () =>
       api('admin').patch('/articles/999').send({ title: 'nope' }).expect(404));
+
+    it('a plain user gets 403 even for a missing article', () =>
+      // carol may update no article at all, so nothing is loaded to tell.
+      api('carol').patch('/articles/999').send({ title: 'nope' }).expect(403));
   });
 
   describe('DELETE /articles/:id', () => {
@@ -105,8 +109,9 @@ describe(`${APP.name} articles (e2e)`, () => {
       expect(res.body).toEqual({ deleted: true });
     });
 
-    it('a plain user gets 403 for an article they can read', () =>
-      api('carol').delete('/articles/3').expect(403));
+    it("a plain user gets 403 even for someone else's draft they cannot read", () =>
+      // carol may delete no article at all, so the 403 is the same for every id.
+      api('carol').delete('/articles/2').expect(403));
 
     it("an author gets 403 for someone else's article they can read", () =>
       api('alice').delete('/articles/3').expect(403));

@@ -18,8 +18,9 @@ import { MeModule } from './me/me.module.js';
           console.error('[orpc]', error);
         }),
         // oRPC answers any error that is not an `ORPCError` with a 500, so
-        // translate the exceptions `assertCan` throws (ADR 0004: 404 for what
-        // the user cannot read, 403 otherwise).
+        // translate the exceptions `assertCan` throws (ADR 0004: 403 when the
+        // action is denied on the type, else 404 for what the user cannot read
+        // and 403 for what they can).
         async ({ next }) => {
           try {
             return await next();

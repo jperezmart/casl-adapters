@@ -6,7 +6,7 @@ It fetches the current user's **packed rules** from the backend (`GET /me/abilit
 and rebuilds a CASL ability on the client with `buildAbilityFromPackedRules` from
 the shared [`@jperezmart/example-shared`](../../packages/example-shared) package,
 then gates the UI with `<Can>`. Clicking a button calls the guarded REST endpoint,
-so you see the server agree (200/201) or reject (403, or 404 for an article they cannot read) — the UI and the API share
+so you see the server agree (200/201) or reject (403, or 404 for an article they cannot read but could act on others of its kind) — the UI and the API share
 the same rules.
 
 **Shared typing:** the rules are still produced by the server (the source of

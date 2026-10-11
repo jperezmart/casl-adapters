@@ -24,8 +24,9 @@ import type { UseAbilityMetadata } from '../interfaces/use-ability-metadata.inte
  * Guard that enforces `@UseAbility` metadata. Resolves the user, optionally runs
  * the subject hook, builds the ability, caches the {@link CaslRequestContext} on
  * the request for the parameter decorators, and decides with {@link assertCan}:
- * 401 without a user, 404 for a hook that loads nothing or an instance the user
- * cannot read either, 403 for any other denial (ADR 0004). Routes without
+ * 401 without a user; 403, before the hook runs, when the action is denied on
+ * the subject type; then 404 for a hook that loads nothing or an instance the
+ * user cannot read either, 403 for any other denial (ADR 0004). Routes without
  * `@UseAbility` metadata are allowed through.
  */
 @Injectable()
@@ -64,6 +65,10 @@ export class AccessGuard implements CanActivate {
     const { subjectHook } = metadata;
     let subjectInstance: unknown;
     if (subjectHook) {
+      // Denied on the subject type, the action is denied on every instance:
+      // answer 403 before loading anything (ADR 0004).
+      assertCan(ability, metadata.action, metadata.subject as never);
+
       const hook = this.moduleRef.get(subjectHook, { strict: false });
       subjectInstance = await hook.run(request);
     }
@@ -84,10 +89,10 @@ export class AccessGuard implements CanActivate {
       caslContext;
 
     // A declared subject hook means the rule must be evaluated against the
-    // concrete instance. If the hook yields nothing we must NOT fall back to a
-    // `can(action, 'Type')` check: CASL evaluates that as `true` for *conditional*
-    // rules (it can't test conditions without an instance), which would
-    // fail-open. A hook that produced no subject is a 404, like a missing record;
+    // concrete instance; the type check above only ever denies. If the hook
+    // yields nothing we must NOT fall back to a `can(action, 'Type')` check:
+    // CASL evaluates that as `true` for *conditional* rules (it can't test
+    // conditions without an instance), which would fail-open. A hook that produced no subject is a 404, like a missing record;
     // this is the one branch of ADR 0004 `assertCan` cannot see, as it knows no hooks.
     if (subjectHook && subjectInstance == null) throw new NotFoundException();
 

@@ -19,6 +19,8 @@ export interface AssertCanOptions<TAbility extends AnyAbility = AnyAbility> {
  * `subject`, and returns normally otherwise (ADR 0004):
  *
  * - a subject type (string or class) → `ForbiddenException`;
+ * - an instance whose type the action is denied on → `ForbiddenException`: the
+ *   same answer for every instance, so it reveals none;
  * - an instance the user cannot read either → `NotFoundException`, with Nest's
  *   default message, indistinguishable from a genuine not-found;
  * - any other instance → `ForbiddenException`.
@@ -40,7 +42,13 @@ export function assertCan<TAbility extends AnyAbility>(
   ) => boolean;
   if (canLoosely(action, subject)) return;
 
-  if (!isSubjectType(subject)) {
+  // An instance is hidden only from a user who may act on some instance of its
+  // type: denied on the type, the 403 is the same for every id, so it reveals
+  // nothing about which records exist.
+  if (
+    !isSubjectType(subject) &&
+    canLoosely(action, ability.detectSubjectType(subject as never))
+  ) {
     const readAction = options.readAction ?? DefaultActions.read;
     if (!canLoosely(readAction, subject)) throw new NotFoundException();
   }

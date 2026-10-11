@@ -29,7 +29,9 @@ import { ArticlesService } from './articles.service.js';
  *   the **validated `input`** (oRPC has done its parsing/validation by now, so the
  *   id is guaranteed present and well-formed). A missing record is a real 404, and
  *   we authorize against the server-loaded record, never the request body, with
- *   `assertCan`: 403, or 404 when the user cannot read the record either.
+ *   `assertCan`: 404 when the user cannot read the record either, 403 otherwise.
+ *   (A user with no rule for the action never gets here: the guard's type
+ *   check answers 403 first.)
  *   `AppModule` translates its Nest exceptions into `ORPCError`s.
  */
 @Controller()
