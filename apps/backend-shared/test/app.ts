@@ -5,6 +5,19 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module.js';
 
 /**
+ * The one e2e file that differs between the example backends: the suites
+ * (`articles.e2e.spec.ts`, `me.e2e.spec.ts`) are the same file in every app and
+ * read what sets this one apart from here.
+ */
+export const APP = {
+  name: 'backend-shared',
+  /** Status of a successful create: Nest's default for `@Post()`. */
+  createdStatus: 201,
+};
+
+export type Api = Pick<request.Agent, 'get' | 'post' | 'patch' | 'delete'>;
+
+/**
  * Boots the real Nest app before each test of the calling suite and closes it
  * after, so each test starts from the same in-memory seed: the mutating cases
  * (create/update/delete) would otherwise leak state into later tests and
@@ -13,7 +26,7 @@ import { AppModule } from '../src/app.module.js';
  * Returns `api(user)`, an HTTP client authenticated as that demo user (the
  * `x-user-id` header), or anonymous when no user is given.
  */
-export function useApp(): (user?: string) => request.Agent {
+export function useApp(): (user?: string) => Api {
   let app: INestApplication;
 
   beforeEach(async () => {
