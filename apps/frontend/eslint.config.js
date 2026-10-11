@@ -1,7 +1,9 @@
 import react from '@jperezmart/eslint-config/react';
+import repo from '../../eslint.repo.js';
 
 export default [
   ...react,
+  ...repo,
   {
     languageOptions: {
       parserOptions: {

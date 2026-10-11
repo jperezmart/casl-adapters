@@ -1,7 +1,9 @@
 import base from '@jperezmart/eslint-config/base';
+import repo from '../../eslint.repo.js';
 
 export default [
   ...base,
+  ...repo,
   {
     languageOptions: {
       parserOptions: {
