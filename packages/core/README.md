@@ -29,6 +29,7 @@ import {
   DefaultActions,
 } from '@jperezmart/nest-casl';
 import type {
+  AccessConditionsAst,
   AuthorizableUser,
   AuthorizableRequest,
   CaslRequestContext,
@@ -240,17 +241,30 @@ rule with conditions is excluded with `$nor`. With `can('read', 'Article')` and
 `cannot('read', 'Article', { secret: true })`, `toMongo()` is
 `{ $nor: [{ secret: true }] }`.
 
-| Ability             | `hasConditions` | `get()`               | `toMongo()`           |
-| ------------------- | --------------- | --------------------- | --------------------- |
-| allows every record | `false`         | `undefined`           | `{}`                  |
-| allows some records | `true`          | them, in Mongo syntax | them, in Mongo syntax |
-| allows no record    | `true`          | `ForbiddenException`  | `ForbiddenException`  |
+| Ability             | `hasConditions` | `get()`               | `toMongo()`           | `toAst()`            |
+| ------------------- | --------------- | --------------------- | --------------------- | -------------------- |
+| allows every record | `false`         | `undefined`           | `{}`                  | an empty `and`       |
+| allows some records | `true`          | them, in Mongo syntax | them, in Mongo syntax | them, as an AST      |
+| allows no record    | `true`          | `ForbiddenException`  | `ForbiddenException`  | `ForbiddenException` |
 
 A lone allowing rule with no denials comes back as its own conditions
 (`{ authorId: 'u1' }`). They are written in Mongo syntax, built with CASL's
-`rulesToCondition` from `@casl/ability/extra`; for another database, translate
-them, or build your own from the ability (`@CaslAbility()`) with
-`rulesToCondition` or `rulesToAST`.
+`rulesToCondition` from `@casl/ability/extra`.
+
+For another database (SQL, Prisma, your own repository), `toAst()` returns the
+same Access conditions as an abstract syntax tree, built with CASL's
+`rulesToAST`: a `@ucast/core` `Condition`, typed as `AccessConditionsAst`, to
+translate into your query. To build your own instead, read the ability
+(`@CaslAbility()`) with `rulesToCondition` or `rulesToAST`.
+
+```ts
+// Your translator from the AST to your store's query.
+declare function toSqlWhere(ast: AccessConditionsAst): string;
+
+list(@CaslConditions() conditions: ConditionsProxy) {
+  return this.articles.findMany(toSqlWhere(conditions.toAst()));
+}
+```
 
 An ability that allows no record seldom gets this far: the guard has already
 answered 403 against the subject type. The exception keeps a handler that reads

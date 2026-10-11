@@ -1,4 +1,14 @@
+import type { rulesToAST } from '@casl/ability/extra';
+
 import type { AnyObject } from '../types.js';
+
+/**
+ * The Access conditions as an abstract syntax tree (a `@ucast/core`
+ * `Condition`), to translate into a non-Mongo query (SQL, Prisma, a custom
+ * repository). Derived from CASL's `rulesToAST`, so it needs no import of
+ * `@ucast/core`.
+ */
+export type AccessConditionsAst = NonNullable<ReturnType<typeof rulesToAST>>;
 
 /**
  * The Access conditions of the guarded `(action, subjectType)`, injected via
@@ -27,4 +37,12 @@ export interface ConditionsProxy<TConditions extends AnyObject = AnyObject> {
    * @throws ForbiddenException when no record is allowed.
    */
   toMongo(): TConditions;
+
+  /**
+   * The Access conditions as an AST, built with CASL's `rulesToAST`; an empty
+   * `and` when every record is allowed.
+   *
+   * @throws ForbiddenException when no record is allowed.
+   */
+  toAst(): AccessConditionsAst;
 }

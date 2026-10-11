@@ -1,6 +1,11 @@
 import { AbilityBuilder, createMongoAbility, subject } from '@casl/ability';
 import { ForbiddenException } from '@nestjs/common';
-import { guard } from '@ucast/mongo2js';
+import {
+  CompoundCondition,
+  FieldCondition,
+  guard,
+  interpret,
+} from '@ucast/mongo2js';
 
 import { ConditionsProxyImpl } from './conditions.proxy.js';
 
@@ -19,6 +24,18 @@ describe('ConditionsProxyImpl', () => {
     expect(conditions.toMongo()).toEqual({ published: true });
   });
 
+  it('exposes a lone allowing rule as an AST of its own conditions', () => {
+    const { can, build } = new AbilityBuilder(createMongoAbility);
+    can('read', 'Article', { published: true });
+    const ability = build();
+
+    const conditions = new ConditionsProxyImpl(ability, 'read', 'Article');
+
+    expect(conditions.toAst()).toEqual(
+      new FieldCondition('eq', 'published', true),
+    );
+  });
+
   it('has no conditions when every record is allowed', () => {
     const { can, build } = new AbilityBuilder(createMongoAbility);
     can('manage', 'all');
@@ -29,6 +46,7 @@ describe('ConditionsProxyImpl', () => {
     expect(conditions.hasConditions).toBe(false);
     expect(conditions.get()).toBeUndefined();
     expect(conditions.toMongo()).toEqual({});
+    expect(conditions.toAst()).toEqual(new CompoundCondition('and', []));
   });
 
   it('excludes what a denying rule narrows out of an unconditional allow', () => {
@@ -61,6 +79,7 @@ describe('ConditionsProxyImpl', () => {
 
     expect(() => conditions.get()).toThrow(ForbiddenException);
     expect(() => conditions.toMongo()).toThrow(ForbiddenException);
+    expect(() => conditions.toAst()).toThrow(ForbiddenException);
   });
 
   describe('filters to exactly the records the ability allows', () => {
@@ -111,14 +130,14 @@ describe('ConditionsProxyImpl', () => {
       define(builder);
       const ability = builder.build();
 
-      const matches = guard(
-        new ConditionsProxyImpl(ability, 'read', 'Article').toMongo(),
-      );
+      const conditions = new ConditionsProxyImpl(ability, 'read', 'Article');
+      const matchesMongo = guard(conditions.toMongo());
+      const ast = conditions.toAst();
 
       for (const article of articles) {
-        expect(matches(article), JSON.stringify(article)).toBe(
-          ability.can('read', subject('Article', { ...article })),
-        );
+        const allowed = ability.can('read', subject('Article', { ...article }));
+        expect(matchesMongo(article), JSON.stringify(article)).toBe(allowed);
+        expect(interpret(ast, article), JSON.stringify(article)).toBe(allowed);
       }
     });
   });
