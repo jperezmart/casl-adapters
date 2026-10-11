@@ -10,7 +10,7 @@ shared package, see [`backend-shared`](../backend-shared).
 ```bash
 pnpm --filter backend-simple build   # or: pnpm --filter backend-simple dev (watch)
 pnpm --filter backend-simple start   # http://localhost:3000  (PORT to override)
-pnpm --filter backend-simple test    # e2e: the list endpoint per user
+pnpm --filter backend-simple test    # e2e: every route, per user
 ```
 
 ## Demo "auth"
