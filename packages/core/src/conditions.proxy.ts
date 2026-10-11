@@ -1,8 +1,11 @@
 import type { AnyAbility, SubjectType } from '@casl/ability';
-import { rulesToCondition } from '@casl/ability/extra';
+import { rulesToAST, rulesToCondition } from '@casl/ability/extra';
 import { ForbiddenException } from '@nestjs/common';
 
-import type { ConditionsProxy } from './interfaces/conditions-proxy.interface.js';
+import type {
+  AccessConditionsAst,
+  ConditionsProxy,
+} from './interfaces/conditions-proxy.interface.js';
 import type { AnyObject } from './types.js';
 
 /**
@@ -12,7 +15,9 @@ import type { AnyObject } from './types.js';
  * each denying rule with conditions is excluded with `$nor`, so filtering by
  * them returns exactly the records `ability.can(action, record)` allows.
  *
- * When no record is allowed, `get()` and `toMongo()` throw a
+ * `toAst()` returns the same Access conditions as CASL's `rulesToAST` AST.
+ *
+ * When no record is allowed, `get()`, `toMongo()` and `toAst()` throw a
  * `ForbiddenException` rather than hand back conditions that let records
  * through.
  */
@@ -37,6 +42,12 @@ export class ConditionsProxyImpl<
 
   toMongo(): TConditions {
     return this.get() ?? ({} as TConditions);
+  }
+
+  toAst(): AccessConditionsAst {
+    const ast = rulesToAST(this.ability, this.action, this.subject);
+    if (ast === null) throw new ForbiddenException();
+    return ast;
   }
 
   /** `undefined` when every record is allowed, `null` when none is. */

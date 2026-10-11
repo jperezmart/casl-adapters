@@ -23,6 +23,7 @@ export {
 
 // Interfaces (type-only)
 export type {
+  AccessConditionsAst,
   AuthorizableRequest,
   AuthorizableUser,
   CaslFeatureOptions,
