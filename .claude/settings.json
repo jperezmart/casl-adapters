@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && { [ -d node_modules ] || pnpm install --frozen-lockfile >/dev/null 2>&1 || echo 'pnpm install failed: run it before any check'; }",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}

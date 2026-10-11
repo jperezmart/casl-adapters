@@ -29,6 +29,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # ↓ your checks. Delete the ones you don't have.
+      - run: pnpm check:manifests
+      - run: pnpm format:check
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm lint

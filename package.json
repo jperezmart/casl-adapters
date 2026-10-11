@@ -11,11 +11,13 @@
     "changeset": "changeset",
     "changeset:publish": "changeset publish",
     "changeset:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm format",
+    "check:manifests": "node scripts/check-manifests.mjs",
     "clean": "turbo run clean && rm -rf node_modules",
     "dev": "turbo run dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "turbo run lint",
+    "prepare": "git config core.hooksPath .githooks",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },

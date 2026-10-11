@@ -1,0 +1,4 @@
+#!/bin/sh
+# Wired by the root `prepare` script (git config core.hooksPath .githooks).
+# The cheap checks CI also runs; typecheck, lint and test stay in CI.
+pnpm --silent check:manifests && pnpm --silent format:check
