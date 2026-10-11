@@ -33,9 +33,10 @@ import { MeModule } from './me/me.module.js';
         },
       ],
     }),
-    // `getUserFromRequest` is read by `OrpcCasl.forRequest` (not by the REST
-    // AccessGuard, which this example bypasses); `detectSubjectType` lets the
-    // factory match `kind`-tagged objects.
+    // `getUserFromRequest` is read by the AccessGuard behind each procedure's
+    // `@UseAbility` (the `me` endpoints, which have none, parse the user
+    // themselves); `detectSubjectType` lets the factory match `kind`-tagged
+    // objects.
     CaslModule.forRoot<Role>({
       superuserRole: 'admin',
       getUserFromRequest: request =>
