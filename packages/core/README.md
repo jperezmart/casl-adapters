@@ -124,7 +124,7 @@ CaslModule.forRootAsync({
   imports: [UsersModule],
   inject: [UsersService],
   useFactory: (users: UsersService) => ({
-    getUserFromRequest: async (req: AuthorizableRequest<AuthUser>) =>
+    getUserFromRequest: async (req: AuthorizableRequest<AppUser>) =>
       req.user && { ...req.user, tenants: await users.tenantsOf(req.user.id) },
   }),
 });
@@ -132,8 +132,8 @@ CaslModule.forRootAsync({
 
 The guard awaits it on every route with `@UseAbility`, before the subject hook
 and before building the ability, and `@CaslUser()` hands the handler the user
-it resolved. Resolving to `undefined` is a 401; an exception it throws reaches
-the client unchanged.
+it resolved. Resolving to `undefined` is a 401; an `HttpException` it throws
+reaches the client unchanged (anything else is Nest's 500).
 
 ### Subject hooks
 
