@@ -24,6 +24,7 @@
     "@nestjs/platform-express": "catalog:",
     "@orpc/nest": "catalog:",
     "@orpc/server": "catalog:",
+    "@ucast/mongo2js": "catalog:",
     "express": "catalog:",
     "reflect-metadata": "catalog:",
     "rxjs": "catalog:",

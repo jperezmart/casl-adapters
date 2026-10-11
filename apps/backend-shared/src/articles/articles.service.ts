@@ -1,5 +1,7 @@
+import type { MongoQuery } from '@casl/ability';
 import type { Article } from '@jperezmart/example-shared';
 import { Injectable } from '@nestjs/common';
+import { guard } from '@ucast/mongo2js';
 
 interface CreateArticleDto {
   title: string;
@@ -11,7 +13,10 @@ interface UpdateArticleDto {
   published?: boolean;
 }
 
-/** In-memory article store, seeded with a couple of articles per author. */
+/**
+ * In-memory article store, seeded with a couple of articles per author. It
+ * plays "your store": a real one would run the query in the database.
+ */
 @Injectable()
 export class ArticlesService {
   private sequence = 5;
@@ -46,8 +51,9 @@ export class ArticlesService {
     },
   ];
 
-  findAll(): Article[] {
-    return this.articles;
+  /** The articles matching a Mongo query, e.g. the Access conditions. */
+  findMany(query: MongoQuery<Article>): Article[] {
+    return this.articles.filter(guard<Article>(query));
   }
 
   findById(id: string): Article | undefined {

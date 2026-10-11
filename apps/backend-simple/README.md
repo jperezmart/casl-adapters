@@ -10,6 +10,7 @@ shared package, see [`backend-shared`](../backend-shared).
 ```bash
 pnpm --filter backend-simple build   # or: pnpm --filter backend-simple dev (watch)
 pnpm --filter backend-simple start   # http://localhost:3000  (PORT to override)
+pnpm --filter backend-simple test    # e2e: the list endpoint per user
 ```
 
 ## Demo "auth"
@@ -28,19 +29,21 @@ from curl or the React tester:
 - A **subject hook** (`ArticleHook`) lazily loading the article so conditional
   rules (`{ authorId: user.id }`) are checked against the real record
 - `@CaslSubject()` / `@CaslUser()` parameter decorators
-- Using `AbilityFactory` directly to filter the list endpoint and to expose
-  packed rules at `GET /me/abilities` for the frontend
+- `@CaslConditions()` on the list endpoint: the user's **Access conditions** for
+  `read Article`, as a Mongo query (`toMongo()`) the store filters by
+- Using `AbilityFactory` directly to expose packed rules at `GET /me/abilities`
+  for the frontend
 
 ## Endpoints
 
-| Method | Path                               | Rule                                 |
-| ------ | ---------------------------------- | ------------------------------------ |
-| GET    | `/articles`                        | filtered by each user's read ability |
-| GET    | `/articles/:id`                    | `read` (hook + conditions)           |
-| POST   | `/articles`                        | `create` (authors only)              |
-| PATCH  | `/articles/:id`                    | `update` (own only; admin bypasses)  |
-| DELETE | `/articles/:id`                    | `delete` (own only)                  |
-| GET    | `/me` · `/me/abilities` · `/users` | demo helpers                         |
+| Method | Path                               | Rule                                                |
+| ------ | ---------------------------------- | --------------------------------------------------- |
+| GET    | `/articles`                        | `read`, filtered by `@CaslConditions()` (`toMongo`) |
+| GET    | `/articles/:id`                    | `read` (hook + conditions)                          |
+| POST   | `/articles`                        | `create` (authors only)                             |
+| PATCH  | `/articles/:id`                    | `update` (own only; admin bypasses)                 |
+| DELETE | `/articles/:id`                    | `delete` (own only)                                 |
+| GET    | `/me` · `/me/abilities` · `/users` | demo helpers                                        |
 
 ## Quick check
 
