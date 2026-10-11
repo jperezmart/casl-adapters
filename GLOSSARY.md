@@ -27,3 +27,7 @@ _Avoid_: admin role
 **Ability**:
 The CASL object built for one user from the Everyone permissions and every Role permissions entry of the Roles they hold. It is what guards and handlers ask "can this user do X?".
 _Avoid_: permissions (for the built object)
+
+**Denial rule**:
+How a denied check answers: 404 when the user cannot read the instance either (or a subject hook loaded nothing), 403 otherwise, and always 403 against a subject type. The guard and `assertCan` share its one implementation (ADR 0004).
+_Avoid_: policy, 404/403 policy

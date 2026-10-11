@@ -1,5 +1,11 @@
 # nest-casl
 
+`packages/core` is the library and `packages/testing` its test helpers; `apps/*` are examples that consume the built packages.
+
+- **Checks**: `pnpm turbo run typecheck lint test` (turbo builds what the apps import first), then `pnpm format:check`.
+- **Tickets**: read with `gh issue view <n> --json title,state,body,comments`; a closed ticket is done, so stop and ask.
+- **Git**: PRs land with "Rebase and merge", so sync with main by `git rebase origin/main`, never a merge (nor `sync_with_base_branch`, which merges). The user pushes.
+
 ## Agent skills
 
 ### Issue tracker
