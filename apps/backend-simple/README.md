@@ -31,6 +31,9 @@ from curl or the React tester:
 - `@CaslSubject()` / `@CaslUser()` parameter decorators
 - `@CaslConditions()` on the list endpoint: the user's **Access conditions** for
   `read Article`, as a Mongo query (`toMongo()`) the store filters by
+- A `cannot` rule narrowing every `can` above it: archived articles are hidden
+  from users and authors alike, so an author's Access conditions OR their two
+  read rules and exclude the archived ones with `$nor`
 - Using `AbilityFactory` directly to expose packed rules at `GET /me/abilities`
   for the frontend
 
@@ -41,8 +44,8 @@ from curl or the React tester:
 | GET    | `/articles`                        | `read`, filtered by `@CaslConditions()` (`toMongo`) |
 | GET    | `/articles/:id`                    | `read` (hook + conditions)                          |
 | POST   | `/articles`                        | `create` (authors only)                             |
-| PATCH  | `/articles/:id`                    | `update` (own only; admin bypasses)                 |
-| DELETE | `/articles/:id`                    | `delete` (own only)                                 |
+| PATCH  | `/articles/:id`                    | `update` (own, not archived; admin bypasses)        |
+| DELETE | `/articles/:id`                    | `delete` (own, not archived)                        |
 | GET    | `/me` · `/me/abilities` · `/users` | demo helpers                                        |
 
 ## Quick check
@@ -50,6 +53,9 @@ from curl or the React tester:
 ```bash
 # Carol (plain user) only reads published articles:
 curl -s -H 'x-user-id: carol' -H 'x-user-roles: user' localhost:3000/articles
+# Alice (author) reads every published article and her own draft, but not her
+# own archived #5:
+curl -s -H 'x-user-id: alice' -H 'x-user-roles: author' localhost:3000/articles
 # Carol cannot create → 403:
 curl -s -X POST -H 'x-user-id: carol' -H 'x-user-roles: user' \
   -H 'content-type: application/json' -d '{"title":"x"}' localhost:3000/articles

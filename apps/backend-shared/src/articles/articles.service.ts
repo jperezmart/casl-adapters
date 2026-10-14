@@ -14,12 +14,13 @@ interface UpdateArticleDto {
 }
 
 /**
- * In-memory article store, seeded with a couple of articles per author. It
- * plays "your store": a real one would run the query in the database.
+ * In-memory article store, seeded with a couple of articles per author and one
+ * archived article. It plays "your store": a real one would run the query in
+ * the database.
  */
 @Injectable()
 export class ArticlesService {
-  private sequence = 5;
+  private sequence = 6;
   private readonly articles: Article[] = [
     {
       kind: 'Article',
@@ -27,6 +28,7 @@ export class ArticlesService {
       title: 'Alice — published',
       authorId: 'alice',
       published: true,
+      archived: false,
     },
     {
       kind: 'Article',
@@ -34,6 +36,7 @@ export class ArticlesService {
       title: 'Alice — draft',
       authorId: 'alice',
       published: false,
+      archived: false,
     },
     {
       kind: 'Article',
@@ -41,6 +44,7 @@ export class ArticlesService {
       title: 'Bob — published',
       authorId: 'bob',
       published: true,
+      archived: false,
     },
     {
       kind: 'Article',
@@ -48,6 +52,15 @@ export class ArticlesService {
       title: 'Bob — draft',
       authorId: 'bob',
       published: false,
+      archived: false,
+    },
+    {
+      kind: 'Article',
+      id: '5',
+      title: 'Alice — archived',
+      authorId: 'alice',
+      published: true,
+      archived: true,
     },
   ];
 
@@ -67,6 +80,7 @@ export class ArticlesService {
       title: dto.title,
       authorId,
       published: dto.published ?? false,
+      archived: false,
     };
     this.articles.push(article);
     return article;

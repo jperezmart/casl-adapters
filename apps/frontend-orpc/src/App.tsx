@@ -146,7 +146,13 @@ export function App(): React.JSX.Element {
                   <td>{article.id}</td>
                   <td>{article.title}</td>
                   <td>{article.authorId}</td>
-                  <td>{article.published ? 'published' : 'draft'}</td>
+                  <td>
+                    {article.archived
+                      ? 'archived'
+                      : article.published
+                        ? 'published'
+                        : 'draft'}
+                  </td>
                   <td className="row">
                     <Can I="update" this={article} passThrough>
                       {({ isAllowed }) => (
