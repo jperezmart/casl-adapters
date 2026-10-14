@@ -1,6 +1,12 @@
 {
   "configurations": [
     {
+      "name": "backend-simple",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "backend-simple", "dev"],
+      "port": 3000
+    },
+    {
       "name": "frontend",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "frontend", "dev"],
