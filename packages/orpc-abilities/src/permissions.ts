@@ -1,12 +1,14 @@
-import type { AbilityBuilder, AnyMongoAbility } from '@casl/ability';
+import type { AbilityBuilder } from '@casl/ability';
 import type { AppUser, Role } from '@jperezmart/orpc-domain';
+
+import type { AppAbility } from './subjects.js';
 
 // Typed structurally against @casl/ability so this package stays free of any
 // nest-casl dependency — yet the shape is exactly what `CaslModule.forFeature`
 // expects.
 type DefinePermissions = (
   user: AppUser,
-  builder: AbilityBuilder<AnyMongoAbility>,
+  builder: AbilityBuilder<AppAbility>,
 ) => void;
 
 /**
