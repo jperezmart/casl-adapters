@@ -1,7 +1,8 @@
-import type { AbilityBuilder, AnyMongoAbility } from '@casl/ability';
+import type { AbilityBuilder } from '@casl/ability';
 
 import type { AppUser } from './auth.js';
 import type { Role } from './roles.js';
+import type { AppAbility } from './subjects.js';
 
 /**
  * A role's permission declaration. Structurally identical to nest-casl's
@@ -11,7 +12,7 @@ import type { Role } from './roles.js';
  */
 type DefinePermissions = (
   user: AppUser,
-  builder: AbilityBuilder<AnyMongoAbility>,
+  builder: AbilityBuilder<AppAbility>,
 ) => void;
 
 /**
