@@ -14,12 +14,13 @@ import { guard } from '@ucast/mongo2js';
  */
 @Injectable()
 export class ArticlesService {
-  private sequence = 5;
+  private sequence = 6;
   private readonly articles: Article[] = [
-    { kind: 'Article', id: '1', title: 'Alice — published', authorId: 'alice', published: true }, // prettier-ignore
-    { kind: 'Article', id: '2', title: 'Alice — draft', authorId: 'alice', published: false }, // prettier-ignore
-    { kind: 'Article', id: '3', title: 'Bob — published', authorId: 'bob', published: true }, // prettier-ignore
-    { kind: 'Article', id: '4', title: 'Bob — draft', authorId: 'bob', published: false }, // prettier-ignore
+    { kind: 'Article', id: '1', title: 'Alice — published', authorId: 'alice', published: true, archived: false }, // prettier-ignore
+    { kind: 'Article', id: '2', title: 'Alice — draft', authorId: 'alice', published: false, archived: false }, // prettier-ignore
+    { kind: 'Article', id: '3', title: 'Bob — published', authorId: 'bob', published: true, archived: false }, // prettier-ignore
+    { kind: 'Article', id: '4', title: 'Bob — draft', authorId: 'bob', published: false, archived: false }, // prettier-ignore
+    { kind: 'Article', id: '5', title: 'Alice — archived', authorId: 'alice', published: true, archived: true }, // prettier-ignore
   ];
 
   /** The articles matching a Mongo query, e.g. the Access conditions. */
@@ -38,6 +39,7 @@ export class ArticlesService {
       title: input.title,
       authorId,
       published: input.published ?? false,
+      archived: false,
     };
     this.articles.push(article);
     return article;

@@ -13,6 +13,8 @@ export interface Article {
   title: string;
   authorId: string;
   published: boolean;
+  /** Taken down by moderation: seeded only, not settable through the API. */
+  archived: boolean;
 }
 
 /** Actions used across the app. */

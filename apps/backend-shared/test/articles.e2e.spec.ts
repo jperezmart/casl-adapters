@@ -7,8 +7,8 @@ import { APP, useApp } from './app.js';
  * apps' subject hook or the oRPC handler's `assertCan` loads the article.
  *
  * Seed: alice's #1 (published) and #2 (draft), bob's #3 (published) and #4
- * (draft). carol is a plain user, alice and bob are authors, admin is the
- * superuser.
+ * (draft), and alice's #5 (published, then archived). carol is a plain user,
+ * alice and bob are authors, admin is the superuser.
  */
 describe(`${APP.name} articles (e2e)`, () => {
   const api = useApp();
@@ -18,20 +18,21 @@ describe(`${APP.name} articles (e2e)`, () => {
     it('anyone without a user gets 401', () =>
       api().get('/articles').expect(401));
 
-    it('a plain user lists only published articles', async () => {
+    it('a plain user lists only published articles, archived excluded', async () => {
       const res = await api('carol').get('/articles').expect(200);
       expect(ids(res.body)).toEqual(['1', '3']);
     });
 
-    it("an author lists every published article and their own drafts (not other authors')", async () => {
+    it("an author lists every published article and their own drafts (not other authors'), archived excluded", async () => {
       const res = await api('alice').get('/articles').expect(200);
       // Bob's published #3 included: the list joins both of alice's read rules.
+      // Her own published #5 excluded: the archived rule denies across both.
       expect(ids(res.body)).toEqual(['1', '2', '3']);
     });
 
-    it('the superuser lists every article', async () => {
+    it('the superuser lists every article, archived included', async () => {
       const res = await api('admin').get('/articles').expect(200);
-      expect(ids(res.body)).toEqual(['1', '2', '3', '4']);
+      expect(ids(res.body)).toEqual(['1', '2', '3', '4', '5']);
     });
   });
 
@@ -50,6 +51,17 @@ describe(`${APP.name} articles (e2e)`, () => {
       const genuine = await api('carol').get('/articles/999').expect(404);
       const hidden = await api('carol').get('/articles/2').expect(404);
       expect(hidden.body).toEqual(genuine.body);
+    });
+
+    it('a plain user gets 404 for an archived article', () =>
+      api('carol').get('/articles/5').expect(404));
+
+    it('an author gets 404 for their own archived article', () =>
+      api('alice').get('/articles/5').expect(404));
+
+    it('the superuser reads an archived article', async () => {
+      const res = await api('admin').get('/articles/5').expect(200);
+      expect(res.body).toMatchObject({ id: '5', archived: true });
     });
 
     it('the superuser gets 404 for a missing article', () =>
@@ -87,6 +99,10 @@ describe(`${APP.name} articles (e2e)`, () => {
     it("an author gets 404 for someone else's draft they cannot read", () =>
       api('alice').patch('/articles/4').send({ title: 'nope' }).expect(404));
 
+    it('an author gets 404 for their own archived article', () =>
+      // Updating is allowed on the subject type, so the Denial rule hides it.
+      api('alice').patch('/articles/5').send({ title: 'nope' }).expect(404));
+
     it("the superuser updates anyone's article", async () => {
       const res = await api('admin')
         .patch('/articles/4')
@@ -118,6 +134,9 @@ describe(`${APP.name} articles (e2e)`, () => {
 
     it("an author gets 404 for someone else's draft they cannot read", () =>
       api('alice').delete('/articles/4').expect(404));
+
+    it('an author gets 404 for their own archived article', () =>
+      api('alice').delete('/articles/5').expect(404));
 
     it("the superuser deletes anyone's article", async () => {
       await api('admin').delete('/articles/3').expect(200);

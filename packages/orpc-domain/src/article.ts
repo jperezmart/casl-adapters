@@ -10,6 +10,8 @@ export const articleSchema = z.object({
   title: z.string(),
   authorId: z.string(),
   published: z.boolean(),
+  /** Taken down by moderation: seeded only, not settable through the API. */
+  archived: z.boolean(),
 });
 
 export type Article = z.infer<typeof articleSchema>;

@@ -37,3 +37,5 @@ hit a backend directly with `VITE_API_URL`.
 - As **Carol** (plain user) only published articles load and every action is
   disabled. As an **author** you can edit _your own_ rows only. **Admin**
   (superuser) can do everything.
+- Article #5 is archived: only **Admin** lists it. Alice wrote it, but a
+  `cannot` rule on archived articles overrides her ownership rules.
