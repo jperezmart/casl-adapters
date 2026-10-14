@@ -42,6 +42,59 @@ describe('AbilityFactory', () => {
     expect(ability.can('manage', 'all')).toBe(true);
   });
 
+  it('grants everything to a Role whose permissions are `true`', () => {
+    const factory = new AbilityFactory({});
+    factory.registerPermissions({ editor: true });
+
+    const ability = factory.createForUser<User>({ id: 'e', roles: ['editor'] });
+
+    expect(ability.can('delete', 'Anything')).toBe(true);
+    expect(ability.can('manage', 'all')).toBe(true);
+  });
+
+  it('grants nothing to a Role whose permissions are `false`', () => {
+    const factory = new AbilityFactory({});
+    factory.registerPermissions({ banned: false });
+
+    const ability = factory.createForUser<User>({ id: 'b', roles: ['banned'] });
+
+    expect(ability.can('read', 'Article')).toBe(false);
+  });
+
+  it('grants nothing through an untyped `everyone: true`, rather than everything', () => {
+    const factory = new AbilityFactory({});
+    // The types reject it; a consumer without them can still slip it through.
+    factory.registerPermissions({ everyone: true } as never);
+
+    const ability = factory.createForUser<User>({ id: 'u', roles: [] });
+
+    expect(ability.can('read', 'Article')).toBe(false);
+  });
+
+  it('resolves subject types with the configured detectSubjectType', () => {
+    const factory = new AbilityFactory({
+      detectSubjectType: subject => (subject as { kind: string }).kind,
+    });
+    factory.registerPermissions({
+      author: (user: User, { can }) => {
+        can('update', 'Article', { authorId: user.id });
+      },
+    });
+
+    const ability = factory.createForUser<User>({
+      id: 'u1',
+      roles: ['author'],
+    });
+
+    // A plain object, tagged by `kind` rather than wrapped with `subject()`.
+    expect(ability.can('update', { kind: 'Article', authorId: 'u1' })).toBe(
+      true,
+    );
+    expect(ability.can('update', { kind: 'Article', authorId: 'u2' })).toBe(
+      false,
+    );
+  });
+
   it('grants nothing for roles without registered permissions', () => {
     const factory = new AbilityFactory({});
 
