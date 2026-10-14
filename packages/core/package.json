@@ -54,6 +54,7 @@
     "dev": "tsdown --watch",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
@@ -68,6 +69,7 @@
     "@types/node": "catalog:",
     "@types/supertest": "catalog:",
     "@ucast/mongo2js": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "reflect-metadata": "catalog:",
     "rxjs": "catalog:",
