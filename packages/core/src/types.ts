@@ -3,7 +3,9 @@ import type {
   AbilityTuple,
   AnyAbility,
   AnyMongoAbility,
+  ForcedSubject,
   Generics,
+  Subject,
   SubjectType,
 } from '@casl/ability';
 
@@ -77,3 +79,29 @@ export type SubjectTypeOf<T extends AnyAbility> =
 /** Every subject an ability checks: its types and its instances. */
 export type SubjectOf<T extends AnyAbility> =
   AbilitiesOf<T> extends AbilityTuple ? AbilitiesOf<T>[1] : unknown;
+
+/**
+ * A subject tagged with its type's name the ways CASL reads it (mirrors CASL's
+ * own `TaggedInterface`, which it does not export).
+ */
+type TaggedAs<TName extends string> =
+  | ForcedSubject<TName>
+  | { readonly kind: TName }
+  | { readonly __typename: TName };
+
+/**
+ * What an ability types as an instance of `TSubjectType`: a class's instances,
+ * or the subjects tagged with that name (`kind`, `__typename` or CASL's
+ * `subject()`). Falls back to any `Subject` when the ability types none, as for
+ * string-only subjects, `all` or a loose ability.
+ */
+export type SubjectInstanceOf<
+  TAbility extends AnyAbility,
+  TSubjectType extends SubjectType,
+> = TSubjectType extends abstract new (...args: never[]) => infer TInstance
+  ? TInstance
+  : [Extract<SubjectOf<TAbility>, TaggedAs<TSubjectType & string>>] extends [
+        never,
+      ]
+    ? Subject
+    : Extract<SubjectOf<TAbility>, TaggedAs<TSubjectType & string>>;

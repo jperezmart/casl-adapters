@@ -1,6 +1,7 @@
 import type {
   AbilityBuilder,
   AnyMongoAbility,
+  InferSubjects,
   MongoAbility,
 } from '@casl/ability';
 import type { DynamicModule, Type } from '@nestjs/common';
@@ -195,5 +196,69 @@ describe('types', () => {
     expectTypeOf<
       NonNullable<UseAbilityMetadata['subjectHook']>
     >().toEqualTypeOf<Type<SubjectBeforeFilterHook>>();
+  });
+
+  it('binds the subject hook to the subject type when the ability types its instances', () => {
+    // Tagged the way the examples tag theirs: a `readonly kind`.
+    interface Doc {
+      readonly kind: 'Doc';
+      id: string;
+    }
+    interface Note {
+      readonly kind: 'Note';
+      id: string;
+    }
+    interface Comment {
+      readonly kind: 'Comment';
+      id: string;
+    }
+    class Post {
+      id = '';
+      title = '';
+    }
+    class DocHook implements SubjectBeforeFilterHook<Doc> {
+      run(): Doc | undefined {
+        return undefined;
+      }
+    }
+    class NoteHook implements SubjectBeforeFilterHook<Note> {
+      run(): Promise<Note | undefined> {
+        return Promise.resolve(undefined);
+      }
+    }
+    class CommentHook implements SubjectBeforeFilterHook<Comment> {
+      run(): Comment | undefined {
+        return undefined;
+      }
+    }
+    class PostHook implements SubjectBeforeFilterHook<Post> {
+      run(): Post | undefined {
+        return undefined;
+      }
+    }
+    const BoundUseAbility =
+      createUseAbility<
+        MongoAbility<['read', InferSubjects<Doc | Note | typeof Post> | 'all']>
+      >();
+
+    BoundUseAbility('read', 'Doc', DocHook);
+    BoundUseAbility('read', 'Note', NoteHook);
+    BoundUseAbility('read', Post, PostHook);
+    // `all` names no one type, so any hook goes.
+    BoundUseAbility('read', 'all', DocHook);
+
+    // @ts-expect-error — the hook loads a Note, not the Doc the rule is about
+    BoundUseAbility('read', 'Doc', NoteHook);
+    // @ts-expect-error — the hook loads a Doc, not a Post
+    BoundUseAbility('read', Post, DocHook);
+    // A subject hook's own `kind` must not widen the subject type to every
+    // type of the ability (which `all` then opens to any hook).
+    const DocUseAbility =
+      createUseAbility<MongoAbility<['read', InferSubjects<Doc> | 'all']>>();
+    DocUseAbility('read', 'Doc', DocHook);
+    // @ts-expect-error — nor a subject the ability does not know
+    DocUseAbility('read', 'Doc', CommentHook);
+    // The bare decorator knows no ability, so it cannot tell.
+    UseAbility('read', 'Doc', NoteHook);
   });
 });
