@@ -8,10 +8,12 @@ Modern [CASL](https://casl.js.org) authorization for [NestJS](https://nestjs.com
 ## Install
 
 ```bash
-pnpm add @jperezmart/nest-casl @casl/ability
+pnpm add @jperezmart/nest-casl @jperezmart/casl-core @casl/ability
 ```
 
-Peer dependencies: `@nestjs/common`, `@nestjs/core`, `@casl/ability@^7`, `reflect-metadata`, `rxjs`.
+Peer dependencies: `@jperezmart/casl-core`, `@nestjs/common`, `@nestjs/core`, `@casl/ability@^7`, `reflect-metadata`, `rxjs`.
+
+This package is the NestJS Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core), which holds the Role permissions, the Ability construction, the Denial rule and the Access conditions. The core decides; this package turns its answers into NestJS exceptions (`UnauthorizedException`, `ForbiddenException`, `NotFoundException`). The core is a peer dependency so that an app using several Adapters has exactly one copy of it.
 
 ## API surface
 
@@ -227,7 +229,8 @@ CaslModule.forRoot<Role>({ readAction: 'view' });
 ```
 
 The guard makes this decision with [`assertCan`](#assertcan-the-guards-answer-anywhere),
-so the guard and your own checks cannot disagree.
+so the guard and your own checks cannot disagree. Both decide with `decide`
+from `@jperezmart/casl-core`, which every Adapter shares.
 
 ### Filtering lists: `@CaslConditions()`
 
@@ -399,11 +402,11 @@ string subject with no tagged instance, or for `all`, any hook goes.
 ## Testing your permissions
 
 Permission maps are plain functions, so they can be tested without booting Nest.
-[`@jperezmart/nest-casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/testing)
+[`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing)
 builds the ability this package would build, from the same map:
 
 ```ts
-import { buildAbilityForTest } from '@jperezmart/nest-casl-testing';
+import { buildAbilityForTest } from '@jperezmart/casl-testing';
 import { subject } from '@casl/ability';
 
 const ability = buildAbilityForTest(permissions, {
@@ -414,8 +417,10 @@ const ability = buildAbilityForTest(permissions, {
 expect(ability.can('update', subject('Article', { authorId: '1' }))).toBe(true);
 ```
 
-It mirrors the Everyone permissions, `superuserRole` and `detectSubjectType`, so
-the ability under test is the one the running application would have.
+It builds through `@jperezmart/casl-core`, as this package does, and takes the
+same `superuserRole` and `detectSubjectType`, so the ability under test is the
+one the running application would have. `@jperezmart/nest-casl-testing` still
+works, as a deprecated re-export of it.
 
 ## Beyond REST: oRPC
 
