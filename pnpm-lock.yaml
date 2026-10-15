@@ -446,6 +446,36 @@ importers:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@24.13.2)(terser@5.48.0)(yaml@2.9.0)
 
+  packages/casl-core:
+    devDependencies:
+      '@casl/ability':
+        specifier: 'catalog:'
+        version: 7.0.0
+      '@jperezmart/eslint-config':
+        specifier: 'catalog:'
+        version: 1.0.0(eslint@10.5.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+      '@jperezmart/typescript-config':
+        specifier: 'catalog:'
+        version: 1.0.0(typescript@6.0.3)
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.9)
+      eslint:
+        specifier: 'catalog:'
+        version: 10.5.0(supports-color@8.1.1)
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.2(typescript@6.0.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(@vitest/coverage-v8@4.1.11)(terser@5.48.0)(yaml@2.9.0)
+
   packages/core:
     devDependencies:
       '@casl/ability':
@@ -6260,7 +6290,7 @@ snapshots:
       rolldown: 1.1.1
       rolldown-plugin-dts: 0.25.2(rolldown@1.1.1)(typescript@6.0.3)
       semver: 7.8.4
-      tinyexec: 1.2.4
+      tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
       unconfig-core: 7.5.0

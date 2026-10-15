@@ -1,0 +1,74 @@
+{
+  "name": "@jperezmart/casl-core",
+  "version": "0.0.0",
+  "description": "Framework-free core of the jperezmart CASL Adapters: Role permissions, the Ability, the Denial rule and the Access conditions. Depends only on CASL.",
+  "keywords": [
+    "casl",
+    "authorization",
+    "permissions",
+    "abilities",
+    "rbac",
+    "abac"
+  ],
+  "homepage": "https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core#readme",
+  "bugs": {
+    "url": "https://github.com/jperezmart/nest-casl/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jperezmart/nest-casl.git",
+    "directory": "packages/casl-core"
+  },
+  "license": "MIT",
+  "author": "Javier Pérez Martín <javier.perez.martin97@gmail.com>",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo",
+    "dev": "tsdown --watch",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@casl/ability": "catalog:",
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@ucast/mongo2js": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@casl/ability": "^7.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
