@@ -21,15 +21,19 @@ export const DEMO_USERS: AppUser[] = [
 ];
 
 /**
- * Demo "auth": resolve the user from `x-user-id` / `x-user-roles` headers.
- * A real app would use a JWT/session strategy that populates `request.user`.
+ * Demo "auth": resolve the user from `x-user-id` / `x-user-roles` headers, or
+ * from a `demo-user` cookie holding the id (how the frontend picks its user, as
+ * a session cookie would reach the server). A real app would use a JWT/session
+ * strategy that populates `request.user`.
  */
 export function parseUser(request: {
   headers?: Record<string, unknown>;
 }): AppUser | undefined {
   const headers = request.headers ?? {};
   const id =
-    typeof headers['x-user-id'] === 'string' ? headers['x-user-id'] : undefined;
+    typeof headers['x-user-id'] === 'string'
+      ? headers['x-user-id']
+      : demoUserCookie(headers['cookie']);
   if (!id) return undefined;
 
   const rawRoles = headers['x-user-roles'];
@@ -45,4 +49,14 @@ export function parseUser(request: {
     name: known?.name ?? id,
     roles: roles.length ? roles : (known?.roles ?? []),
   };
+}
+
+/** The `demo-user` cookie of a `Cookie` header, if any. */
+function demoUserCookie(cookie: unknown): string | undefined {
+  if (typeof cookie !== 'string') return undefined;
+  for (const pair of cookie.split(';')) {
+    const [name, value] = pair.trim().split('=');
+    if (name === 'demo-user' && value) return decodeURIComponent(value);
+  }
+  return undefined;
 }
