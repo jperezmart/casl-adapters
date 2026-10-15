@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@casl/ability": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
     "@jperezmart/nest-casl": "workspace:*",
     "@jperezmart/orpc-abilities": "workspace:*",
     "@jperezmart/orpc-contract": "workspace:*",

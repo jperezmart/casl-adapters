@@ -19,15 +19,5 @@ export const CASL_FEATURE_OPTIONS = Symbol('CASL_FEATURE_OPTIONS');
  */
 export const CASL_REQUEST_CONTEXT = Symbol('CASL_REQUEST_CONTEXT');
 
-/**
- * Built-in CRUD action set. Consumers are free to ignore this and use their own
- * string union — every action parameter in the public API accepts plain strings.
- */
-export enum DefaultActions {
-  /** CASL wildcard: grants every action. */
-  manage = 'manage',
-  create = 'create',
-  read = 'read',
-  update = 'update',
-  delete = 'delete',
-}
+// The built-in CRUD action set, declared by @jperezmart/casl-core.
+export { DefaultActions } from '@jperezmart/casl-core';

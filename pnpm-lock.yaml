@@ -146,6 +146,9 @@ importers:
       '@casl/ability':
         specifier: 'catalog:'
         version: 7.0.0
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../../packages/casl-core
       '@jperezmart/nest-casl':
         specifier: workspace:*
         version: link:../../packages/core
@@ -225,6 +228,9 @@ importers:
       '@casl/ability':
         specifier: 'catalog:'
         version: 7.0.0
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../../packages/casl-core
       '@jperezmart/example-shared':
         specifier: workspace:*
         version: link:../../packages/example-shared
@@ -286,6 +292,9 @@ importers:
       '@casl/ability':
         specifier: 'catalog:'
         version: 7.0.0
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../../packages/casl-core
       '@jperezmart/nest-casl':
         specifier: workspace:*
         version: link:../../packages/core
@@ -481,6 +490,9 @@ importers:
       '@casl/ability':
         specifier: 'catalog:'
         version: 7.0.0
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../casl-core
       '@jperezmart/eslint-config':
         specifier: 'catalog:'
         version: 1.0.0(eslint@10.5.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)

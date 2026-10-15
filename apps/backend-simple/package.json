@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@casl/ability": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
     "@jperezmart/nest-casl": "workspace:*",
     "@nestjs/common": "catalog:",
     "@nestjs/core": "catalog:",

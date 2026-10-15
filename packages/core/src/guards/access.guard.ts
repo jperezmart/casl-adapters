@@ -1,13 +1,9 @@
+import { decide } from '@jperezmart/casl-core';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ModuleRef, Reflector } from '@nestjs/core';
 
-import { assertCan } from '../assert-can.js';
+import { assertCan, enforce } from '../assert-can.js';
 import { ConditionsProxyImpl } from '../conditions.proxy.js';
 import {
   CASL_ABILITY_METADATA,
@@ -54,10 +50,10 @@ export class AccessGuard implements CanActivate {
       this.options.getUserFromRequest ??
       ((req: AuthorizableRequest) => req.user);
     const user = await getUser(request);
+    // An Unauthenticated request gets no Ability: the core answers it.
     if (!user) {
-      throw new UnauthorizedException(
-        'No authenticated user available for the CASL ability check.',
-      );
+      enforce(decide(null, metadata.action, metadata.subject));
+      return false; // Unreachable: the core denies a missing Ability.
     }
 
     const ability = this.abilityFactory.createForUser(user);

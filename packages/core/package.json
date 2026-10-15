@@ -60,6 +60,7 @@
   },
   "devDependencies": {
     "@casl/ability": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
     "@jperezmart/eslint-config": "catalog:",
     "@jperezmart/typescript-config": "catalog:",
     "@nestjs/common": "catalog:",
@@ -80,6 +81,7 @@
   },
   "peerDependencies": {
     "@casl/ability": "^7.0.0",
+    "@jperezmart/casl-core": "workspace:^",
     "@nestjs/common": "^10.0.0 || ^11.0.0",
     "@nestjs/core": "^10.0.0 || ^11.0.0",
     "reflect-metadata": "^0.1.13 || ^0.2.0",
