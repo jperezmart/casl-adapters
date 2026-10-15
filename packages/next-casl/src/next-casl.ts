@@ -3,18 +3,18 @@ import type { ParsedUrlQuery } from 'node:querystring';
 
 import type { AnyAbility } from '@casl/ability';
 import type {
-  AbilityFactoryOptions,
   ActionOf,
+  AdapterOptions,
   AppAbility,
   AuthorizableUser,
+  CaslContext,
   DecideOptions,
   Denial,
   RulesResponse,
   SubjectOf,
 } from '@jperezmart/casl-core';
 import {
-  createAbilityFactory,
-  decide,
+  createAdapterKit,
   forbiddenDenialOf,
   NoRecordAllowedError,
   notFoundDenial,
@@ -35,38 +35,16 @@ import type {
 import type { DeniedPageProps } from './denial-page.js';
 import { DENIAL_PROP } from './denial-page.js';
 
-/** Options for {@link createNextCasl}. */
-export interface NextCaslOptions<
+/**
+ * Options for {@link createNextCasl}, as every Adapter takes them: `getUser`
+ * finds the Authorizable user from the request's Node request, and
+ * `onUnauthenticated` and `onForbidden` answer with a redirect (to a login
+ * page, to the app's own 403 page…) instead of the 401 and the 403.
+ */
+export type NextCaslOptions<
   TUser extends AuthorizableUser,
   TAbility extends AnyAbility,
-> extends AbilityFactoryOptions<TUser, TAbility> {
-  /**
-   * Finds the Authorizable user of a request from its Node request, or
-   * `null` (or `undefined`) for an Unauthenticated request.
-   */
-  getUser(
-    req: IncomingMessage,
-  ): TUser | null | undefined | Promise<TUser | null | undefined>;
-
-  /**
-   * The action that decides whether a denied instance is hidden (not found)
-   * or merely forbidden. Defaults to `'read'`.
-   */
-  readAction?: ActionOf<TAbility> | undefined;
-
-  /**
-   * Answers an Unauthenticated request with a redirect (to a login page, say)
-   * instead of the 401. Returning nothing keeps the 401.
-   */
-  onUnauthenticated?: DenialHook | undefined;
-
-  /**
-   * Answers a forbidden denial with a redirect (to the app's own 403 page,
-   * say) instead of the 403. Returning nothing keeps the 403. Not found has no
-   * hook, so existence stays hidden.
-   */
-  onForbidden?: DenialHook | undefined;
-}
+> = AdapterOptions<IncomingMessage, TUser, TAbility, DenialHook>;
 
 /**
  * Answers a denial with a redirect instead of its status, or keeps the status
@@ -79,12 +57,7 @@ export type DenialHook = (
 ) => Redirect | undefined | Promise<Redirect | undefined>;
 
 /** What the wrappers hand over: the request's Ability and its user. */
-export interface CaslRequestContext<TUser, TAbility> {
-  /** The Ability of the request's Authorizable user. */
-  ability: TAbility;
-  /** The Authorizable user `getUser` found. */
-  user: TUser;
-}
+export type CaslRequestContext<TUser, TAbility> = CaslContext<TUser, TAbility>;
 
 /** The page's `getServerSideProps`, given the request's Ability. */
 export type GetServerSidePropsWithAbility<
@@ -162,23 +135,17 @@ export function createNextCasl<
   TUser extends AuthorizableUser = AuthorizableUser,
   TAbility extends AnyAbility = AppAbility,
 >(options: NextCaslOptions<TUser, TAbility>): NextCasl<TUser, TAbility> {
-  const factory = createAbilityFactory<TUser, TAbility>(options);
+  const kit = createAdapterKit<IncomingMessage, TUser, TAbility, DenialHook>(
+    options,
+  );
 
-  /** The app's hook for a denial, if any. */
-  const hookOf = (denial: Denial): DenialHook | undefined =>
-    denial.kind === 'unauthenticated'
-      ? options.onUnauthenticated
-      : denial.kind === 'forbidden'
-        ? options.onForbidden
-        : undefined;
-
-  /** Answers a denial on an API route's response. */
-  async function answerApi(
+  /** Sends an API route's answer to a denial: the app's redirect, or JSON. */
+  async function sendDenial(
     denial: Denial,
     req: IncomingMessage,
     res: ServerResponse,
   ): Promise<void> {
-    const redirect = await hookOf(denial)?.(denial, req);
+    const redirect = await kit.hookFor(denial)?.(denial, req);
     if (redirect) {
       res.statusCode =
         'statusCode' in redirect
@@ -190,43 +157,36 @@ export function createNextCasl<
       res.end();
       return;
     }
-    answerJson(res, denial);
+    sendDenialJson(res, denial);
   }
 
   return {
     getServerSideProps(handler) {
       return async context => {
-        const user = await options.getUser(context.req);
-        if (!user)
-          return answerPage(
+        const caslContext = await kit.contextOf(context.req);
+        if (!caslContext)
+          return deniedPageResult(
             unauthenticatedDenial,
             context,
-            hookOf(unauthenticatedDenial),
+            kit.hookFor(unauthenticatedDenial),
           );
         try {
-          return await handler({
-            ...context,
-            user,
-            ability: factory.createForUser(user),
-          });
+          return await handler({ ...context, ...caslContext });
         } catch (error) {
           const denial = denialOf(error);
-          return answerPage(denial, context, hookOf(denial));
+          return deniedPageResult(denial, context, kit.hookFor(denial));
         }
       };
     },
 
     apiRoute(handler) {
       return async (req, res) => {
-        const user = await options.getUser(req);
-        if (!user) return answerApi(unauthenticatedDenial, req, res);
+        const caslContext = await kit.contextOf(req);
+        if (!caslContext) return sendDenial(unauthenticatedDenial, req, res);
         try {
-          await handler(req, res, {
-            user,
-            ability: factory.createForUser(user),
-          });
+          await handler(req, res, caslContext);
         } catch (error) {
-          await answerApi(denialOf(error), req, res);
+          await sendDenial(denialOf(error), req, res);
         }
       };
     },
@@ -238,20 +198,15 @@ export function createNextCasl<
         res.end();
         return;
       }
-      const user = await options.getUser(req);
-      if (!user) return answerJson(res, unauthenticatedDenial);
+      const caslContext = await kit.contextOf(req);
+      if (!caslContext) return sendDenialJson(res, unauthenticatedDenial);
       res.statusCode = 200;
       res.setHeader('content-type', 'application/json; charset=utf-8');
-      res.end(JSON.stringify(rulesResponse(factory.createForUser(user))));
+      res.end(JSON.stringify(rulesResponse(caslContext.ability)));
     },
 
     assertCan(ability, action, subject, decideOptions) {
-      const decision = decide(ability, action, subject, {
-        ...(options.readAction === undefined
-          ? {}
-          : { readAction: options.readAction }),
-        ...decideOptions,
-      });
+      const decision = kit.decide(ability, action, subject, decideOptions);
       if (!decision.allowed) throw new DenialError(decision);
     },
   };
@@ -274,7 +229,7 @@ export function notFound(): never {
 }
 
 /** The `getServerSideProps` result of a denial. */
-async function answerPage(
+async function deniedPageResult(
   denial: Denial,
   context: GetServerSidePropsContext,
   hook: DenialHook | undefined,
@@ -292,8 +247,8 @@ async function answerPage(
   return { props } as unknown as GetServerSidePropsResult<never>;
 }
 
-/** Answers a denial's status, with `{ statusCode, message }` as JSON. */
-function answerJson(res: ServerResponse, denial: Denial): void {
+/** Sends a denial's status, with `{ statusCode, message }` as JSON. */
+function sendDenialJson(res: ServerResponse, denial: Denial): void {
   const statusCode = STATUS[denial.kind];
   res.statusCode = statusCode;
   res.setHeader('content-type', 'application/json; charset=utf-8');
