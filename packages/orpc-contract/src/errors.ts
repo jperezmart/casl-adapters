@@ -1,8 +1,9 @@
 /**
- * Errors shared by every procedure. `UNAUTHORIZED` when there is no user;
- * `FORBIDDEN` and `NOT_FOUND` by the CASL authorization (ADR 0004: `NOT_FOUND`
- * also hides an article the user cannot read); `NOT_FOUND` too when an article
- * id doesn't exist.
+ * Errors shared by every procedure, as `@jperezmart/orpc-casl` throws them.
+ * `UNAUTHORIZED` when there is no user; `FORBIDDEN` and `NOT_FOUND` by the
+ * Denial rule (ADR 0004: `FORBIDDEN` when the action is denied on the subject
+ * type; else `NOT_FOUND` for an article the user cannot read and `FORBIDDEN`
+ * for one they can); `NOT_FOUND` too when an article id doesn't exist.
  */
 export const commonErrors = {
   UNAUTHORIZED: { status: 401, message: 'Authentication required.' },

@@ -2,7 +2,7 @@
   "name": "backend-orpc",
   "version": "0.0.1",
   "private": true,
-  "description": "Example NestJS + oRPC app — @jperezmart/nest-casl authorizing oRPC procedures via AbilityFactory (no @UseAbility guard). In-memory, no database.",
+  "description": "Example NestJS + oRPC app — @jperezmart/orpc-casl authorizing oRPC procedures mounted in NestJS with @orpc/nest. In-memory, no database.",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -16,8 +16,8 @@
   "dependencies": {
     "@casl/ability": "catalog:",
     "@jperezmart/casl-core": "workspace:*",
-    "@jperezmart/nest-casl": "workspace:*",
     "@jperezmart/orpc-abilities": "workspace:*",
+    "@jperezmart/orpc-casl": "workspace:*",
     "@jperezmart/orpc-contract": "workspace:*",
     "@jperezmart/orpc-domain": "workspace:*",
     "@nestjs/common": "catalog:",
