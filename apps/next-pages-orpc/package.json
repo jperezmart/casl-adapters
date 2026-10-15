@@ -1,0 +1,50 @@
+{
+  "name": "next-pages-orpc",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Next.js Pages Router app over oRPC — the oRPC contract served from an API route and authorized by @jperezmart/orpc-casl, a getServerSideProps page on @jperezmart/next-casl, and the Client ability from @jperezmart/casl-react/tanstack-query.",
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "clean": "rm -rf .next .turbo *.tsbuildinfo",
+    "dev": "next dev --port 3011",
+    "lint": "eslint .",
+    "start": "next start --port 3011",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@casl/ability": "catalog:",
+    "@casl/react": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/casl-react": "workspace:*",
+    "@jperezmart/next-casl": "workspace:*",
+    "@jperezmart/orpc-abilities": "workspace:*",
+    "@jperezmart/orpc-casl": "workspace:*",
+    "@jperezmart/orpc-contract": "workspace:*",
+    "@jperezmart/orpc-domain": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@orpc/contract": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/openapi-client": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/tanstack-query": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@ucast/mongo2js": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@types/supertest": "catalog:",
+    "eslint": "catalog:",
+    "supertest": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
