@@ -90,7 +90,7 @@ export const caslMiddleware = createMiddleware({ type: 'function' }).server(
 );
 ```
 
-It calls `getUser` with the request, builds the user's Ability and adds `{ ability, user }` to the context. An Unauthenticated request is answered before the handler runs, so server functions open to Unauthenticated requests just do not use it.
+It calls `getUser` with the request, builds the user's Ability and adds `{ ability, user }` to the context. An Unauthenticated request is answered before the handler runs, so server functions open to Unauthenticated requests do not use it ([Unauthenticated requests](#unauthenticated-requests)).
 
 Then check with `casl.assertCan(ability, action, subject)`. There is no load-then-check helper: check the subject type, load the instance, then check the instance. Checking the type first answers 403 to a user who may act on no article, the same for every id, before anything is loaded.
 
@@ -210,6 +210,10 @@ export const listArticles = createServerFn()
     ),
   );
 ```
+
+## Unauthenticated requests
+
+The server function middleware, `casl.routeMiddleware` and `casl.rulesHandler` answer an Unauthenticated request (401, or what `onUnauthenticated` throws) before the handler runs, so a handler under them always has an Ability and a user and never checks for a missing one. This is deliberate: an Unauthenticated request gets no Ability at all, unlike a user who holds no Roles, so there is nothing to check it against. A server function or server route open to Unauthenticated requests (a public listing, a login) simply does not use them.
 
 ## Overriding the answers
 

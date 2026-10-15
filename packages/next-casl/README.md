@@ -80,7 +80,7 @@ export const casl = createNextCasl<AppUser, AppAbility>({
 
 ## Pages: `casl.getServerSideProps`
 
-Wrap a page's `getServerSideProps`: it gets Next.js's context plus `ability` and `user`. An Unauthenticated request is answered before it runs.
+Wrap a page's `getServerSideProps`: it gets Next.js's context plus `ability` and `user`. An Unauthenticated request is answered before it runs, so a page open to Unauthenticated requests does not use it ([Unauthenticated requests](#unauthenticated-requests)).
 
 There is no load-then-check helper: check the subject type, load the instance, then check the instance. Checking the type first answers 403 to a user who may act on no article, the same for every id, before anything is loaded.
 
@@ -139,7 +139,7 @@ It renders Next.js's `next/error` by default; pass your own error page (your `pa
 
 ## API routes: `casl.apiRoute`
 
-Wrap an API route handler: it gets the request, the response and `{ ability, user }`. An Unauthenticated request is answered before it runs.
+Wrap an API route handler: it gets the request, the response and `{ ability, user }`. An Unauthenticated request is answered before it runs, so an API route open to Unauthenticated requests does not use it ([Unauthenticated requests](#unauthenticated-requests)).
 
 ```ts
 // pages/api/articles/[id].ts
@@ -179,6 +179,10 @@ export default casl.apiRoute(async (_req, res, { ability }) => {
 ```
 
 `casl.assertCan` throws a denial that only the wrappers know how to answer: call it inside them (outside, it ends as a 500).
+
+## Unauthenticated requests
+
+`casl.getServerSideProps`, `casl.apiRoute` and `casl.rulesEndpoint` answer an Unauthenticated request (401, or `onUnauthenticated`'s redirect) before the handler runs, so a handler under them always has an Ability and a user and never checks for a missing one. This is deliberate: an Unauthenticated request gets no Ability at all, unlike a user who holds no Roles, so there is nothing to check it against. A page or API route open to Unauthenticated requests (a public listing, a login) simply does not use them.
 
 ## Overriding the answers
 
