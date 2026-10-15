@@ -11,11 +11,9 @@ import { commonErrors } from './errors.js';
 
 const idInput = z.object({ id: z.string() });
 
-// Packed CASL rules are opaque to the contract — validated only as an array.
-const abilitiesOutput = z.object({
-  user: appUserSchema,
-  rules: z.array(z.unknown()),
-});
+// The Rules endpoint's response. Packed CASL rules are opaque to the contract —
+// validated only as an array.
+const rulesOutput = z.object({ rules: z.array(z.unknown()) });
 
 /**
  * The oRPC contract. Pure transport: it assembles domain schemas into typed
@@ -83,10 +81,11 @@ export const contract = oc.prefix('/api').router({
         .route({
           method: 'GET',
           path: '/abilities',
-          description: 'Current user + packed CASL rules',
+          description:
+            "The Rules endpoint: the current user's packed CASL rules",
         })
         .errors(commonErrors)
-        .output(abilitiesOutput),
+        .output(rulesOutput),
     }),
 });
 

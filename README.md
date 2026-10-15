@@ -15,21 +15,22 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 
 ## Packages
 
-| Package                                                   | Path                      | Description                                                                                       |
-| --------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------- |
-| [`@jperezmart/casl-core`](./packages/casl-core)           | `packages/casl-core`      | Framework-free core: Role permissions, the Ability, the Denial rule, the Access conditions.       |
-| [`@jperezmart/nest-casl`](./packages/core)                | `packages/core`           | The NestJS Adapter: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, decorators.        |
-| [`@jperezmart/casl-testing`](./packages/casl-testing)     | `packages/casl-testing`   | Helpers to unit-test Role permissions without booting any framework.                              |
-| `@jperezmart/nest-casl-testing`                           | `packages/testing`        | Deprecated re-export of `@jperezmart/casl-testing`.                                               |
-| [`@jperezmart/example-shared`](./packages/example-shared) | `packages/example-shared` | Shared roles, subjects, ability type and permission definitions used by the examples.             |
-| [`backend-simple`](./apps/backend-simple)                 | `apps/backend-simple`     | NestJS REST API with permissions defined **inline** (Nest only).                                  |
-| [`backend-shared`](./apps/backend-shared)                 | `apps/backend-shared`     | Same API, but roles/subjects/permissions **imported** from `@jperezmart/example-shared`.          |
-| [`frontend`](./apps/frontend)                             | `apps/frontend`           | Vite + React tester using `@casl/react`; shares typing with the backends.                         |
-| [`@jperezmart/orpc-domain`](./packages/orpc-domain)       | `packages/orpc-domain`    | oRPC example — Zod schemas + inferred types (single source of truth; no deps but zod).            |
-| [`@jperezmart/orpc-contract`](./packages/orpc-contract)   | `packages/orpc-contract`  | oRPC example — the oRPC contract; depends only on `orpc-domain`.                                  |
-| [`@jperezmart/orpc-abilities`](./packages/orpc-abilities) | `packages/orpc-abilities` | oRPC example — CASL roles/subjects/abilities/permissions; depends only on `orpc-domain`.          |
-| [`backend-orpc`](./apps/backend-orpc)                     | `apps/backend-orpc`       | NestJS + `@orpc/nest`, authorizing oRPC procedures with nest-casl's `AbilityFactory` (in-memory). |
-| [`frontend-orpc`](./apps/frontend-orpc)                   | `apps/frontend-orpc`      | Vite + React tester using a typed oRPC client + `@casl/react`.                                    |
+| Package                                                   | Path                      | Description                                                                                        |
+| --------------------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
+| [`@jperezmart/casl-core`](./packages/casl-core)           | `packages/casl-core`      | Framework-free core: Role permissions, the Ability, the Denial rule, the Access conditions.        |
+| [`@jperezmart/nest-casl`](./packages/core)                | `packages/core`           | The NestJS Adapter: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, decorators.         |
+| [`@jperezmart/orpc-casl`](./packages/orpc-casl)           | `packages/orpc-casl`      | The oRPC Adapter: a middleware adding the Ability to the context, `assertCan`, the Rules endpoint. |
+| [`@jperezmart/casl-testing`](./packages/casl-testing)     | `packages/casl-testing`   | Helpers to unit-test Role permissions without booting any framework.                               |
+| `@jperezmart/nest-casl-testing`                           | `packages/testing`        | Deprecated re-export of `@jperezmart/casl-testing`.                                                |
+| [`@jperezmart/example-shared`](./packages/example-shared) | `packages/example-shared` | Shared roles, subjects, ability type and permission definitions used by the examples.              |
+| [`backend-simple`](./apps/backend-simple)                 | `apps/backend-simple`     | NestJS REST API with permissions defined **inline** (Nest only).                                   |
+| [`backend-shared`](./apps/backend-shared)                 | `apps/backend-shared`     | Same API, but roles/subjects/permissions **imported** from `@jperezmart/example-shared`.           |
+| [`frontend`](./apps/frontend)                             | `apps/frontend`           | Vite + React tester using `@casl/react`; shares typing with the backends.                          |
+| [`@jperezmart/orpc-domain`](./packages/orpc-domain)       | `packages/orpc-domain`    | oRPC example — Zod schemas + inferred types (single source of truth; no deps but zod).             |
+| [`@jperezmart/orpc-contract`](./packages/orpc-contract)   | `packages/orpc-contract`  | oRPC example — the oRPC contract; depends only on `orpc-domain`.                                   |
+| [`@jperezmart/orpc-abilities`](./packages/orpc-abilities) | `packages/orpc-abilities` | oRPC example — CASL roles/subjects/abilities/permissions; depends only on `orpc-domain`.           |
+| [`backend-orpc`](./apps/backend-orpc)                     | `apps/backend-orpc`       | NestJS + `@orpc/nest`, authorizing oRPC procedures with `@jperezmart/orpc-casl` (in-memory).       |
+| [`frontend-orpc`](./apps/frontend-orpc)                   | `apps/frontend-orpc`      | Vite + React tester using a typed oRPC client + `@casl/react`.                                     |
 
 ## Two ways to feed `permissions`
 
@@ -60,15 +61,16 @@ REST responses stay in sync with the same CASL rules.
 
 ## oRPC example (contract-first)
 
-The `orpc-*` packages + `backend-orpc` + `frontend-orpc` show the **same library
-working over [oRPC](https://orpc.dev) instead of REST** — nest-casl is
-transport-agnostic. Architecture (strict, one-way deps):
+The `orpc-*` packages + `backend-orpc` + `frontend-orpc` show **oRPC mounted in
+NestJS, authorized by the oRPC Adapter**
+([`@jperezmart/orpc-casl`](./packages/orpc-casl)) instead of the NestJS one.
+Architecture (strict, one-way deps):
 
 ```
 orpc-domain     Zod schemas + types (source of truth, no deps but zod)
 orpc-contract   oRPC contract        →  depends only on orpc-domain
 orpc-abilities  CASL                 →  depends only on orpc-domain
-backend-orpc    Nest + @orpc/nest + nest-casl (in-memory, no database)
+backend-orpc    Nest + @orpc/nest + @jperezmart/orpc-casl (in-memory, no database)
 frontend-orpc   typed oRPC client + @casl/react
 ```
 
@@ -77,26 +79,19 @@ never on each other. Subjects are `kind`-tagged plain objects resolved via
 `detectSubjectType`; the frontend imports the typing but hydrates rules at
 runtime from the `me.abilities` procedure.
 
-**The CASL ↔ oRPC bridge.** `@orpc/nest` implements a contract two ways:
-
-- **Per-procedure** (`@Implement(contract.articles.get)` per method) — each
-  procedure is a normal Nest handler, so the REST `@UseAbility` + `@CaslSubject`
-  decorators work unchanged (proven in
-  [`test/use-ability.e2e.spec.ts`](./apps/backend-orpc/test/use-ability.e2e.spec.ts)).
-- **Grouped** (`@Implement(contract.articles)` returning a map) — one Nest
-  handler for the whole branch, so `@UseAbility` can't target single procedures.
-
-This example shows **both**, using only nest-casl's core API:
+**The CASL ↔ oRPC bridge.** `AppModule` hands every procedure the request as its
+context, and [`casl.ts`](./apps/backend-orpc/src/casl.ts) creates the Adapter
+with a `getUser` that reads the demo user from it. Then:
 
 - [`articles.controller.ts`](./apps/backend-orpc/src/articles/articles.controller.ts)
-  uses the **per-procedure** form: `@UseAbility(action, 'Article')` as the coarse
-  role/action gate (it injects the ability via `@CaslAbility` / the user via
-  `@CaslUser`), and the per-record check inside the handler against the subject
-  loaded from the **validated `input`** (no subject hook — the guard runs before
-  oRPC parses the request).
-- [`me.controller.ts`](./apps/backend-orpc/src/me/me.controller.ts) uses the
-  **grouped** form: `@CurrentUser` + a `MeService` (`AbilityFactory`) — a fit when
-  a branch has no per-procedure subject to gate.
+  implements each procedure with `casl.middleware`, which puts the user's
+  Ability in the context (or answers `UNAUTHORIZED`). The handler checks the
+  subject type with `casl.assertCan`, loads the article from the **validated
+  `input`**, and checks the article: oRPC's own `FORBIDDEN` or `NOT_FOUND` by
+  the Denial rule, with no translation of NestJS exceptions.
+- [`me.controller.ts`](./apps/backend-orpc/src/me/me.controller.ts) implements
+  `me.abilities` with the Adapter's ready-made Rules endpoint
+  (`casl.implementRules`).
 
 Always authorize against the **server-loaded** record, never the incoming body
 (a client could spoof it); a missing record is a real 404.
