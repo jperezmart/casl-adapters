@@ -24,7 +24,7 @@ export type Api = Pick<request.Agent, 'get' | 'post' | 'patch' | 'delete'>;
  * couple the suite to declaration order.
  *
  * Returns `api(user)`, an HTTP client authenticated as that demo user (the
- * `x-user-id` header), or anonymous when no user is given.
+ * `x-user-id` header), or unauthenticated when no user is given.
  */
 export function useApp(): (user?: string) => Api {
   let app: INestApplication;
