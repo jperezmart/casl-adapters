@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.0.0",
   "private": true,
-  "description": "Vite + React tester for @jperezmart/nest-casl — shares typing with the backends via @jperezmart/example-shared, hydrates rules from /me/abilities.",
+  "description": "Vite + React tester for @jperezmart/nest-casl — a Client ability from @jperezmart/casl-react's default fetch of /me/abilities, typed by @jperezmart/example-shared.",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -14,6 +14,8 @@
   "dependencies": {
     "@casl/ability": "catalog:",
     "@casl/react": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/casl-react": "workspace:*",
     "@jperezmart/example-shared": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"

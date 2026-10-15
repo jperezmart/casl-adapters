@@ -42,8 +42,9 @@ backends show the same API with that object coming from different places:
   case, nothing extra to set up.
 - **`backend-shared`** imports them (plus the `Article` subject, `Role` and
   `AppUser`) from `@jperezmart/example-shared`. The `frontend` imports the
-  **types** from that same package for compile-time-checked `<Can>`, while still
-  hydrating the actual rules at runtime from `GET /me/abilities`.
+  **types** and `detectSubjectType` from that same package for the
+  compile-time-checked `<Can>` of `@jperezmart/casl-react`, which fetches the
+  actual rules at runtime from the Rules endpoint, `GET /me/abilities`.
 
 Going from one to the other is moving an object from a local file into a shared
 package — the library API doesn't change.
@@ -72,13 +73,17 @@ orpc-domain     Zod schemas + types (source of truth, no deps but zod)
 orpc-contract   oRPC contract        →  depends only on orpc-domain
 orpc-abilities  CASL                 →  depends only on orpc-domain
 backend-orpc    Nest + @orpc/nest + @jperezmart/orpc-casl (in-memory, no database)
-frontend-orpc   typed oRPC client + @casl/react
+frontend-orpc   TanStack Router SPA: typed oRPC client + TanStack Query + @jperezmart/casl-react
 ```
 
 `domain` depends on no one; `contract` and `abilities` depend only on `domain`,
 never on each other. Subjects are `kind`-tagged plain objects resolved via
-`detectSubjectType`; the frontend imports the typing but hydrates rules at
-runtime from the `me.abilities` procedure.
+`detectSubjectType`; the frontend imports the typing and the detection from the
+client-safe barrel of `orpc-abilities` (the Role permissions sit under its
+`./server` entry) and gets the rules at runtime from the `me.abilities`
+procedure, through oRPC's TanStack Query integration and
+`@jperezmart/casl-react/tanstack-query`. It puts the Client ability in the
+TanStack Router context and checks it in a route's `beforeLoad`, by hand.
 
 **The CASL ↔ oRPC bridge.** `AppModule` hands every procedure the request as its
 context, and [`casl.ts`](./apps/backend-orpc/src/casl.ts) creates the Adapter

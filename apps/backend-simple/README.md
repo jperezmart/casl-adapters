@@ -16,10 +16,11 @@ pnpm --filter backend-simple test    # e2e: every route, per user
 ## Demo "auth"
 
 There is no real auth — the user is read from request headers so you can role-play
-from curl or the React tester:
+from curl, or from a cookie as the React tester sends it:
 
 - `x-user-id`: one of `admin`, `alice`, `bob`, `carol`
 - `x-user-roles`: comma-separated, e.g. `author`
+- or a `demo-user` cookie holding the id, standing in for a session cookie
 
 ## What it demonstrates
 
@@ -34,8 +35,9 @@ from curl or the React tester:
 - A `cannot` rule narrowing every `can` above it: archived articles are hidden
   from users and authors alike, so an author's Access conditions OR their two
   read rules and exclude the archived ones with `$nor`
-- Using `AbilityFactory` directly to expose packed rules at `GET /me/abilities`
-  for the frontend
+- The ready-made Rules endpoint, `CaslModule.forRulesEndpoint({ path: 'me/abilities' })`:
+  `GET /me/abilities` answers `{ rules }` for the frontend's
+  `@jperezmart/casl-react`, and 401 without a user
 
 ## Endpoints
 
