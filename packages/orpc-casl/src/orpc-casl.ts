@@ -12,8 +12,10 @@ import type {
 import {
   createAbilityFactory,
   decide,
+  forbiddenDenialOf,
   NoRecordAllowedError,
   rulesResponse,
+  unauthenticatedDenial,
 } from '@jperezmart/casl-core';
 import type {
   AnyMiddleware,
@@ -195,18 +197,14 @@ export function createOrpcCasl<
     next,
   }) => {
     const user = await options.getUser(context);
-    if (!user) return answer(UNAUTHENTICATED);
+    if (!user) return answer(unauthenticatedDenial);
     try {
       return await next({
         context: { user, ability: factory.createForUser(user) },
       });
     } catch (error) {
       if (!(error instanceof NoRecordAllowedError)) throw error;
-      return answer({
-        allowed: false,
-        kind: 'forbidden',
-        message: error.message,
-      });
+      return answer(forbiddenDenialOf(error));
     }
   };
 
@@ -266,6 +264,3 @@ export function createOrpcCasl<
     }
   }
 }
-
-/** The core's answer to an Unauthenticated request, whatever the check. */
-const UNAUTHENTICATED = decide(null, 'read', 'all') as Denial;

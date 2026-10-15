@@ -32,4 +32,14 @@ describe('ConditionsProxyImpl', () => {
     expect(() => conditions.toMongo()).toThrow(ForbiddenException);
     expect(() => conditions.toAst()).toThrow(ForbiddenException);
   });
+
+  it("answers with the core's message for the Access conditions' refusal", () => {
+    const ability = new AbilityBuilder(createMongoAbility).build();
+
+    const conditions = new ConditionsProxyImpl(ability, 'read', 'Article');
+
+    expect(() => conditions.get()).toThrow(
+      'No record of Article is allowed for read.',
+    );
+  });
 });
