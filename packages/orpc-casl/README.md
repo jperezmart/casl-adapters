@@ -81,7 +81,7 @@ export const casl = createOrpcCasl<AppContext, AppUser, AppAbility>({
 
 ## The middleware
 
-`casl.middleware` calls `getUser`, builds the user's Ability and adds `{ ability, user }` to the context. An Unauthenticated request is answered `UNAUTHORIZED` before the handler runs, so procedures that anonymous users may call just do not use it.
+`casl.middleware` calls `getUser`, builds the user's Ability and adds `{ ability, user }` to the context. An Unauthenticated request is answered `UNAUTHORIZED` before the handler runs, so procedures open to Unauthenticated requests just do not use it.
 
 ```ts
 import { os } from '@orpc/server';

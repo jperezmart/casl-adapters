@@ -27,7 +27,7 @@ const STORE = '__nextPagesOrpcArticles';
  * so the mutating cases (create/update/delete) never leak into later tests.
  *
  * Returns `api(user)`, an HTTP client authenticated as that demo user (the
- * `x-user-id` header), or anonymous when no user is given. Its paths omit the
+ * `x-user-id` header), or unauthenticated when no user is given. Its paths omit the
  * contract's `/api` prefix, so they read like the NestJS examples'.
  */
 export function useApp(): (user?: string) => Api {

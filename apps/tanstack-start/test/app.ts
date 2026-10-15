@@ -3,7 +3,7 @@ import { inject } from 'vitest';
 
 const origin = inject('origin');
 
-/** An HTTP client of the example's server, as a demo user or anonymous. */
+/** An HTTP client of the example's server, as a demo user or unauthenticated. */
 export interface Api {
   get(path: string): Promise<Response>;
   patch(path: string, body: unknown): Promise<Response>;

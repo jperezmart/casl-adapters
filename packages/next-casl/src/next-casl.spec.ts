@@ -61,7 +61,7 @@ const casl = createNextCasl<User, AppAbility>({
   detectSubjectType: subject => (subject as Article).kind,
 });
 
-/** A `getServerSideProps` context for `user` (anonymous without one). */
+/** A `getServerSideProps` context for `user` (an Unauthenticated request without one). */
 function pageContext(
   id: string,
   user?: string,

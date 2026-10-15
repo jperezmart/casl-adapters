@@ -24,7 +24,7 @@ describe(`${APP.name} me (e2e)`, () => {
     });
   });
 
-  it('GET /me/abilities answers an anonymous request with 401', async () => {
+  it('GET /me/abilities answers an Unauthenticated request with 401', async () => {
     await api().get('/me/abilities').expect(401);
   });
 });
