@@ -1,8 +1,6 @@
 import type { AppAbility } from '@jperezmart/orpc-abilities';
-import {
-  articlesPermissions,
-  detectSubjectType,
-} from '@jperezmart/orpc-abilities';
+import { detectSubjectType } from '@jperezmart/orpc-abilities';
+import { articlesPermissions } from '@jperezmart/orpc-abilities/server';
 import { createOrpcCasl } from '@jperezmart/orpc-casl';
 import type { AppUser } from '@jperezmart/orpc-domain';
 import type { ORPCGlobalContext } from '@orpc/nest';
