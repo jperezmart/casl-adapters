@@ -58,6 +58,8 @@ catalog:
   '@tanstack/react-router': ^1.170.43
   # Exact: it peers on the exact @orpc/client version, so it moves with it.
   '@orpc/tanstack-query': 1.14.6
+  # runtime — next.js (Pages Router)
+  next: ^16.4.0
   # build / tooling
   tsdown: ^0.22.2
   turbo: ^2.9.18
