@@ -1,6 +1,4 @@
-import type { AnyAbility, RawRuleOf } from '@casl/ability';
-import type { PackRule } from '@casl/ability/extra';
-import { packRules } from '@casl/ability/extra';
+import type { AnyAbility } from '@casl/ability';
 import type {
   AbilityFactoryOptions,
   ActionOf,
@@ -8,12 +6,14 @@ import type {
   AuthorizableUser,
   DecideOptions,
   Denial,
+  RulesResponse,
   SubjectOf,
 } from '@jperezmart/casl-core';
 import {
   createAbilityFactory,
   decide,
   NoRecordAllowedError,
+  rulesResponse,
 } from '@jperezmart/casl-core';
 import type {
   AnyMiddleware,
@@ -82,11 +82,6 @@ export interface CaslContext<TUser, TAbility> {
 export type CaslMiddleware<TContext extends Context, TUser, TAbility> =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- fits any procedure
   Middleware<TContext, CaslContext<TUser, TAbility>, unknown, any, any, any>;
-
-/** What the Rules endpoint answers: the packed rules of the user's Ability. */
-export interface RulesResponse<TAbility extends AnyAbility = AppAbility> {
-  rules: PackRule<RawRuleOf<TAbility>>[];
-}
 
 /** {@link OrpcCasl.rulesProcedure}'s type. */
 export type RulesProcedure<
@@ -219,9 +214,7 @@ export function createOrpcCasl<
     context,
   }: {
     context: CaslContext<TUser, TAbility>;
-  }): RulesResponse<TAbility> => ({
-    rules: packRules(context.ability.rules as RawRuleOf<TAbility>[]),
-  });
+  }): RulesResponse<TAbility> => rulesResponse(context.ability);
 
   return {
     middleware,
