@@ -151,6 +151,38 @@ rulesResponse(ability); // { rules: [['read', 'Article', { published: true }]] }
 
 It is an object rather than a bare array so fields can be added later without breaking clients.
 
+## Building an Adapter: `createAdapterKit`
+
+You need this only to write an Adapter of your own. `createAdapterKit(options)` takes what every Adapter takes from an app, `AdapterOptions`: `createAbilityFactory`'s options, `getUser(request)` (the Authorizable user, or `null` or `undefined` for an Unauthenticated request), `readAction`, and the `onUnauthenticated` and `onForbidden` hooks, typed by what the framework lets them answer with. It returns the framework-free half of the Adapter:
+
+```ts
+import { createAdapterKit } from '@jperezmart/casl-core';
+import { subject } from '@casl/ability';
+
+// Your auth layer: the session's user, or null.
+declare function findSessionUser(request: Request): Promise<AppUser | null>;
+
+const kit = createAdapterKit({
+  permissions: [permissions],
+  getUser: findSessionUser,
+});
+
+async function check(request: Request): Promise<void> {
+  const context = await kit.contextOf(request); // { ability, user }, or null when unauthenticated
+  const decision = kit.decide(
+    context?.ability, // no Ability: the unauthenticated denial
+    'update',
+    subject('Article', { id: '7', authorId: 'u2', published: false }),
+  ); // decide, with the Adapter's readAction
+  if (!decision.allowed) {
+    const hook = kit.hookFor(decision); // onUnauthenticated or onForbidden; never one for not found
+    // …answer `decision` (or let `hook` answer it) as the framework does.
+  }
+}
+```
+
+The Adapter keeps only what its framework decides: how to turn each denial into its own response.
+
 ## Testing
 
 [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing) builds an Ability from your Role permissions through this core, without booting any framework.
