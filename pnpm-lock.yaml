@@ -497,6 +497,70 @@ importers:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@24.13.2)(terser@5.48.0)(yaml@2.9.0)
 
+  apps/next-pages:
+    dependencies:
+      '@casl/ability':
+        specifier: 'catalog:'
+        version: 7.0.0
+      '@casl/react':
+        specifier: 'catalog:'
+        version: 7.0.0(@casl/ability@7.0.0)(react@19.2.7)
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../../packages/casl-core
+      '@jperezmart/casl-react':
+        specifier: workspace:*
+        version: link:../../packages/casl-react
+      '@jperezmart/example-shared':
+        specifier: workspace:*
+        version: link:../../packages/example-shared
+      '@jperezmart/next-casl':
+        specifier: workspace:*
+        version: link:../../packages/next-casl
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
+      next:
+        specifier: 'catalog:'
+        version: 16.4.0(@babel/core@7.29.7(supports-color@8.1.1))(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+    devDependencies:
+      '@jperezmart/eslint-config':
+        specifier: 'catalog:'
+        version: 1.0.0(eslint@10.5.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+      '@jperezmart/typescript-config':
+        specifier: 'catalog:'
+        version: 1.0.0(typescript@6.0.3)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.2
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
+      '@types/supertest':
+        specifier: 'catalog:'
+        version: 7.2.0
+      eslint:
+        specifier: 'catalog:'
+        version: 10.5.0(supports-color@8.1.1)
+      supertest:
+        specifier: 'catalog:'
+        version: 7.2.2(supports-color@8.1.1)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(@vitest/coverage-v8@4.1.11)(jsdom@30.1.2(@noble/hashes@1.8.0))(terser@5.48.0)(yaml@2.9.0)
+
   packages/casl-core:
     devDependencies:
       '@casl/ability':
