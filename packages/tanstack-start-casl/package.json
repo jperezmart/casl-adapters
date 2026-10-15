@@ -1,0 +1,81 @@
+{
+  "name": "@jperezmart/tanstack-start-casl",
+  "version": "0.0.0",
+  "description": "The TanStack Start Adapter of @jperezmart/casl-core: middleware that adds the request's CASL Ability to server functions and server routes, an assertCan that answers by the Denial rule, and a ready-made Rules endpoint handler.",
+  "keywords": [
+    "tanstack-start",
+    "tanstack",
+    "casl",
+    "authorization",
+    "permissions",
+    "abilities",
+    "rbac",
+    "abac"
+  ],
+  "homepage": "https://github.com/jperezmart/nest-casl/tree/main/packages/tanstack-start-casl#readme",
+  "bugs": {
+    "url": "https://github.com/jperezmart/nest-casl/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jperezmart/nest-casl.git",
+    "directory": "packages/tanstack-start-casl"
+  },
+  "license": "MIT",
+  "author": "Javier Pérez Martín <javier.perez.martin97@gmail.com>",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo",
+    "dev": "tsdown --watch",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@casl/ability": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
+    "eslint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@casl/ability": "^7.0.0",
+    "@jperezmart/casl-core": "workspace:^",
+    "@tanstack/react-router": "^1.170.0",
+    "@tanstack/react-start": "^1.169.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

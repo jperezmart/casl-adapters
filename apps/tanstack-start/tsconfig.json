@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "types": ["vite/client", "node", "vitest/globals"]
+  },
+  "extends": "@jperezmart/typescript-config/vite.json",
+  "include": ["src", "test", "vite.config.ts", "vitest.config.ts"]
+}
