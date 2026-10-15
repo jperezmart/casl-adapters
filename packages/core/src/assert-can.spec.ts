@@ -3,20 +3,14 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 import { assertCan } from './assert-can.js';
 
-class Article {
-  constructor(
-    readonly authorId: string,
-    readonly published = true,
-  ) {}
-}
+// The Denial rule itself is tested in @jperezmart/casl-core; this covers how
+// assertCan answers each of the core's decisions with a NestJS exception.
 
-// An author reads every published article, and their own drafts, but updates
-// only their own.
+// An author reads published articles and updates their own.
 const author = createMongoAbility([
   { action: 'read', subject: 'Article', conditions: { published: true } },
-  { action: 'read', subject: 'Article', conditions: { authorId: 'u1' } },
   { action: 'update', subject: 'Article', conditions: { authorId: 'u1' } },
-  { action: 'read', subject: Article, conditions: { published: true } },
+  { action: 'view', subject: 'Article' },
 ]);
 
 const own = subject('Article', { authorId: 'u1', published: false });
@@ -35,100 +29,32 @@ function thrown(fn: () => void): unknown {
 describe('assertCan', () => {
   it('returns when the action is allowed', () => {
     expect(() => assertCan(author, 'update', own)).not.toThrow();
-    expect(() => assertCan(author, 'read', 'Article')).not.toThrow();
   });
 
-  it('is 403 for a subject type, never 404', () => {
-    expect(thrown(() => assertCan(author, 'delete', 'Article'))).toBeInstanceOf(
-      ForbiddenException,
+  it('throws a ForbiddenException naming the action and subject type when forbidden', () => {
+    const error = thrown(() => assertCan(author, 'update', othersPublished));
+
+    expect(error).toBeInstanceOf(ForbiddenException);
+    expect((error as Error).message).toBe(
+      'Insufficient permissions to update Article.',
     );
-    expect(thrown(() => assertCan(author, 'delete', Article))).toBeInstanceOf(
-      ForbiddenException,
-    );
   });
 
-  it('is 403 for an instance the user can read', () => {
-    expect(
-      thrown(() => assertCan(author, 'update', othersPublished)),
-    ).toBeInstanceOf(ForbiddenException);
-    expect(
-      thrown(() => assertCan(author, 'update', new Article('u2'))),
-    ).toBeInstanceOf(ForbiddenException);
-  });
-
-  it('is 404 for an instance the user cannot read either', () => {
-    expect(
-      thrown(() => assertCan(author, 'update', othersDraft)),
-    ).toBeInstanceOf(NotFoundException);
-    expect(
-      thrown(() => assertCan(author, 'update', new Article('u2', false))),
-    ).toBeInstanceOf(NotFoundException);
-  });
-
-  it('is 403 for an instance when the ability allows the action on no instance, readable or not', () => {
-    // The author has no `delete` rule at all: a 403 for every id says nothing
-    // about which records exist.
-    expect(
-      thrown(() => assertCan(author, 'delete', othersDraft)),
-    ).toBeInstanceOf(ForbiddenException);
-    expect(
-      thrown(() => assertCan(author, 'delete', new Article('u2', false))),
-    ).toBeInstanceOf(ForbiddenException);
-  });
-
-  it('is 403 for an instance an unconditional denial forbids, even an unreadable one', () => {
-    const banned = createMongoAbility([
-      { action: 'read', subject: 'Article', conditions: { published: true } },
-      { action: 'update', subject: 'Article', conditions: { authorId: 'u1' } },
-      { action: 'update', subject: 'Article', inverted: true },
-    ]);
-
-    expect(
-      thrown(() => assertCan(banned, 'update', othersDraft)),
-    ).toBeInstanceOf(ForbiddenException);
-  });
-
-  it('gives the 404 the message of a genuine not-found', () => {
+  it('throws the NotFoundException of a genuine not-found when not found', () => {
     const error = thrown(() => assertCan(author, 'update', othersDraft));
 
     expect(error).toBeInstanceOf(NotFoundException);
     expect((error as NotFoundException).getResponse()).toEqual(
       new NotFoundException().getResponse(),
     );
-    expect((error as Error).message).not.toMatch(/permission/i);
   });
 
-  it('names the action and subject type in the 403', () => {
-    expect(
-      (thrown(() => assertCan(author, 'update', othersPublished)) as Error)
-        .message,
-    ).toBe('Insufficient permissions to update Article.');
-    expect(
-      (thrown(() => assertCan(author, 'delete', Article)) as Error).message,
-    ).toBe('Insufficient permissions to delete Article.');
-  });
-
-  it('splits 404 from 403 on a custom readAction', () => {
-    const viewer = createMongoAbility([
-      { action: 'view', subject: 'Article', conditions: { published: true } },
-      { action: 'read', subject: 'Article' },
-      // Updates some articles, so a denial is decided by visibility.
-      { action: 'update', subject: 'Article', conditions: { authorId: 'u1' } },
-    ]);
-    const draft = subject('Article', { authorId: 'u2', published: false });
-    const published = subject('Article', { authorId: 'u2', published: true });
-
-    expect(
-      thrown(() => assertCan(viewer, 'update', draft, { readAction: 'view' })),
-    ).toBeInstanceOf(NotFoundException);
+  it('passes the readAction on to the decision', () => {
+    // Viewable, so with `view` deciding hiding the draft is forbidden.
     expect(
       thrown(() =>
-        assertCan(viewer, 'update', published, { readAction: 'view' }),
+        assertCan(author, 'update', othersDraft, { readAction: 'view' }),
       ),
     ).toBeInstanceOf(ForbiddenException);
-    // With the default `'read'`, the same draft is readable, so 403.
-    expect(thrown(() => assertCan(viewer, 'update', draft))).toBeInstanceOf(
-      ForbiddenException,
-    );
   });
 });

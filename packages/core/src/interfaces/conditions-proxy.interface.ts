@@ -1,14 +1,9 @@
-import type { rulesToAST } from '@casl/ability/extra';
+import type { AccessConditionsAst } from '@jperezmart/casl-core';
 
 import type { AnyObject } from '../types.js';
 
-/**
- * The Access conditions as an abstract syntax tree (a `@ucast/core`
- * `Condition`), to translate into a non-Mongo query (SQL, Prisma, a custom
- * repository). Derived from CASL's `rulesToAST`, so it needs no import of
- * `@ucast/core`.
- */
-export type AccessConditionsAst = NonNullable<ReturnType<typeof rulesToAST>>;
+// Declared by @jperezmart/casl-core; re-exported so the public API is unchanged.
+export type { AccessConditionsAst };
 
 /**
  * The Access conditions of the guarded `(action, subjectType)`, injected via
