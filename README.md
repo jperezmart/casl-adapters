@@ -37,6 +37,7 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 | [`next-pages`](./apps/next-pages)                                   | `apps/next-pages`              | Next.js Pages Router over REST: API routes and `getServerSideProps` with `next-casl`, casl-react.        |
 | [`next-pages-orpc`](./apps/next-pages-orpc)                         | `apps/next-pages-orpc`         | Next.js Pages Router with oRPC in an API route (`orpc-casl`), `casl-react/tanstack-query`.               |
 | [`tanstack-start`](./apps/tanstack-start)                           | `apps/tanstack-start`          | TanStack Start over REST: server functions and routes with the Adapter, `casl-react`'s default fetch.    |
+| [`tanstack-start-orpc`](./apps/tanstack-start-orpc)                 | `apps/tanstack-start-orpc`     | TanStack Start over oRPC: the contract in a server route with `orpc-casl`, `casl-react/tanstack-query`.  |
 
 ## Two ways to feed `permissions`
 

@@ -1,0 +1,50 @@
+{
+  "name": "tanstack-start-orpc",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TanStack Start example over oRPC — the contract served from a server route and authorized by @jperezmart/orpc-casl, with the Client ability from @jperezmart/casl-react/tanstack-query.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev",
+    "lint": "eslint .",
+    "start": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@casl/ability": "catalog:",
+    "@casl/react": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/casl-react": "workspace:*",
+    "@jperezmart/orpc-abilities": "workspace:*",
+    "@jperezmart/orpc-casl": "workspace:*",
+    "@jperezmart/orpc-contract": "workspace:*",
+    "@jperezmart/orpc-domain": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@orpc/contract": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/openapi-client": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/tanstack-query": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
+    "@ucast/mongo2js": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
