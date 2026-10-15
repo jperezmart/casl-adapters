@@ -20,7 +20,12 @@ export type {
   Denial,
   DenialKind,
 } from './decide.js';
-export { decide } from './decide.js';
+export {
+  decide,
+  forbiddenDenialOf,
+  notFoundDenial,
+  unauthenticatedDenial,
+} from './decide.js';
 
 // Rules endpoint
 export type { RulesResponse } from './rules-response.js';
