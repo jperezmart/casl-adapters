@@ -1,6 +1,10 @@
 import type { AnyAbility, SubjectType } from '@casl/ability';
 import type { AccessConditions } from '@jperezmart/casl-core';
-import { accessConditions, NoRecordAllowedError } from '@jperezmart/casl-core';
+import {
+  accessConditions,
+  forbiddenDenialOf,
+  NoRecordAllowedError,
+} from '@jperezmart/casl-core';
 import { ForbiddenException } from '@nestjs/common';
 
 import type {
@@ -47,7 +51,8 @@ function forbiddenIfNoRecord<T>(read: () => T): T {
   try {
     return read();
   } catch (error) {
-    if (error instanceof NoRecordAllowedError) throw new ForbiddenException();
+    if (error instanceof NoRecordAllowedError)
+      throw new ForbiddenException(forbiddenDenialOf(error).message);
     throw error;
   }
 }

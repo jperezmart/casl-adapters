@@ -15,8 +15,11 @@ import type {
 import {
   createAbilityFactory,
   decide,
+  forbiddenDenialOf,
   NoRecordAllowedError,
+  notFoundDenial,
   rulesResponse,
+  unauthenticatedDenial,
 } from '@jperezmart/casl-core';
 import type {
   GetServerSideProps,
@@ -195,7 +198,11 @@ export function createNextCasl<
       return async context => {
         const user = await options.getUser(context.req);
         if (!user)
-          return answerPage(UNAUTHENTICATED, context, hookOf(UNAUTHENTICATED));
+          return answerPage(
+            unauthenticatedDenial,
+            context,
+            hookOf(unauthenticatedDenial),
+          );
         try {
           return await handler({
             ...context,
@@ -212,7 +219,7 @@ export function createNextCasl<
     apiRoute(handler) {
       return async (req, res) => {
         const user = await options.getUser(req);
-        if (!user) return answerApi(UNAUTHENTICATED, req, res);
+        if (!user) return answerApi(unauthenticatedDenial, req, res);
         try {
           await handler(req, res, {
             user,
@@ -232,7 +239,7 @@ export function createNextCasl<
         return;
       }
       const user = await options.getUser(req);
-      if (!user) return answerJson(res, UNAUTHENTICATED);
+      if (!user) return answerJson(res, unauthenticatedDenial);
       res.statusCode = 200;
       res.setHeader('content-type', 'application/json; charset=utf-8');
       res.end(JSON.stringify(rulesResponse(factory.createForUser(user))));
@@ -250,9 +257,6 @@ export function createNextCasl<
   };
 }
 
-/** The core's answer to an Unauthenticated request, whatever the check. */
-const UNAUTHENTICATED = decide(null, 'read', 'all') as Denial;
-
 /** The status of each denial kind. */
 const STATUS = {
   unauthenticated: 401,
@@ -260,20 +264,13 @@ const STATUS = {
   'not-found': 404,
 } as const;
 
-/** The core's not-found answer, the same as a hidden instance's. */
-const NOT_FOUND: Denial = {
-  allowed: false,
-  kind: 'not-found',
-  message: 'Not Found',
-};
-
 /**
  * Answers not found from inside a wrapper, exactly as `assertCan` answers an
  * instance the user cannot read: use it for a record that does not exist, so
  * a hidden record and a missing one cannot be told apart.
  */
 export function notFound(): never {
-  throw new DenialError(NOT_FOUND);
+  throw new DenialError(notFoundDenial);
 }
 
 /** The `getServerSideProps` result of a denial. */
@@ -309,8 +306,7 @@ function answerJson(res: ServerResponse, denial: Denial): void {
  */
 function denialOf(error: unknown): Denial {
   if (error instanceof DenialError) return error.denial;
-  if (error instanceof NoRecordAllowedError)
-    return { allowed: false, kind: 'forbidden', message: error.message };
+  if (error instanceof NoRecordAllowedError) return forbiddenDenialOf(error);
   throw error;
 }
 

@@ -11,8 +11,11 @@ import type {
 import {
   createAbilityFactory,
   decide,
+  forbiddenDenialOf,
   NoRecordAllowedError,
+  notFoundDenial,
   rulesResponse,
+  unauthenticatedDenial,
 } from '@jperezmart/casl-core';
 import { isNotFound, notFound } from '@tanstack/react-router';
 import type {
@@ -163,7 +166,7 @@ export function createStartCasl<
     request: Request,
   ): Promise<CaslContext<TUser, TAbility>> {
     const user = await options.getUser(request);
-    if (!user) deny(unauthenticated());
+    if (!user) deny(unauthenticatedDenial);
     return { user, ability: factory.createForUser(user) };
   }
 
@@ -173,7 +176,7 @@ export function createStartCasl<
       return await next();
     } catch (error) {
       if (!(error instanceof NoRecordAllowedError)) throw error;
-      deny({ allowed: false, kind: 'forbidden', message: error.message });
+      deny(forbiddenDenialOf(error));
     }
   }
 
@@ -229,26 +232,17 @@ export function createStartCasl<
 
     async rulesHandler({ request }) {
       const user = await options.getUser(request);
-      if (!user) return answer(401, unauthenticated().message);
+      if (!user) return answer(401, unauthenticatedDenial.message);
       return Response.json(rulesResponse(factory.createForUser(user)));
     },
   };
 }
 
-/**
- * The core's answer to an Unauthenticated request, whatever the check. A
- * function, not a constant: no module-level call keeps the core in a client
- * bundle that only imports the DenialError.
- */
-function unauthenticated(): Denial {
-  return decide(null, 'read', 'all') as Denial;
-}
-
 /** A server route's answer to what a denied check threw. */
 function asResponse(error: unknown): Response {
   if (error instanceof DenialError) return answer(error.status, error.message);
-  // The core's message for a hidden instance, also used for a missing one.
-  if (isNotFound(error)) return answer(404, 'Not Found');
+  // The core's answer for a hidden instance, also used for a missing one.
+  if (isNotFound(error)) return answer(404, notFoundDenial.message);
   // A hook's redirect, or a Response the handler threw.
   if (error instanceof Response) return error;
   throw error;

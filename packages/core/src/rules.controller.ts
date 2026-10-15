@@ -1,5 +1,5 @@
 import type { RulesResponse } from '@jperezmart/casl-core';
-import { decide, rulesResponse } from '@jperezmart/casl-core';
+import { rulesResponse, unauthenticatedDenial } from '@jperezmart/casl-core';
 import type { Type } from '@nestjs/common';
 import { Controller, Get, Inject, Req } from '@nestjs/common';
 
@@ -37,7 +37,7 @@ export function createRulesController(path: string): Type {
         ((req: AuthorizableRequest) => req.user);
       const user = await getUser(request);
       // An Unauthenticated request gets no Ability: the core answers it.
-      if (!user) enforce(decide(null, 'read', 'all'));
+      if (!user) enforce(unauthenticatedDenial);
       return rulesResponse(this.abilityFactory.createForUser(user!));
     }
   }
