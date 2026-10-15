@@ -14,7 +14,7 @@ Judgement calls for review. What tooling enforces (format, import order, duplica
 
 ## The denial rule
 
-The 404/403 answer (ADR 0004) is decided once, in `packages/casl-core/src/decide.ts`, and answered across the Adapters and the examples. A change to it updates every site, and the review checks each: `packages/casl-core/src/decide.ts`, `packages/casl-core/README.md`, `packages/core/src/assert-can.ts`, `packages/core/src/guards/access.guard.ts`, `packages/core/README.md`, `packages/orpc-contract/src/errors.ts`, and the controllers in `apps/backend-*`.
+The 404/403 answer (ADR 0004) is decided once, in `packages/casl-core/src/decide.ts`, and answered across the Adapters and the examples. A change to it updates every site, and the review checks each: `packages/casl-core/src/decide.ts`, `packages/casl-core/README.md`, `packages/core/src/assert-can.ts`, `packages/core/src/guards/access.guard.ts`, `packages/core/README.md`, `packages/orpc-casl/src/orpc-casl.ts`, `packages/orpc-casl/README.md`, `packages/orpc-contract/src/errors.ts`, and the controllers in `apps/backend-*`.
 
 ## Snippets
 
