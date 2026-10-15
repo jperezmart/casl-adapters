@@ -1,0 +1,41 @@
+{
+  "name": "tanstack-start",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TanStack Start example of @jperezmart/tanstack-start-casl over REST — server routes and server functions with the Adapter, and @jperezmart/casl-react's default fetch of the Rules endpoint.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev",
+    "lint": "eslint .",
+    "start": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@casl/ability": "catalog:",
+    "@casl/react": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/casl-react": "workspace:*",
+    "@jperezmart/example-shared": "workspace:*",
+    "@jperezmart/tanstack-start-casl": "workspace:*",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
+    "@ucast/mongo2js": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "eslint": "catalog:",
+    "seroval": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
