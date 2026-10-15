@@ -160,7 +160,7 @@ Not found has no hook: it always answers `NOT_FOUND`, so existence stays hidden.
 
 ## The Rules endpoint
 
-The Rules endpoint answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability. An Unauthenticated request gets `UNAUTHORIZED`. Its type is `RulesResponse<AppAbility>`.
+The Rules endpoint answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability. An Unauthenticated request gets `UNAUTHORIZED`. Its type is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here.
 
 In a router-first app, mount `casl.rulesProcedure` under any key:
 

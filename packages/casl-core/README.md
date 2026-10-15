@@ -124,6 +124,18 @@ conditions.toAst(); // a @ucast/core Condition, for SQL, Prisma or your own stor
 
 When the Ability allows no record at all, `get()`, `toMongo()` and `toAst()` throw a `NoRecordAllowedError` rather than hand back conditions that let records through. An Adapter answers it as forbidden.
 
+## The Rules endpoint: `rulesResponse`
+
+Every Adapter serves a Rules endpoint with the same shape, so the browser builds its Client ability ([`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react)) the same way whatever the server. `rulesResponse(ability)` is that answer: an object whose `rules` holds the Ability's rules, packed with CASL's `packRules`. Its type is `RulesResponse<TAbility>`. An Unauthenticated request gets a 401 instead.
+
+```ts
+import { rulesResponse } from '@jperezmart/casl-core';
+
+rulesResponse(ability); // { rules: [['read', 'Article', { published: true }]] }
+```
+
+It is an object rather than a bare array so fields can be added later without breaking clients.
+
 ## Testing
 
 [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing) builds an Ability from your Role permissions through this core, without booting any framework.

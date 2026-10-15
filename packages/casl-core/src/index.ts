@@ -22,6 +22,10 @@ export type {
 } from './decide.js';
 export { decide } from './decide.js';
 
+// Rules endpoint
+export type { RulesResponse } from './rules-response.js';
+export { rulesResponse } from './rules-response.js';
+
 // Role permissions and ability types
 export type {
   ActionOf,
