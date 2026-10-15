@@ -20,6 +20,7 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 | [`@jperezmart/casl-core`](./packages/casl-core)           | `packages/casl-core`      | Framework-free core: Role permissions, the Ability, the Denial rule, the Access conditions.        |
 | [`@jperezmart/nest-casl`](./packages/core)                | `packages/core`           | The NestJS Adapter: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, decorators.         |
 | [`@jperezmart/orpc-casl`](./packages/orpc-casl)           | `packages/orpc-casl`      | The oRPC Adapter: a middleware adding the Ability to the context, `assertCan`, the Rules endpoint. |
+| [`@jperezmart/next-casl`](./packages/next-casl)           | `packages/next-casl`      | The Next.js Pages Router Adapter: `getServerSideProps` and API route wrappers, the Rules endpoint. |
 | [`@jperezmart/casl-react`](./packages/casl-react)         | `packages/casl-react`     | The browser side: a Client ability from a Rules endpoint, a typed `Can`, hooks, TanStack Query.    |
 | [`@jperezmart/casl-testing`](./packages/casl-testing)     | `packages/casl-testing`   | Helpers to unit-test Role permissions without booting any framework.                               |
 | `@jperezmart/nest-casl-testing`                           | `packages/testing`        | Deprecated re-export of `@jperezmart/casl-testing`.                                                |

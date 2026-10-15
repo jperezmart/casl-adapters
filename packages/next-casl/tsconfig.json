@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "node"]
+  },
+  "exclude": ["dist", "node_modules"],
+  "extends": "@jperezmart/typescript-config/base.json",
+  "include": ["src/**/*.ts"]
+}
