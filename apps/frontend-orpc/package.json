@@ -2,7 +2,7 @@
   "name": "frontend-orpc",
   "version": "0.0.0",
   "private": true,
-  "description": "Vite + React tester for the oRPC example — typed oRPC client + CASL <Can> over the shared contract/abilities packages.",
+  "description": "TanStack Router single-page app for the oRPC example — typed oRPC client, TanStack Query, and the Client ability from @jperezmart/casl-react/tanstack-query, checked in the router's beforeLoad.",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -14,12 +14,17 @@
   "dependencies": {
     "@casl/ability": "catalog:",
     "@casl/react": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/casl-react": "workspace:*",
     "@jperezmart/orpc-abilities": "workspace:*",
     "@jperezmart/orpc-contract": "workspace:*",
     "@jperezmart/orpc-domain": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/contract": "catalog:",
     "@orpc/openapi-client": "catalog:",
+    "@orpc/tanstack-query": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

@@ -1,7 +1,9 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  // Two entries: the default barrel is client-safe (types and detection),
+  // while `./server` carries the Role permissions.
+  entry: ['src/index.ts', 'src/server.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   sourcemap: true,
