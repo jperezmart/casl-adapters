@@ -14,13 +14,13 @@ Judgement calls for review. What tooling enforces (format, import order, duplica
 
 ## The denial rule
 
-The 404/403 answer (ADR 0004) is spread across the library and its examples. A change to it updates every site, and the review checks each: `packages/core/src/assert-can.ts`, `packages/core/src/guards/access.guard.ts`, `packages/core/README.md`, `packages/orpc-contract/src/errors.ts`, and the controllers in `apps/backend-*`.
+The 404/403 answer (ADR 0004) is decided once, in `packages/casl-core/src/decide.ts`, and answered across the Adapters and the examples. A change to it updates every site, and the review checks each: `packages/casl-core/src/decide.ts`, `packages/casl-core/README.md`, `packages/core/src/assert-can.ts`, `packages/core/src/guards/access.guard.ts`, `packages/core/README.md`, `packages/orpc-contract/src/errors.ts`, and the controllers in `apps/backend-*`.
 
 ## Snippets
 
 Code in READMEs and changesets is never compiled, so the review compiles it in its head:
 
-- every call matches the current exports of `packages/core/src/index.ts`;
+- every call matches the current exports of the package's `src/index.ts` (`packages/core`, `packages/casl-core`, …);
 - every name is imported or declared in an earlier snippet of the same file;
 - types line up (no `T | undefined` passed where `T` is required).
 

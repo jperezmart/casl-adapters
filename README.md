@@ -6,7 +6,7 @@
 Modern [CASL](https://casl.js.org) authorization for [NestJS](https://nestjs.com) — REST-focused, ESM + CJS, CASL v7.
 
 ```bash
-pnpm add @jperezmart/nest-casl @casl/ability
+pnpm add @jperezmart/nest-casl @jperezmart/casl-core @casl/ability
 ```
 
 ## Why
@@ -17,8 +17,10 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 
 | Package                                                   | Path                      | Description                                                                                       |
 | --------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------- |
-| [`@jperezmart/nest-casl`](./packages/core)                | `packages/core`           | The core module: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, parameter decorators. |
-| `@jperezmart/nest-casl-testing`                           | `packages/testing`        | Helpers to unit-test ability definitions without booting Nest.                                    |
+| [`@jperezmart/casl-core`](./packages/casl-core)           | `packages/casl-core`      | Framework-free core: Role permissions, the Ability, the Denial rule, the Access conditions.       |
+| [`@jperezmart/nest-casl`](./packages/core)                | `packages/core`           | The NestJS Adapter: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, decorators.        |
+| [`@jperezmart/casl-testing`](./packages/casl-testing)     | `packages/casl-testing`   | Helpers to unit-test Role permissions without booting any framework.                              |
+| `@jperezmart/nest-casl-testing`                           | `packages/testing`        | Deprecated re-export of `@jperezmart/casl-testing`.                                               |
 | [`@jperezmart/example-shared`](./packages/example-shared) | `packages/example-shared` | Shared roles, subjects, ability type and permission definitions used by the examples.             |
 | [`backend-simple`](./apps/backend-simple)                 | `apps/backend-simple`     | NestJS REST API with permissions defined **inline** (Nest only).                                  |
 | [`backend-shared`](./apps/backend-shared)                 | `apps/backend-shared`     | Same API, but roles/subjects/permissions **imported** from `@jperezmart/example-shared`.          |
