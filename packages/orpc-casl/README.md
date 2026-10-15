@@ -81,7 +81,7 @@ export const casl = createOrpcCasl<AppContext, AppUser, AppAbility>({
 
 ## The middleware
 
-`casl.middleware` calls `getUser`, builds the user's Ability and adds `{ ability, user }` to the context. An Unauthenticated request is answered `UNAUTHORIZED` before the handler runs, so procedures open to Unauthenticated requests just do not use it.
+`casl.middleware` calls `getUser`, builds the user's Ability and adds `{ ability, user }` to the context. An Unauthenticated request is answered `UNAUTHORIZED` before the handler runs, so procedures open to Unauthenticated requests do not use it ([Unauthenticated requests](#unauthenticated-requests)).
 
 ```ts
 import { os } from '@orpc/server';
@@ -138,6 +138,10 @@ export const listArticles = authed.handler(({ context }) =>
   findArticles(accessConditions(context.ability, 'read', 'Article').toMongo()),
 );
 ```
+
+## Unauthenticated requests
+
+`casl.middleware` and the Rules endpoint procedures answer an Unauthenticated request (`UNAUTHORIZED`, or `onUnauthenticated`'s error) before the handler runs, so a handler under them always has an Ability and a user and never checks for a missing one. This is deliberate: an Unauthenticated request gets no Ability at all, unlike a user who holds no Roles, so there is nothing to check it against. A procedure open to Unauthenticated requests (a public listing, a login) simply does not use them.
 
 ## Overriding the answers
 
