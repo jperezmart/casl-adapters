@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "noEmit": true,
+    "allowJs": false,
+    "incremental": true,
+    "types": ["vitest/globals", "node"],
+    "plugins": [{ "name": "next" }]
+  },
+  "exclude": ["node_modules", ".next"],
+  "extends": "@jperezmart/typescript-config/base.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"]
+}
