@@ -38,6 +38,7 @@ import type {
   ConditionsProxy,
   SubjectBeforeFilterHook,
   CaslModuleOptions,
+  CaslRulesEndpointOptions,
   CaslFeatureOptions,
   AssertCanOptions,
   RolePermissions,
@@ -281,6 +282,29 @@ list(@CaslConditions() conditions: ConditionsProxy) {
 An ability that allows no record seldom gets this far: the guard has already
 answered 403 against the subject type. The exception keeps a handler that reads
 the conditions outside the guard from getting no restriction at all.
+
+## The Rules endpoint, ready-made
+
+The browser builds its Client ability from the rules of the current user's
+Ability, fetched from a Rules endpoint
+([`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react)
+fetches `/api/me/abilities` by default). Import `CaslModule.forRulesEndpoint`
+to serve one at the path of your choice, instead of writing the controller:
+
+```ts
+@Module({
+  imports: [CaslModule.forRulesEndpoint({ path: 'me/abilities' })],
+})
+export class MeModule {}
+```
+
+`GET /me/abilities` then answers `{ rules }`, the packed rules (`packRules`) of
+the Ability of the user `getUserFromRequest` finds, as the guard finds them
+(`request.user` by default). An Unauthenticated request gets 401. The shape is
+the same in every Adapter: `RulesResponse` from `@jperezmart/casl-core`.
+
+The Client ability only decides what the UI shows. What the server allows is
+decided by the guard alone (ADR 0006).
 
 ## `assertCan`: the guard's answer, anywhere
 

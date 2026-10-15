@@ -1,6 +1,9 @@
 // Module
 export { CaslModule } from './casl.module.js';
 
+// Rules endpoint
+export type { CaslRulesEndpointOptions } from './rules.controller.js';
+
 // Authorization check (404/403)
 export type { AssertCanOptions } from './assert-can.js';
 export { assertCan } from './assert-can.js';

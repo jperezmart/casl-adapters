@@ -12,6 +12,8 @@ import type {
   CaslModuleAsyncOptions,
   CaslModuleOptions,
 } from './interfaces/casl-options.interface.js';
+import type { CaslRulesEndpointOptions } from './rules.controller.js';
+import { createRulesController } from './rules.controller.js';
 import type { AppAbility } from './types.js';
 
 /**
@@ -88,6 +90,19 @@ export class CaslModule {
     return {
       module: CaslModule,
       providers: [registrationProvider],
+    };
+  }
+
+  /**
+   * The ready-made Rules endpoint, optional: `GET <path>` answers `{ rules }`,
+   * the packed rules of the request user's Ability, for the browser to build
+   * its Client ability (`@jperezmart/casl-react`). It finds the user as the
+   * guard does, and answers an Unauthenticated request with 401.
+   */
+  static forRulesEndpoint(options: CaslRulesEndpointOptions): DynamicModule {
+    return {
+      module: CaslModule,
+      controllers: [createRulesController(options.path)],
     };
   }
 }
