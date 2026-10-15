@@ -5,8 +5,8 @@ import type {
 } from '@casl/ability';
 import { createMongoAbility } from '@casl/ability';
 
-import type { Decision, RolePermissions } from './index.js';
-import { createAbilityFactory, decide } from './index.js';
+import type { CaslContext, Decision, RolePermissions } from './index.js';
+import { createAbilityFactory, createAdapterKit, decide } from './index.js';
 
 interface Article {
   readonly kind: 'Article';
@@ -104,6 +104,53 @@ describe('createAbilityFactory types', () => {
     createAbilityFactory({
       // @ts-expect-error — `everyone: true` would open everything to everyone
       permissions: [{ everyone: true }],
+    });
+  });
+});
+
+describe('createAdapterKit types', () => {
+  interface AppRequest {
+    session?: { username: string };
+  }
+
+  const permissions: RolePermissions<'editor', TenantUser, AppAbility> = {
+    editor(_user, { can }: AbilityBuilder<AppAbility>) {
+      can('read', 'Article');
+    },
+  };
+  const kit = createAdapterKit({
+    permissions: [permissions],
+    getUser: (request: AppRequest): TenantUser | null =>
+      request.session
+        ? { username: request.session.username, roles: [], tenants: [] }
+        : null,
+    readAction: 'view',
+    onForbidden: () => new Error('forbidden'),
+  });
+
+  it('infers the request, user, ability and hook from its options', () => {
+    expectTypeOf(kit.contextOf).parameter(0).toEqualTypeOf<AppRequest>();
+    expectTypeOf(kit.contextOf({})).resolves.toEqualTypeOf<CaslContext<
+      TenantUser,
+      AppAbility
+    > | null>();
+    expectTypeOf(
+      kit.hookFor({ allowed: false, kind: 'forbidden', message: '' }),
+    ).toEqualTypeOf<(() => Error) | undefined>();
+  });
+
+  it("types decide by the app's Ability", () => {
+    kit.decide(ability, 'update', article, { readAction: 'read' });
+    // @ts-expect-error — 'frobnicate' is not an Action
+    kit.decide(ability, 'frobnicate', article);
+  });
+
+  it('rejects a readAction the Ability does not know', () => {
+    createAdapterKit({
+      permissions: [permissions],
+      getUser: () => null,
+      // @ts-expect-error — 'peek' is not an Action
+      readAction: 'peek',
     });
   });
 });

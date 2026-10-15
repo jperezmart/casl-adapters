@@ -5,6 +5,10 @@ export type {
 } from './ability-factory.js';
 export { createAbilityFactory } from './ability-factory.js';
 
+// Adapter building
+export type { AdapterKit, AdapterOptions, CaslContext } from './adapter-kit.js';
+export { createAdapterKit } from './adapter-kit.js';
+
 // Access conditions
 export type {
   AccessConditions,
