@@ -20,17 +20,18 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 | [`@jperezmart/casl-core`](./packages/casl-core)           | `packages/casl-core`      | Framework-free core: Role permissions, the Ability, the Denial rule, the Access conditions.        |
 | [`@jperezmart/nest-casl`](./packages/core)                | `packages/core`           | The NestJS Adapter: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, decorators.         |
 | [`@jperezmart/orpc-casl`](./packages/orpc-casl)           | `packages/orpc-casl`      | The oRPC Adapter: a middleware adding the Ability to the context, `assertCan`, the Rules endpoint. |
+| [`@jperezmart/casl-react`](./packages/casl-react)         | `packages/casl-react`     | The browser side: a Client ability from a Rules endpoint, a typed `Can`, hooks, TanStack Query.    |
 | [`@jperezmart/casl-testing`](./packages/casl-testing)     | `packages/casl-testing`   | Helpers to unit-test Role permissions without booting any framework.                               |
 | `@jperezmart/nest-casl-testing`                           | `packages/testing`        | Deprecated re-export of `@jperezmart/casl-testing`.                                                |
 | [`@jperezmart/example-shared`](./packages/example-shared) | `packages/example-shared` | Shared roles, subjects, ability type and permission definitions used by the examples.              |
 | [`backend-simple`](./apps/backend-simple)                 | `apps/backend-simple`     | NestJS REST API with permissions defined **inline** (Nest only).                                   |
 | [`backend-shared`](./apps/backend-shared)                 | `apps/backend-shared`     | Same API, but roles/subjects/permissions **imported** from `@jperezmart/example-shared`.           |
-| [`frontend`](./apps/frontend)                             | `apps/frontend`           | Vite + React tester using `@casl/react`; shares typing with the backends.                          |
+| [`frontend`](./apps/frontend)                             | `apps/frontend`           | Vite + React tester on `@jperezmart/casl-react`'s default fetch; shares typing with the backends.  |
 | [`@jperezmart/orpc-domain`](./packages/orpc-domain)       | `packages/orpc-domain`    | oRPC example — Zod schemas + inferred types (single source of truth; no deps but zod).             |
 | [`@jperezmart/orpc-contract`](./packages/orpc-contract)   | `packages/orpc-contract`  | oRPC example — the oRPC contract; depends only on `orpc-domain`.                                   |
 | [`@jperezmart/orpc-abilities`](./packages/orpc-abilities) | `packages/orpc-abilities` | oRPC example — CASL roles/subjects/abilities/permissions; depends only on `orpc-domain`.           |
 | [`backend-orpc`](./apps/backend-orpc)                     | `apps/backend-orpc`       | NestJS + `@orpc/nest`, authorizing oRPC procedures with `@jperezmart/orpc-casl` (in-memory).       |
-| [`frontend-orpc`](./apps/frontend-orpc)                   | `apps/frontend-orpc`      | Vite + React tester using a typed oRPC client + `@casl/react`.                                     |
+| [`frontend-orpc`](./apps/frontend-orpc)                   | `apps/frontend-orpc`      | TanStack Router SPA: typed oRPC client, TanStack Query, `@jperezmart/casl-react/tanstack-query`.   |
 
 ## Two ways to feed `permissions`
 
