@@ -1,5 +1,6 @@
 import type { AnyAbility, SubjectType } from '@casl/ability';
 
+import type { NoRecordAllowedError } from './access-conditions.js';
 import type { ActionOf, SubjectOf } from './types.js';
 import { DefaultActions } from './types.js';
 
@@ -36,6 +37,37 @@ export type Decision = Allowed | Denial;
 const ALLOWED: Allowed = Object.freeze({ allowed: true });
 
 /**
+ * The answer to an Unauthenticated request, whatever the check: what
+ * {@link decide} answers without an Ability, for an Adapter that finds no
+ * Authorizable user before any check.
+ */
+export const unauthenticatedDenial: Denial = Object.freeze({
+  allowed: false,
+  kind: 'unauthenticated',
+  message: 'No authenticated user available for the CASL ability check.',
+});
+
+/**
+ * The answer to a record that does not exist: the same as {@link decide}'s
+ * for an instance the user cannot read, so a hidden record and a missing one
+ * cannot be told apart.
+ */
+export const notFoundDenial: Denial = Object.freeze({
+  allowed: false,
+  kind: 'not-found',
+  message: 'Not Found',
+});
+
+/**
+ * The answer to the Access conditions' refusal: forbidden, with the
+ * {@link NoRecordAllowedError}'s message. Whether no record or some record is
+ * allowed is the same for every id, so it reveals none.
+ */
+export function forbiddenDenialOf(error: NoRecordAllowedError): Denial {
+  return denial('forbidden', error.message);
+}
+
+/**
  * Decides whether `ability` may perform `action` on `subject`, following the
  * Denial rule (ADR 0004), and returns the answer rather than throwing it:
  *
@@ -55,12 +87,7 @@ export function decide<TAbility extends AnyAbility>(
   subject: SubjectOf<TAbility>,
   options: DecideOptions<TAbility> = {},
 ): Decision {
-  if (ability == null) {
-    return denial(
-      'unauthenticated',
-      'No authenticated user available for the CASL ability check.',
-    );
-  }
+  if (ability == null) return unauthenticatedDenial;
 
   // The typed signature has done its job at the call site; check loosely.
   const canLoosely = ability.can.bind(ability) as (
@@ -78,7 +105,7 @@ export function decide<TAbility extends AnyAbility>(
   ) {
     const readAction = options.readAction ?? DefaultActions.read;
     if (!canLoosely(readAction, subject)) {
-      return denial('not-found', 'Not Found');
+      return notFoundDenial;
     }
   }
 

@@ -107,6 +107,21 @@ decide(ability, 'update', subject('Article', { id: '7' }), {
 
 The action and subject are typed by your Ability type, as in CASL.
 
+An Adapter also answers denials that no check decides, and takes them from the core so every Adapter answers them the same:
+
+```ts
+import {
+  forbiddenDenialOf,
+  NoRecordAllowedError,
+  notFoundDenial,
+  unauthenticatedDenial,
+} from '@jperezmart/casl-core';
+
+unauthenticatedDenial; // no Authorizable user: what decide answers without an Ability
+notFoundDenial; // a record that does not exist: the same as a hidden instance's
+forbiddenDenialOf(new NoRecordAllowedError('read', 'Article')); // the Access conditions' refusal
+```
+
 ## The Access conditions: `accessConditions`
 
 `accessConditions(ability, action, subjectType)` gives what a record must satisfy for the Ability to allow the action on it, so a query filtered by them returns exactly the records the user may act on:

@@ -7,5 +7,6 @@ First release of `@jperezmart/casl-core`, the framework-free core every Adapter 
 - the Role permissions types (`RolePermissions`, `DefineRolePermissions`, `AuthorizableUser`, `AppAbility` and the ability helper types);
 - `createAbilityFactory({ permissions, superuserRole?, detectSubjectType? })`, which builds a user's Ability from an explicit list of Role permissions maps: the Everyone permissions first, then the user's Roles, everything for the Superuser role, and no Roles for missing or malformed ones;
 - `decide(ability, action, subject, options?)`, the Denial rule (ADR 0004), which returns `{ allowed: true }` or a denial whose `kind` is `'unauthenticated'`, `'forbidden'` or `'not-found'`, with its message, instead of throwing;
+- the denials no check decides, so every Adapter answers them alike: `unauthenticatedDenial` (no Authorizable user), `notFoundDenial` (a missing record, answered as a hidden one) and `forbiddenDenialOf(error)` (the Access conditions' `NoRecordAllowedError`);
 - `accessConditions(ability, action, subjectType)`, the Access conditions in Mongo syntax or as an AST, which throw a `NoRecordAllowedError` when no record is allowed.
 - `rulesResponse(ability)`, the answer of every Rules endpoint: `{ rules }`, the Ability's packed rules, typed `RulesResponse<TAbility>`.
