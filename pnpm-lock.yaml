@@ -149,12 +149,12 @@ importers:
       '@jperezmart/casl-core':
         specifier: workspace:*
         version: link:../../packages/casl-core
-      '@jperezmart/nest-casl':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@jperezmart/orpc-abilities':
         specifier: workspace:*
         version: link:../../packages/orpc-abilities
+      '@jperezmart/orpc-casl':
+        specifier: workspace:*
+        version: link:../../packages/orpc-casl
       '@jperezmart/orpc-contract':
         specifier: workspace:*
         version: link:../../packages/orpc-contract
@@ -618,6 +618,42 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  packages/orpc-casl:
+    devDependencies:
+      '@casl/ability':
+        specifier: 'catalog:'
+        version: 7.0.0
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../casl-core
+      '@jperezmart/eslint-config':
+        specifier: 'catalog:'
+        version: 1.0.0(eslint@10.5.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+      '@jperezmart/typescript-config':
+        specifier: 'catalog:'
+        version: 1.0.0(typescript@6.0.3)
+      '@orpc/contract':
+        specifier: 'catalog:'
+        version: 1.14.6
+      '@orpc/server':
+        specifier: 'catalog:'
+        version: 1.14.6
+      eslint:
+        specifier: 'catalog:'
+        version: 10.5.0(supports-color@8.1.1)
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.2(typescript@6.0.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(@vitest/coverage-v8@4.1.11)(terser@5.48.0)(yaml@2.9.0)
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
 
   packages/orpc-contract:
     dependencies:
