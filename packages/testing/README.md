@@ -3,68 +3,26 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/nest-casl-testing.svg)](https://www.npmjs.com/package/@jperezmart/nest-casl-testing)
 [![license](https://img.shields.io/npm/l/@jperezmart/nest-casl-testing.svg)](./LICENSE)
 
-Testing utilities for [`@jperezmart/nest-casl`](https://github.com/jperezmart/nest-casl/tree/main/packages/core).
-Build a CASL ability straight from a permissions map and a user, so permission
-definitions can be unit-tested without booting a Nest application.
+> **Deprecated.** Use [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing)
+> instead: it has the same `buildAbilityForTest` and works for every framework.
+> This package only re-exports it, and keeps working until you migrate.
 
-## Install
+## Migrating
 
 ```bash
-pnpm add -D @jperezmart/nest-casl-testing
+pnpm remove @jperezmart/nest-casl-testing
+pnpm add -D @jperezmart/casl-testing
 ```
 
-`@casl/ability` and `@jperezmart/nest-casl` are peer dependencies.
+Then change the import; nothing else changes:
 
-## `buildAbilityForTest(permissions, user, options?)`
-
-Takes the same `permissions` map you pass to `CaslModule.forFeature` and the
-user you would otherwise have to authenticate, and returns the ability CASL
-would have built:
-
-```ts
-import { buildAbilityForTest } from '@jperezmart/nest-casl-testing';
-import type { RolePermissions } from '@jperezmart/nest-casl';
-import { subject } from '@casl/ability';
-
-interface AppUser {
-  id: string;
-  roles: string[];
-}
-
-const permissions: RolePermissions<'author', AppUser> = {
-  author: (user, { can }) => {
-    can('read', 'Article');
-    can('update', 'Article', { authorId: user.id });
-  },
-};
-
-const ability = buildAbilityForTest(permissions, {
-  id: '1',
-  roles: ['author'],
-});
-
-expect(ability.can('read', 'Article')).toBe(true);
-expect(ability.can('update', subject('Article', { authorId: '1' }))).toBe(true);
-expect(ability.can('update', subject('Article', { authorId: '2' }))).toBe(
-  false,
-);
+```diff
+- import { buildAbilityForTest } from '@jperezmart/nest-casl-testing';
++ import { buildAbilityForTest } from '@jperezmart/casl-testing';
 ```
 
-### Options
-
-Both mirror `CaslModule.forRoot`, so a test builds the same ability the running
-application would:
-
-| Option              | Type                          | Effect                                                                               |
-| ------------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
-| `superuserRole`     | `string`                      | A user holding this role gets `can('manage', 'all')` and no other rule is evaluated. |
-| `detectSubjectType` | `(subject: object) => string` | Custom subject-type detection, for subjects CASL cannot name on its own.             |
-
-A role whose definition is `true` rather than a function also grants
-`manage all`. The `everyone` entry applies to every user before their Roles,
-and a role named `everyone` on the user is ignored. A user whose `roles` is
-missing or not an array is treated as having no roles (the Everyone
-permissions still apply), which is what `AbilityFactory` does.
+`@casl/ability` and `@jperezmart/casl-core` are peer dependencies, as they are
+of `@jperezmart/nest-casl`.
 
 ## License
 

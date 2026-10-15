@@ -1,7 +1,7 @@
 {
   "name": "@jperezmart/nest-casl-testing",
   "version": "0.3.0",
-  "description": "Testing utilities for @jperezmart/nest-casl — build and assert abilities without booting Nest.",
+  "description": "Deprecated: use @jperezmart/casl-testing. Re-exports its testing utilities.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jperezmart/nest-casl.git",
@@ -40,10 +40,13 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@jperezmart/casl-testing": "workspace:^"
+  },
   "devDependencies": {
     "@casl/ability": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
     "@jperezmart/eslint-config": "catalog:",
-    "@jperezmart/nest-casl": "workspace:*",
     "@jperezmart/typescript-config": "catalog:",
     "eslint": "catalog:",
     "tsdown": "catalog:",
@@ -52,7 +55,7 @@
   },
   "peerDependencies": {
     "@casl/ability": "^7.0.0",
-    "@jperezmart/nest-casl": "workspace:^"
+    "@jperezmart/casl-core": "workspace:^"
   },
   "publishConfig": {
     "access": "public"

@@ -1,5 +1,5 @@
 import type { AbilityBuilder, MongoAbility } from '@casl/ability';
-import type { RolePermissions } from '@jperezmart/nest-casl';
+import type { RolePermissions } from '@jperezmart/casl-core';
 
 import { buildAbilityForTest } from './index.js';
 

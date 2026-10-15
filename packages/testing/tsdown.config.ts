@@ -11,5 +11,5 @@ export default defineConfig({
   target: 'es2022',
   // Keep .js (ESM) + .cjs (CJS) to match the package.json `exports` map.
   fixedExtension: false,
-  // @casl/ability and @jperezmart/nest-casl are peers → auto-externalized.
+  // @jperezmart/casl-testing (a dependency) and the peers are auto-externalized.
 });

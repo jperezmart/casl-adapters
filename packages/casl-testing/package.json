@@ -1,0 +1,69 @@
+{
+  "name": "@jperezmart/casl-testing",
+  "version": "0.0.0",
+  "description": "Testing utilities for @jperezmart/casl-core — build and assert an Ability from Role permissions without booting any framework.",
+  "keywords": [
+    "casl",
+    "authorization",
+    "testing"
+  ],
+  "homepage": "https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing#readme",
+  "bugs": {
+    "url": "https://github.com/jperezmart/nest-casl/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jperezmart/nest-casl.git",
+    "directory": "packages/casl-testing"
+  },
+  "license": "MIT",
+  "author": "Javier Pérez Martín <javier.perez.martin97@gmail.com>",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo",
+    "dev": "tsdown --watch",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@casl/ability": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "eslint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@casl/ability": "^7.0.0",
+    "@jperezmart/casl-core": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

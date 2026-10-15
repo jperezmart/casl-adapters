@@ -1,83 +1,13 @@
-import type { AnyAbility, MongoAbility } from '@casl/ability';
-import { AbilityBuilder, createMongoAbility } from '@casl/ability';
-import type {
-  AuthorizableUser,
-  DefineRolePermissions,
-  RolePermissions,
-} from '@jperezmart/nest-casl';
-
-/** Extra options accepted by {@link buildAbilityForTest}. */
-export interface BuildAbilityForTestOptions {
-  /**
-   * Role that bypasses all checks (mirrors `CaslModule.forRoot`). Any string:
-   * the superuser role usually has no entry in the Role permissions.
-   */
-  superuserRole?: string;
-
-  /** Custom subject-type detection (mirrors `CaslModule.forRoot`). */
-  detectSubjectType?: (subject: object) => string;
-}
-
 /**
- * Build a CASL ability directly from Role permissions and a user, without
- * booting a Nest application. Intended for unit-testing permission definitions
- * in projects that consume `@jperezmart/nest-casl`. The user and ability types
- * are inferred from `permissions`; the user may carry roles the map does not
- * declare. Everyone permissions apply first, then the user's Roles.
- *
- * @example
- * ```ts
- * const ability = buildAbilityForTest(permissions, { id: "1", roles: ["author"] });
- * expect(ability.can("update", subject("Article", { authorId: "1" }))).toBe(true);
- * ```
+ * `@jperezmart/nest-casl-testing` is now `@jperezmart/casl-testing`, which
+ * works for every framework. This package only re-exports it, marked
+ * deprecated so editors point at the new import.
  */
-export function buildAbilityForTest<
-  TUser extends AuthorizableUser = AuthorizableUser,
-  TAbility extends AnyAbility = AnyAbility,
->(
-  permissions: RolePermissions<string, TUser, TAbility>,
-  user: TUser,
-  options: BuildAbilityForTestOptions = {},
-): TAbility {
-  const builder = new AbilityBuilder<MongoAbility>(createMongoAbility);
-  const buildOptions = options.detectSubjectType
-    ? { detectSubjectType: options.detectSubjectType }
-    : undefined;
+import type { BuildAbilityForTestOptions as Options } from '@jperezmart/casl-testing';
+import { buildAbilityForTest as build } from '@jperezmart/casl-testing';
 
-  // Mirror AbilityFactory: a missing / non-array `roles` means "no roles"
-  // (Everyone permissions still apply).
-  const roles: readonly string[] = Array.isArray(user.roles) ? user.roles : [];
+/** @deprecated Import it from `@jperezmart/casl-testing` instead. */
+export type BuildAbilityForTestOptions = Options;
 
-  if (
-    options.superuserRole !== undefined &&
-    roles.includes(options.superuserRole)
-  ) {
-    builder.can('manage', 'all');
-    return builder.build(buildOptions) as unknown as TAbility;
-  }
-
-  const abilityBuilder = builder as unknown as AbilityBuilder<AnyAbility>;
-  const everyone = (permissions as Record<string, unknown>)['everyone'];
-  if (typeof everyone === 'function') {
-    (everyone as DefineRolePermissions<TUser, AnyAbility>)(
-      user,
-      abilityBuilder,
-    );
-  }
-
-  for (const role of roles) {
-    // A foreign Role named `everyone` is not a Role: its rules are already in.
-    if (role === 'everyone') continue;
-    const definition = (permissions as Record<string, unknown>)[role];
-    if (definition === true) {
-      builder.can('manage', 'all');
-    } else if (typeof definition === 'function') {
-      (definition as DefineRolePermissions<TUser, AnyAbility>)(
-        user,
-        abilityBuilder,
-      );
-    }
-  }
-
-  return builder.build(buildOptions) as unknown as TAbility;
-}
+/** @deprecated Import it from `@jperezmart/casl-testing` instead. */
+export const buildAbilityForTest: typeof build = build;
