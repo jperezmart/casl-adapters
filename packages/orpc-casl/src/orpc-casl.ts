@@ -1,17 +1,17 @@
 import type { AnyAbility } from '@casl/ability';
 import type {
-  AbilityFactoryOptions,
   ActionOf,
+  AdapterOptions,
   AppAbility,
   AuthorizableUser,
+  CaslContext,
   DecideOptions,
   Denial,
   RulesResponse,
   SubjectOf,
 } from '@jperezmart/casl-core';
 import {
-  createAbilityFactory,
-  decide,
+  createAdapterKit,
   forbiddenDenialOf,
   NoRecordAllowedError,
   rulesResponse,
@@ -35,47 +35,20 @@ import { implement, ORPCError, os } from '@orpc/server';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- as oRPC's own `AnySchema`
 type AnySchema = Schema<any, any>;
 
-/** Options for {@link createOrpcCasl}. */
-export interface OrpcCaslOptions<
+/**
+ * Options for {@link createOrpcCasl}, as every Adapter takes them: `getUser`
+ * finds the Authorizable user from the procedure context the app's oRPC
+ * handler was given, and `onUnauthenticated` and `onForbidden` return (or
+ * throw) the error to throw instead of `UNAUTHORIZED` and `FORBIDDEN`.
+ */
+export type OrpcCaslOptions<
   TContext extends Context,
   TUser extends AuthorizableUser,
   TAbility extends AnyAbility,
-> extends AbilityFactoryOptions<TUser, TAbility> {
-  /**
-   * Finds the Authorizable user of a request from the procedure context the
-   * app's oRPC handler was given, or `null` (or `undefined`) for an
-   * Unauthenticated request.
-   */
-  getUser(
-    context: TContext,
-  ): TUser | null | undefined | Promise<TUser | null | undefined>;
-
-  /**
-   * The action that decides whether a denied instance is hidden (not found)
-   * or merely forbidden. Defaults to `'read'`.
-   */
-  readAction?: ActionOf<TAbility> | undefined;
-
-  /**
-   * Answers an Unauthenticated request instead of `UNAUTHORIZED`: returns (or
-   * throws) the error to throw.
-   */
-  onUnauthenticated?: ((denial: Denial) => Error) | undefined;
-
-  /**
-   * Answers a forbidden denial instead of `FORBIDDEN`: returns (or throws) the
-   * error to throw. Not found has no hook, so existence stays hidden.
-   */
-  onForbidden?: ((denial: Denial) => Error) | undefined;
-}
+> = AdapterOptions<TContext, TUser, TAbility, (denial: Denial) => Error>;
 
 /** What {@link OrpcCasl.middleware} adds to the procedure context. */
-export interface CaslContext<TUser, TAbility> {
-  /** The Ability of the request's Authorizable user. */
-  ability: TAbility;
-  /** The Authorizable user `getUser` found. */
-  user: TUser;
-}
+export type { CaslContext };
 
 /**
  * The middleware's type: it needs `TContext` and adds {@link CaslContext}, and
@@ -190,21 +163,24 @@ export function createOrpcCasl<
 >(
   options: OrpcCaslOptions<TContext, TUser, TAbility>,
 ): OrpcCasl<TContext, TUser, TAbility> {
-  const factory = createAbilityFactory<TUser, TAbility>(options);
+  const kit = createAdapterKit<
+    TContext,
+    TUser,
+    TAbility,
+    (denial: Denial) => Error
+  >(options);
 
   const middleware: CaslMiddleware<TContext, TUser, TAbility> = async ({
     context,
     next,
   }) => {
-    const user = await options.getUser(context);
-    if (!user) return answer(unauthenticatedDenial);
+    const caslContext = await kit.contextOf(context);
+    if (!caslContext) return throwDenial(unauthenticatedDenial);
     try {
-      return await next({
-        context: { user, ability: factory.createForUser(user) },
-      });
+      return await next({ context: caslContext });
     } catch (error) {
       if (!(error instanceof NoRecordAllowedError)) throw error;
-      return answer(forbiddenDenialOf(error));
+      return throwDenial(forbiddenDenialOf(error));
     }
   };
 
@@ -218,13 +194,8 @@ export function createOrpcCasl<
     middleware,
 
     assertCan(ability, action, subject, decideOptions) {
-      const decision = decide(ability, action, subject, {
-        ...(options.readAction === undefined
-          ? {}
-          : { readAction: options.readAction }),
-        ...decideOptions,
-      });
-      if (!decision.allowed) answer(decision);
+      const decision = kit.decide(ability, action, subject, decideOptions);
+      if (!decision.allowed) throwDenial(decision);
     },
 
     // oRPC's generics cannot follow an unknown `TContext` through `use`, so
@@ -249,14 +220,14 @@ export function createOrpcCasl<
     },
   };
 
-  /** Throws the oRPC error of a denial. */
-  function answer(denial: Denial): never {
+  /** Throws the oRPC error of a denial, or the app's hook's. */
+  function throwDenial(denial: Denial): never {
+    const hook = kit.hookFor(denial);
+    if (hook) throw hook(denial);
     switch (denial.kind) {
       case 'unauthenticated':
-        if (options.onUnauthenticated) throw options.onUnauthenticated(denial);
         throw new ORPCError('UNAUTHORIZED', { message: denial.message });
       case 'forbidden':
-        if (options.onForbidden) throw options.onForbidden(denial);
         throw new ORPCError('FORBIDDEN', { message: denial.message });
       case 'not-found':
         // oRPC's default message, indistinguishable from a genuine not-found.

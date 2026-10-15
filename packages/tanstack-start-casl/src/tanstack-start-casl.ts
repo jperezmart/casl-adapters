@@ -1,16 +1,16 @@
 import type { AnyAbility } from '@casl/ability';
 import type {
-  AbilityFactoryOptions,
   ActionOf,
+  AdapterOptions,
   AppAbility,
   AuthorizableUser,
+  CaslContext,
   DecideOptions,
   Denial,
   SubjectOf,
 } from '@jperezmart/casl-core';
 import {
-  createAbilityFactory,
-  decide,
+  createAdapterKit,
   forbiddenDenialOf,
   NoRecordAllowedError,
   notFoundDenial,
@@ -27,46 +27,22 @@ import { getRequest, setResponseStatus } from '@tanstack/react-start/server';
 
 import { DenialError } from './denial-error.js';
 
-/** Options for {@link createStartCasl}. */
-export interface StartCaslOptions<
+/**
+ * Options for {@link createStartCasl}, as every Adapter takes them: `getUser`
+ * finds the Authorizable user from the request, and `onUnauthenticated` and
+ * `onForbidden` return (or throw) what to throw instead of the 401 and the
+ * 403, typically a `redirect(…)`.
+ */
+export type StartCaslOptions<
   TUser extends AuthorizableUser,
   TAbility extends AnyAbility,
-> extends AbilityFactoryOptions<TUser, TAbility> {
-  /**
-   * Finds the Authorizable user of a request, or `null` (or `undefined`) for
-   * an Unauthenticated request.
-   */
-  getUser(
-    request: Request,
-  ): TUser | null | undefined | Promise<TUser | null | undefined>;
-
-  /**
-   * The action that decides whether a denied instance is hidden (not found)
-   * or merely forbidden. Defaults to `'read'`.
-   */
-  readAction?: ActionOf<TAbility> | undefined;
-
-  /**
-   * Answers an Unauthenticated request instead of the default (401): returns
-   * (or throws) what to throw, typically `redirect({ to: '/login' })`.
-   */
-  onUnauthenticated?: ((denial: Denial) => unknown) | undefined;
-
-  /**
-   * Answers a forbidden denial instead of the default (403): returns (or
-   * throws) what to throw, typically a `redirect(…)`. Not found has no hook,
-   * so existence stays hidden.
-   */
-  onForbidden?: ((denial: Denial) => unknown) | undefined;
-}
+> = AdapterOptions<Request, TUser, TAbility, DenialHook>;
 
 /** What the Adapter's middleware adds to the context. */
-export interface CaslContext<TUser, TAbility> {
-  /** The Ability of the request's Authorizable user. */
-  ability: TAbility;
-  /** The Authorizable user `getUser` found. */
-  user: TUser;
-}
+export type { CaslContext };
+
+/** What `onUnauthenticated` and `onForbidden` answer a denial with. */
+type DenialHook = (denial: Denial) => unknown;
 
 // Start's own `TRegister` for `createMiddleware`, which is `{}`.
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- as Start's
@@ -159,15 +135,15 @@ export function createStartCasl<
   TUser extends AuthorizableUser = AuthorizableUser,
   TAbility extends AnyAbility = AppAbility,
 >(options: StartCaslOptions<TUser, TAbility>): StartCasl<TUser, TAbility> {
-  const factory = createAbilityFactory<TUser, TAbility>(options);
+  const kit = createAdapterKit<Request, TUser, TAbility, DenialHook>(options);
 
-  /** The context of a request, or the answer to an Unauthenticated one. */
-  async function contextOf(
+  /** The context of a request; throws the answer to an Unauthenticated one. */
+  async function contextOrThrow(
     request: Request,
   ): Promise<CaslContext<TUser, TAbility>> {
-    const user = await options.getUser(request);
-    if (!user) deny(unauthenticatedDenial);
-    return { user, ability: factory.createForUser(user) };
+    const context = await kit.contextOf(request);
+    if (!context) throwDenial(unauthenticatedDenial);
+    return context;
   }
 
   /** Runs the rest of the chain, answering the Access conditions' refusal. */
@@ -176,22 +152,15 @@ export function createStartCasl<
       return await next();
     } catch (error) {
       if (!(error instanceof NoRecordAllowedError)) throw error;
-      deny(forbiddenDenialOf(error));
+      throwDenial(forbiddenDenialOf(error));
     }
   }
 
-  /** Throws the answer to a denial. */
-  function deny(denial: Denial): never {
-    switch (denial.kind) {
-      case 'not-found':
-        throw notFound();
-      case 'unauthenticated':
-        if (options.onUnauthenticated) throw options.onUnauthenticated(denial);
-        break;
-      case 'forbidden':
-        if (options.onForbidden) throw options.onForbidden(denial);
-        break;
-    }
+  /** Throws the answer to a denial: the router's, the app's hook's, or ours. */
+  function throwDenial(denial: Denial): never {
+    if (denial.kind === 'not-found') throw notFound();
+    const hook = kit.hookFor(denial);
+    if (hook) throw hook(denial);
     const error = new DenialError(denial.kind, denial.message);
     setResponseStatus(error.status);
     throw error;
@@ -201,17 +170,17 @@ export function createStartCasl<
     TUser,
     TAbility
   > = async ({ next }) => {
-    const context = await contextOf(getRequest());
+    const context = await contextOrThrow(getRequest());
     return guarded(() => next({ context }));
   };
 
   const routeMiddleware = createMiddleware().server(
     async ({ request, next }) => {
       try {
-        const context = await contextOf(request);
+        const context = await contextOrThrow(request);
         return await guarded(() => next({ context }));
       } catch (error) {
-        return asResponse(error);
+        return denialResponse(error);
       }
     },
   );
@@ -221,33 +190,30 @@ export function createStartCasl<
     routeMiddleware,
 
     assertCan(ability, action, subject, decideOptions) {
-      const decision = decide(ability, action, subject, {
-        ...(options.readAction === undefined
-          ? {}
-          : { readAction: options.readAction }),
-        ...decideOptions,
-      });
-      if (!decision.allowed) deny(decision);
+      const decision = kit.decide(ability, action, subject, decideOptions);
+      if (!decision.allowed) throwDenial(decision);
     },
 
     async rulesHandler({ request }) {
-      const user = await options.getUser(request);
-      if (!user) return answer(401, unauthenticatedDenial.message);
-      return Response.json(rulesResponse(factory.createForUser(user)));
+      const context = await kit.contextOf(request);
+      if (!context) return jsonResponse(401, unauthenticatedDenial.message);
+      return Response.json(rulesResponse(context.ability));
     },
   };
 }
 
 /** A server route's answer to what a denied check threw. */
-function asResponse(error: unknown): Response {
-  if (error instanceof DenialError) return answer(error.status, error.message);
+function denialResponse(error: unknown): Response {
+  if (error instanceof DenialError)
+    return jsonResponse(error.status, error.message);
   // The core's answer for a hidden instance, also used for a missing one.
-  if (isNotFound(error)) return answer(404, notFoundDenial.message);
+  if (isNotFound(error)) return jsonResponse(404, notFoundDenial.message);
   // A hook's redirect, or a Response the handler threw.
   if (error instanceof Response) return error;
   throw error;
 }
 
-function answer(status: number, message: string): Response {
+/** A JSON `{ message }` response with `status`. */
+function jsonResponse(status: number, message: string): Response {
   return Response.json({ message }, { status });
 }
