@@ -33,6 +33,7 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 | [`@jperezmart/orpc-abilities`](./packages/orpc-abilities) | `packages/orpc-abilities` | oRPC example — CASL roles/subjects/abilities/permissions; depends only on `orpc-domain`.           |
 | [`backend-orpc`](./apps/backend-orpc)                     | `apps/backend-orpc`       | NestJS + `@orpc/nest`, authorizing oRPC procedures with `@jperezmart/orpc-casl` (in-memory).       |
 | [`frontend-orpc`](./apps/frontend-orpc)                   | `apps/frontend-orpc`      | TanStack Router SPA: typed oRPC client, TanStack Query, `@jperezmart/casl-react/tanstack-query`.   |
+| [`next-pages`](./apps/next-pages)                         | `apps/next-pages`         | Next.js Pages Router over REST: API routes and `getServerSideProps` with `next-casl`, casl-react.  |
 
 ## Two ways to feed `permissions`
 

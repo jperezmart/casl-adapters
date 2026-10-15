@@ -16,3 +16,7 @@ CHANGELOG.md
 # skills-lock.json: formatting them would drift from the recorded hashes.
 .agents
 skills-lock.json
+
+# Next.js build output and generated types
+.next
+next-env.d.ts

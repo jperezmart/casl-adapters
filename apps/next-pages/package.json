@@ -1,0 +1,40 @@
+{
+  "name": "next-pages",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Next.js Pages Router app over REST — @jperezmart/next-casl in API routes and getServerSideProps, and the Client ability from @jperezmart/casl-react's default fetch.",
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "clean": "rm -rf .next .turbo *.tsbuildinfo",
+    "dev": "next dev --port 3010",
+    "lint": "eslint .",
+    "start": "next start --port 3010",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@casl/ability": "catalog:",
+    "@casl/react": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/casl-react": "workspace:*",
+    "@jperezmart/example-shared": "workspace:*",
+    "@jperezmart/next-casl": "workspace:*",
+    "@ucast/mongo2js": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@types/supertest": "catalog:",
+    "eslint": "catalog:",
+    "supertest": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
