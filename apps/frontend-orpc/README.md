@@ -38,7 +38,9 @@ pnpm --filter frontend-orpc dev     # http://localhost:5174
 ```
 
 Vite proxies `/api` to the backend (see [`vite.config.ts`](vite.config.ts));
-override the target with `API_TARGET`.
+override the target with `API_TARGET`, e.g.
+`API_TARGET=http://127.0.0.1:3004` for the same contract on Hono
+([`backend-orpc-hono`](../backend-orpc-hono)).
 
 ## What to try
 
