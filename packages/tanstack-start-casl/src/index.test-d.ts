@@ -2,8 +2,8 @@ import type { InferSubjects, MongoAbility } from '@casl/ability';
 import { redirect } from '@tanstack/react-router';
 import { createMiddleware, createServerFn } from '@tanstack/react-start';
 
-import type { DenialError, RulesResponse } from './index.js';
-import { createStartCasl, isDenialError } from './index.js';
+import type { DenialError, RulesResponse } from './server.js';
+import { createStartCasl, isDenialError } from './server.js';
 
 interface Article {
   readonly kind: 'Article';
