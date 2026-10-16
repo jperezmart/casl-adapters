@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/casl-testing",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Testing utilities for @jperezmart/casl-core — build and assert an Ability from Role permissions without booting any framework.",
   "keywords": [
     "casl",
