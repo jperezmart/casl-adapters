@@ -126,21 +126,7 @@ export function createCaslReact<TAbility extends AnyMongoAbility>(
 
   /** {@link createAbility}, throwing a MalformedRulesError for a bad payload. */
   function parseAbility(payload?: RulesPayload): TAbility {
-    if (payload === undefined) return abilityOf([]);
-    // What a Rules endpoint answers is not checked by its type.
-    const body: unknown = payload;
-    const rules: unknown =
-      typeof body === 'object' && body !== null
-        ? (body as { rules?: unknown }).rules
-        : undefined;
-    if (!Array.isArray(rules)) throw new MalformedRulesError();
-    try {
-      return abilityOf(
-        unpackRules(rules as PackRule<RawRuleOf<TAbility>>[]) as unknown[],
-      );
-    } catch (cause) {
-      throw new MalformedRulesError({ cause });
-    }
+    return abilityOf(payload === undefined ? [] : unpackPayload(payload));
   }
 
   function createAbility(payload?: RulesPayload): TAbility {
@@ -277,6 +263,22 @@ export function isUnauthenticated(error: unknown): boolean {
     error !== null &&
     (error as { status?: unknown }).status === 401
   );
+}
+
+/** The unpacked rules of a Rules endpoint's answer, or a MalformedRulesError. */
+export function unpackPayload(payload: RulesPayload): unknown[] {
+  // What a Rules endpoint answers is not checked by its type.
+  const body: unknown = payload;
+  const rules: unknown =
+    typeof body === 'object' && body !== null
+      ? (body as { rules?: unknown }).rules
+      : undefined;
+  if (!Array.isArray(rules)) throw new MalformedRulesError();
+  try {
+    return unpackRules(rules as PackRule<RawRuleOf<AnyMongoAbility>>[]);
+  } catch (cause) {
+    throw new MalformedRulesError({ cause });
+  }
 }
 
 /**

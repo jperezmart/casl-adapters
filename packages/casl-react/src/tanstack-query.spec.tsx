@@ -4,7 +4,11 @@ import { act, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 import type { ClientAbilityState, RulesPayload } from './index.js';
-import { createCaslReact, RulesRequestError } from './index.js';
+import {
+  createCaslReact,
+  MalformedRulesError,
+  RulesRequestError,
+} from './index.js';
 import { useQueryAbility } from './tanstack-query.js';
 import type { AppAbility, Article } from './test-app.js';
 import { deferred, detectSubjectType, rulesFor } from './test-app.js';
@@ -91,6 +95,22 @@ describe('useQueryAbility', () => {
     expect(await screen.findByText('signed out')).toBeTruthy();
     expect(screen.queryByText('articles')).toBeNull();
     expect(queryFn).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows nothing for a malformed body, and settles it as a MalformedRulesError', async () => {
+    let state: ClientAbilityState<AppAbility> | undefined;
+    renderWith(
+      queryClient,
+      <Root
+        queryFn={async () => ({ rules: 'x' }) as never}
+        onState={s => (state = s)}
+      />,
+    );
+
+    expect(await screen.findByText('ready')).toBeTruthy();
+    expect(screen.queryByText('articles')).toBeNull();
+    expect(state?.isUnauthenticated).toBe(false);
+    expect(state?.error).toBeInstanceOf(MalformedRulesError);
   });
 
   it('refreshes when the query is invalidated, as after a login', async () => {
