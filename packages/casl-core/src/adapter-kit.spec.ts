@@ -46,6 +46,14 @@ async function abilityOf(user: User): Promise<AppAbility> {
 
 describe('createAdapterKit', () => {
   describe('contextOf', () => {
+    it('rejects, never answers a context, when getUser throws', async () => {
+      const kit = kitOf({
+        getUser: () => Promise.reject(new Error('session store down')),
+      });
+
+      await expect(kit.contextOf({})).rejects.toThrow('session store down');
+    });
+
     it("hands over the request's Authorizable user and their Ability", async () => {
       const context = await kitOf().contextOf({ user: alice });
 

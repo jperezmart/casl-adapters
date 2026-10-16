@@ -242,4 +242,29 @@ describe('createHonoCasl', () => {
       expect(onUnauthenticated).not.toHaveBeenCalled();
     });
   });
+
+  describe('a getUser that throws', () => {
+    const failing = createHonoCasl<User, AppAbility>({
+      getUser: () => Promise.reject(new Error('session store down')),
+      permissions: [permissions],
+    });
+    const handler = vi.fn();
+    const app = new Hono()
+      .get('/me/abilities', failing.rulesHandler)
+      .get('/articles', failing.middleware, c => {
+        handler();
+        return c.json([]);
+      });
+
+    it('answers 500 and never runs the handler', async () => {
+      const res = await app.request('/articles');
+      expect(res.status).toBe(500);
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it('answers 500 from the Rules endpoint, never rules', async () => {
+      const res = await app.request('/me/abilities');
+      expect(res.status).toBe(500);
+    });
+  });
 });
