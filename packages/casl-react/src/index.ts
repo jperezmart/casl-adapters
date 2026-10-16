@@ -11,5 +11,6 @@ export {
   DEFAULT_RULES_PATH,
   fetchRulesFrom,
   isUnauthenticated,
+  MalformedRulesError,
   RulesRequestError,
 } from './casl-react.js';

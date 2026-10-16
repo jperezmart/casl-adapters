@@ -97,7 +97,7 @@ export interface CaslReact<TAbility extends AnyMongoAbility> {
 
   /**
    * Builds a Client ability from a Rules endpoint's answer, or one that
-   * allows nothing without it.
+   * allows nothing without it or for a malformed one.
    */
   createAbility(payload?: RulesPayload): TAbility;
 }
@@ -115,16 +115,40 @@ export function createCaslReact<TAbility extends AnyMongoAbility>(
 ): CaslReact<TAbility> {
   const StateContext = createContext<ClientAbilityState<TAbility> | null>(null);
 
-  function createAbility(payload?: RulesPayload): TAbility {
-    const rules = payload
-      ? unpackRules(payload.rules as PackRule<RawRuleOf<TAbility>>[])
-      : [];
+  function abilityOf(rules: readonly unknown[]): TAbility {
     return createMongoAbility<TAbility>(
       rules as never,
       (options.detectSubjectType
         ? { detectSubjectType: options.detectSubjectType }
         : {}) as never,
     );
+  }
+
+  /** {@link createAbility}, throwing a MalformedRulesError for a bad payload. */
+  function parseAbility(payload?: RulesPayload): TAbility {
+    if (payload === undefined) return abilityOf([]);
+    // What a Rules endpoint answers is not checked by its type.
+    const body: unknown = payload;
+    const rules: unknown =
+      typeof body === 'object' && body !== null
+        ? (body as { rules?: unknown }).rules
+        : undefined;
+    if (!Array.isArray(rules)) throw new MalformedRulesError();
+    try {
+      return abilityOf(
+        unpackRules(rules as PackRule<RawRuleOf<TAbility>>[]) as unknown[],
+      );
+    } catch (cause) {
+      throw new MalformedRulesError({ cause });
+    }
+  }
+
+  function createAbility(payload?: RulesPayload): TAbility {
+    try {
+      return parseAbility(payload);
+    } catch {
+      return abilityOf([]);
+    }
   }
 
   function StateProvider({
@@ -150,7 +174,7 @@ export function createCaslReact<TAbility extends AnyMongoAbility>(
     fetchRules: FetchRules;
     children?: ReactNode;
   }): ReactNode {
-    const state = useFetchedRules(fetchRules, createAbility);
+    const state = useFetchedRules(fetchRules, parseAbility);
     return <StateProvider state={state}>{children}</StateProvider>;
   }
 
@@ -199,12 +223,14 @@ export function createCaslReact<TAbility extends AnyMongoAbility>(
 /** The rules fetched with `fetchRules`, settled into a Client ability. */
 function useFetchedRules<TAbility>(
   fetchRules: FetchRules,
-  createAbility: (payload?: RulesPayload) => TAbility,
+  parseAbility: (payload?: RulesPayload) => TAbility,
 ): ClientAbilityState<TAbility> {
+  // Allows nothing while the rules load, and after any failure.
+  const [none] = useState(() => parseAbility());
   const [answer, setAnswer] = useState<
-    | { settled: false }
-    | { settled: true; payload: RulesPayload; error?: undefined }
-    | { settled: true; payload?: undefined; error: unknown }
+    | { settled: false; ability?: undefined }
+    | { settled: true; ability: TAbility; error?: undefined }
+    | { settled: true; ability?: undefined; error: unknown }
   >({ settled: false });
 
   // The latest `fetchRules`, so an inline function does not refetch on render.
@@ -218,21 +244,19 @@ function useFetchedRules<TAbility>(
   const refresh = useCallback(async (): Promise<void> => {
     const call = ++latest.current;
     try {
-      const payload = await fetchRef.current();
-      if (call === latest.current) setAnswer({ settled: true, payload });
+      // A malformed body throws here, so it settles as an error.
+      const ability = parseAbility(await fetchRef.current());
+      if (call === latest.current) setAnswer({ settled: true, ability });
     } catch (error) {
       if (call === latest.current) setAnswer({ settled: true, error });
     }
-  }, []);
+  }, [parseAbility]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
-  const ability = useMemo(
-    () => createAbility(answer.settled ? answer.payload : undefined),
-    [answer, createAbility],
-  );
+  const ability = answer.ability ?? none;
 
   return useMemo(
     () => ({
@@ -253,6 +277,18 @@ export function isUnauthenticated(error: unknown): boolean {
     error !== null &&
     (error as { status?: unknown }).status === 401
   );
+}
+
+/**
+ * A Rules endpoint's answer that is not `{ rules }` with packed rules, such as
+ * an HTML page or a proxy's error served with a 200: the Client ability then
+ * allows nothing, as after any other failure.
+ */
+export class MalformedRulesError extends Error {
+  constructor(options?: { cause?: unknown }) {
+    super('The Rules endpoint answered no packed rules.', options);
+    this.name = 'MalformedRulesError';
+  }
 }
 
 /** A Rules endpoint that answered something other than 2xx. */
