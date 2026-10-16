@@ -61,6 +61,9 @@ catalog:
   '@orpc/tanstack-query': 1.14.6
   # runtime — next.js (Pages Router)
   next: ^16.4.0
+  # runtime — hono
+  hono: ^4.13.13
+  '@hono/node-server': ^2.1.5
   # build / tooling
   tsdown: ^0.22.2
   turbo: ^2.9.18
