@@ -41,6 +41,8 @@ const permissions: RolePermissions<Role, AppUser> = {
 };
 ```
 
+The values a rule's conditions take from the user are part of the query: a user field holding an object is read as Mongo operators, so a token claim `{ "id": { "$ne": null } }` turns `{ authorId: user.id }` into a condition every article matches. Check the type of every field `getUser` takes from a token or a session before it reaches a rule (`typeof id === 'string'`).
+
 Only the Roles the map declares are typed; the user's own `roles` are plain strings, and Roles no map declares are ignored. The user needs nothing but its `roles` (`AuthorizableUser`).
 
 ## The Ability: `createAbilityFactory`
@@ -63,6 +65,8 @@ const ability = abilities.createForUser({ id: 'u1', roles: ['author'] });
 | `detectSubjectType` | `(subject: object) => string` | Custom subject-type detection, forwarded to the built Ability.                               |
 
 `createForUser` lays down the Everyone permissions of every map first, then the permissions of each Role the user holds, so a Role can restrict what everyone may do with `cannot`. A user whose `roles` is missing or not an array holds no Roles and still gets the Everyone permissions; a user holding a Role named `everyone` does not get them twice.
+
+`createForUser` throws an `UndefinedConditionError` rather than build an Ability whose rule conditions hold `undefined`, such as `{ authorId: user.id }` for a user without `id`. `JSON.stringify`, the MongoDB driver's `ignoreUndefined`, Mongoose and Prisma drop such a field, so those conditions would let every record through. Every Adapter answers the request as an error (500).
 
 An Unauthenticated request has no user, so it gets no Ability at all, which is different from a user who holds no Roles.
 
@@ -150,6 +154,8 @@ rulesResponse(ability); // { rules: [['read', 'Article', { published: true }]] }
 ```
 
 It is an object rather than a bare array so fields can be added later without breaking clients.
+
+Every Adapter answers its Rules endpoint with `Cache-Control: private, no-store` (`RULES_CACHE_CONTROL`), so no CDN or shared proxy stores one user's rules and serves them to another. An Adapter of your own should set it too.
 
 ## Building an Adapter: `createAdapterKit`
 
