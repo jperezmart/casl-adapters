@@ -10,7 +10,7 @@
 
 ### Issue tracker
 
-Issues live in GitHub Issues on jperezmart/nest-casl, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues live in GitHub Issues on jperezmart/casl-adapters, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

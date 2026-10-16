@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/orpc-casl.svg)](https://www.npmjs.com/package/@jperezmart/orpc-casl)
 [![license](https://img.shields.io/npm/l/@jperezmart/orpc-casl.svg)](./LICENSE)
 
-The [oRPC](https://orpc.dev) Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials with oRPC's own `UNAUTHORIZED`, `FORBIDDEN` and `NOT_FOUND`, following the Denial rule ([ADR 0004](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)).
+The [oRPC](https://orpc.dev) Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials with oRPC's own `UNAUTHORIZED`, `FORBIDDEN` and `NOT_FOUND`, following the Denial rule ([ADR 0004](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)).
 
 It works the same wherever oRPC is mounted: a NestJS controller (`@orpc/nest`), a Next.js API route or a TanStack Start server route. It offers:
 
@@ -212,11 +212,11 @@ const handler = new OpenAPIHandler(router, {
 });
 ```
 
-The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
+The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
 
 ## Mounted in NestJS
 
-With `@orpc/nest`, give the procedures the request as their context and read the user from it. The [`backend-orpc` example](https://github.com/jperezmart/nest-casl/tree/main/apps/backend-orpc) does this:
+With `@orpc/nest`, give the procedures the request as their context and read the user from it. The [`backend-orpc` example](https://github.com/jperezmart/casl-adapters/tree/main/apps/backend-orpc) does this:
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -246,7 +246,7 @@ Then create the Adapter with `createOrpcCasl<ORPCGlobalContext, AppUser, AppAbil
 
 ## Testing
 
-Call procedures with oRPC's server-side `call` and a test context; build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing).
+Call procedures with oRPC's server-side `call` and a test context; build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-testing).
 
 ```ts
 import { call } from '@orpc/server';

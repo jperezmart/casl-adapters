@@ -3,9 +3,9 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/casl-core.svg)](https://www.npmjs.com/package/@jperezmart/casl-core)
 [![license](https://img.shields.io/npm/l/@jperezmart/casl-core.svg)](./LICENSE)
 
-The framework-free core of the [jperezmart CASL Adapters](https://github.com/jperezmart/nest-casl): the Role permissions, the Ability construction, the Denial rule and the Access conditions, on top of [CASL](https://casl.js.org) v7. It depends only on CASL, so it is safe to import from any runtime.
+The framework-free core of the [jperezmart CASL Adapters](https://github.com/jperezmart/casl-adapters): the Role permissions, the Ability construction, the Denial rule and the Access conditions, on top of [CASL](https://casl.js.org) v7. It depends only on CASL, so it is safe to import from any runtime.
 
-You rarely use it on its own: an Adapter such as [`@jperezmart/nest-casl`](https://github.com/jperezmart/nest-casl/tree/main/packages/core) finds the request's user, builds their Ability with this core and turns its answers into its framework's own 401, 403 or 404. The core never throws a framework's error: it says which answer a denial is, and the Adapter answers it ([ADR 0005](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0005-a-core-that-decides-an-adapter-per-framework.md)).
+You rarely use it on its own: an Adapter such as [`@jperezmart/nest-casl`](https://github.com/jperezmart/casl-adapters/tree/main/packages/core) finds the request's user, builds their Ability with this core and turns its answers into its framework's own 401, 403 or 404. The core never throws a framework's error: it says which answer a denial is, and the Adapter answers it ([ADR 0005](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0005-a-core-that-decides-an-adapter-per-framework.md)).
 
 ## Install
 
@@ -90,7 +90,7 @@ if (!decision.allowed) {
 }
 ```
 
-The first row that matches decides ([ADR 0004](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)):
+The first row that matches decides ([ADR 0004](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)):
 
 | Check                                                         | Answer            |
 | ------------------------------------------------------------- | ----------------- |
@@ -145,7 +145,7 @@ When the Ability allows no record at all, `get()`, `toMongo()` and `toAst()` thr
 
 ## The Rules endpoint: `rulesResponse`
 
-Every Adapter serves a Rules endpoint with the same shape, so the browser builds its Client ability ([`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react)) the same way whatever the server. `rulesResponse(ability)` is that answer: an object whose `rules` holds the Ability's rules, packed with CASL's `packRules`. Its type is `RulesResponse<TAbility>`. An Unauthenticated request gets a 401 instead.
+Every Adapter serves a Rules endpoint with the same shape, so the browser builds its Client ability ([`@jperezmart/casl-react`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-react)) the same way whatever the server. `rulesResponse(ability)` is that answer: an object whose `rules` holds the Ability's rules, packed with CASL's `packRules`. Its type is `RulesResponse<TAbility>`. An Unauthenticated request gets a 401 instead.
 
 ```ts
 import { rulesResponse } from '@jperezmart/casl-core';
@@ -191,7 +191,7 @@ The Adapter keeps only what its framework decides: how to turn each denial into 
 
 ## Testing
 
-[`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing) builds an Ability from your Role permissions through this core, without booting any framework.
+[`@jperezmart/casl-testing`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-testing) builds an Ability from your Role permissions through this core, without booting any framework.
 
 ## License
 

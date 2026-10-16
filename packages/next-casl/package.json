@@ -12,13 +12,13 @@
     "rbac",
     "abac"
   ],
-  "homepage": "https://github.com/jperezmart/nest-casl/tree/main/packages/next-casl#readme",
+  "homepage": "https://github.com/jperezmart/casl-adapters/tree/main/packages/next-casl#readme",
   "bugs": {
-    "url": "https://github.com/jperezmart/nest-casl/issues"
+    "url": "https://github.com/jperezmart/casl-adapters/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jperezmart/nest-casl.git",
+    "url": "git+https://github.com/jperezmart/casl-adapters.git",
     "directory": "packages/next-casl"
   },
   "license": "MIT",

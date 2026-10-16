@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/nest-casl-testing.svg)](https://www.npmjs.com/package/@jperezmart/nest-casl-testing)
 [![license](https://img.shields.io/npm/l/@jperezmart/nest-casl-testing.svg)](./LICENSE)
 
-> **Deprecated.** Use [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing)
+> **Deprecated.** Use [`@jperezmart/casl-testing`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-testing)
 > instead: it has the same `buildAbilityForTest` and works for every framework.
 > This package only re-exports it, and keeps working until you migrate.
 

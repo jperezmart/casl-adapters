@@ -4,7 +4,7 @@
   "description": "Deprecated: use @jperezmart/casl-testing. Re-exports its testing utilities.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jperezmart/nest-casl.git",
+    "url": "git+https://github.com/jperezmart/casl-adapters.git",
     "directory": "packages/testing"
   },
   "license": "MIT",

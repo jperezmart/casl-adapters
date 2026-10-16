@@ -1,146 +1,124 @@
-# nest-casl monorepo
+# casl-adapters
 
-[![npm version](https://img.shields.io/npm/v/@jperezmart/nest-casl.svg)](https://www.npmjs.com/package/@jperezmart/nest-casl)
-[![license](https://img.shields.io/npm/l/@jperezmart/nest-casl.svg)](./LICENSE)
+[![license](https://img.shields.io/npm/l/@jperezmart/casl-core.svg)](./LICENSE)
 
-Modern [CASL](https://casl.js.org) authorization for [NestJS](https://nestjs.com) — REST-focused, ESM + CJS, CASL v7.
+Declare your Role permissions once with [CASL](https://casl.js.org) v7 and get an Ability for every request, in whichever framework serves it: NestJS, oRPC, the Next.js Pages Router, TanStack Start or Hono. Every Adapter answers denials by the same Denial rule, and the browser gets a Client ability from any of them.
 
-```bash
-pnpm add @jperezmart/nest-casl @jperezmart/casl-core @casl/ability
+```text
+@jperezmart/casl-core         decides: allowed, or unauthenticated / forbidden / not found
+  ├── nest-casl               ┐
+  ├── orpc-casl               │  each Adapter finds the Authorizable user of a request,
+  ├── next-casl               │  builds its Ability and answers in its framework's own way
+  ├── tanstack-start-casl     │  (401 / 403 / 404, oRPC errors, the router's notFound…)
+  └── hono-casl               ┘
+casl-react                    the browser: a Client ability from any Adapter's Rules endpoint
 ```
 
-## Why
+The core never throws framework errors; the Adapter turns its answer into a native one ([ADR 0005](./docs/adr/0005-a-core-that-decides-an-adapter-per-framework.md)). Each app builds its own Ability in its own server, with no central abilities service ([ADR 0006](./docs/adr/0006-each-app-builds-its-own-ability.md)).
 
-Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`. This is a from-scratch, strictly-typed, REST-only take built for NestJS 10/11 and CASL 7.
+## Install
+
+Install the core, CASL and the Adapter for your framework. The core is a peer dependency of every Adapter, so an app that uses two (oRPC inside Next.js, say) has exactly one copy of it.
+
+| Framework                     | Install                                                                           |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| NestJS                        | `pnpm add @jperezmart/nest-casl @jperezmart/casl-core @casl/ability`              |
+| oRPC (wherever it is mounted) | `pnpm add @jperezmart/orpc-casl @jperezmart/casl-core @casl/ability`              |
+| Next.js Pages Router          | `pnpm add @jperezmart/next-casl @jperezmart/casl-core @casl/ability`              |
+| TanStack Start                | `pnpm add @jperezmart/tanstack-start-casl @jperezmart/casl-core @casl/ability`    |
+| Hono                          | `pnpm add @jperezmart/hono-casl @jperezmart/casl-core @casl/ability`              |
+| React, in the browser         | `pnpm add @jperezmart/casl-react @jperezmart/casl-core @casl/ability @casl/react` |
+
+Each package's README shows how to set it up.
+
+## The Denial rule
+
+One rule, decided once in the core and answered by every Adapter ([ADR 0004](./docs/adr/0004-hide-what-the-user-cannot-read.md)):
+
+1. An Unauthenticated request gets no Ability: **unauthenticated** (401).
+2. The action is denied on the subject type, checked before any instance is loaded: **forbidden** (403).
+3. The instance is denied and the user cannot read it either: **not found** (404), exactly like a missing record.
+4. The instance is denied but the user can read it: **forbidden** (403).
+
+`onUnauthenticated` and `onForbidden` let an app answer differently (a redirect to its login page, say). Not found has no hook, so existence stays hidden.
 
 ## Packages
 
-| Package                                                             | Path                           | Description                                                                                              |
-| ------------------------------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| [`@jperezmart/casl-core`](./packages/casl-core)                     | `packages/casl-core`           | Framework-free core: Role permissions, the Ability, the Denial rule, the Access conditions.              |
-| [`@jperezmart/nest-casl`](./packages/core)                          | `packages/core`                | The NestJS Adapter: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, decorators.               |
-| [`@jperezmart/orpc-casl`](./packages/orpc-casl)                     | `packages/orpc-casl`           | The oRPC Adapter: a middleware adding the Ability to the context, `assertCan`, the Rules endpoint.       |
-| [`@jperezmart/next-casl`](./packages/next-casl)                     | `packages/next-casl`           | The Next.js Pages Router Adapter: `getServerSideProps` and API route wrappers, the Rules endpoint.       |
-| [`@jperezmart/tanstack-start-casl`](./packages/tanstack-start-casl) | `packages/tanstack-start-casl` | The TanStack Start Adapter: middleware for server functions and routes, `assertCan`, the Rules endpoint. |
-| [`@jperezmart/hono-casl`](./packages/hono-casl)                     | `packages/hono-casl`           | The Hono Adapter: a middleware adding the Ability to the typed context, `assertCan`, the Rules endpoint. |
-| [`@jperezmart/casl-react`](./packages/casl-react)                   | `packages/casl-react`          | The browser side: a Client ability from a Rules endpoint, a typed `Can`, hooks, TanStack Query.          |
-| [`@jperezmart/casl-testing`](./packages/casl-testing)               | `packages/casl-testing`        | Helpers to unit-test Role permissions without booting any framework.                                     |
-| `@jperezmart/nest-casl-testing`                                     | `packages/testing`             | Deprecated re-export of `@jperezmart/casl-testing`.                                                      |
-| [`@jperezmart/example-shared`](./packages/example-shared)           | `packages/example-shared`      | Shared roles, subjects, ability type and permission definitions used by the examples.                    |
-| [`backend-simple`](./apps/backend-simple)                           | `apps/backend-simple`          | NestJS REST API with permissions defined **inline** (Nest only).                                         |
-| [`backend-shared`](./apps/backend-shared)                           | `apps/backend-shared`          | Same API, but roles/subjects/permissions **imported** from `@jperezmart/example-shared`.                 |
-| [`frontend`](./apps/frontend)                                       | `apps/frontend`                | Vite + React tester on `@jperezmart/casl-react`'s default fetch; shares typing with the backends.        |
-| [`@jperezmart/orpc-domain`](./packages/orpc-domain)                 | `packages/orpc-domain`         | oRPC example — Zod schemas + inferred types (single source of truth; no deps but zod).                   |
-| [`@jperezmart/orpc-contract`](./packages/orpc-contract)             | `packages/orpc-contract`       | oRPC example — the oRPC contract; depends only on `orpc-domain`.                                         |
-| [`@jperezmart/orpc-abilities`](./packages/orpc-abilities)           | `packages/orpc-abilities`      | oRPC example — CASL roles/subjects/abilities/permissions; depends only on `orpc-domain`.                 |
-| [`backend-orpc`](./apps/backend-orpc)                               | `apps/backend-orpc`            | NestJS + `@orpc/nest`, authorizing oRPC procedures with `@jperezmart/orpc-casl` (in-memory).             |
-| [`frontend-orpc`](./apps/frontend-orpc)                             | `apps/frontend-orpc`           | TanStack Router SPA: typed oRPC client, TanStack Query, `@jperezmart/casl-react/tanstack-query`.         |
-| [`next-pages`](./apps/next-pages)                                   | `apps/next-pages`              | Next.js Pages Router over REST: API routes and `getServerSideProps` with `next-casl`, casl-react.        |
-| [`next-pages-orpc`](./apps/next-pages-orpc)                         | `apps/next-pages-orpc`         | Next.js Pages Router with oRPC in an API route (`orpc-casl`), `casl-react/tanstack-query`.               |
-| [`tanstack-start`](./apps/tanstack-start)                           | `apps/tanstack-start`          | TanStack Start over REST: server functions and routes with the Adapter, `casl-react`'s default fetch.    |
-| [`tanstack-start-orpc`](./apps/tanstack-start-orpc)                 | `apps/tanstack-start-orpc`     | TanStack Start over oRPC: the contract in a server route with `orpc-casl`, `casl-react/tanstack-query`.  |
-| [`backend-hono`](./apps/backend-hono)                               | `apps/backend-hono`            | Hono REST API with `hono-casl`: the same HTTP API and seed as `backend-simple`, for `frontend`.          |
-| [`backend-orpc-hono`](./apps/backend-orpc-hono)                     | `apps/backend-orpc-hono`       | Hono with oRPC mounted: the same contract as `backend-orpc`, with `orpc-casl`, for `frontend-orpc`.      |
+| Package                                                             | Description                                                                                              |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [`@jperezmart/casl-core`](./packages/casl-core)                     | Framework-free core: Role permissions, the Ability, the Denial rule, the Access conditions.              |
+| [`@jperezmart/nest-casl`](./packages/core)                          | The NestJS Adapter: `CaslModule`, `AccessGuard`, `@UseAbility`, subject hooks, decorators.               |
+| [`@jperezmart/orpc-casl`](./packages/orpc-casl)                     | The oRPC Adapter: a middleware adding the Ability to the context, `assertCan`, the Rules endpoint.       |
+| [`@jperezmart/next-casl`](./packages/next-casl)                     | The Next.js Pages Router Adapter: `getServerSideProps` and API route wrappers, the Rules endpoint.       |
+| [`@jperezmart/tanstack-start-casl`](./packages/tanstack-start-casl) | The TanStack Start Adapter: middleware for server functions and routes, `assertCan`, the Rules endpoint. |
+| [`@jperezmart/hono-casl`](./packages/hono-casl)                     | The Hono Adapter: a middleware adding the Ability to the typed context, `assertCan`, the Rules endpoint. |
+| [`@jperezmart/casl-react`](./packages/casl-react)                   | The browser side: a Client ability from a Rules endpoint, a typed `Can`, hooks, TanStack Query.          |
+| [`@jperezmart/casl-testing`](./packages/casl-testing)               | Helpers to unit-test Role permissions without booting any framework.                                     |
+| `@jperezmart/nest-casl-testing`                                     | Deprecated re-export of `@jperezmart/casl-testing`.                                                      |
 
-## Two ways to feed `permissions`
+The Client ability only decides what the UI shows. What a user may do is decided by the server's Ability alone.
 
-`permissions` is just an object you pass to `CaslModule.forFeature`. The two
-backends show the same API with that object coming from different places:
+## Examples
 
-- **`backend-simple`** defines the permissions inline — the common "Nest only"
-  case, nothing extra to set up.
-- **`backend-shared`** imports them (plus the `Article` subject, `Role` and
-  `AppUser`) from `@jperezmart/example-shared`. The `frontend` imports the
-  **types** and `detectSubjectType` from that same package for the
-  compile-time-checked `<Can>` of `@jperezmart/casl-react`, which fetches the
-  actual rules at runtime from the Rules endpoint, `GET /me/abilities`.
+Every example uses the same seed (Admin, Alice and Bob as authors, Carol as a plain user) and the same articles, so you can switch user and compare.
 
-Going from one to the other is moving an object from a local file into a shared
-package — the library API doesn't change.
+| Server                                              | Transport | Adapter               | Browser                                                       |
+| --------------------------------------------------- | --------- | --------------------- | ------------------------------------------------------------- |
+| [`backend-simple`](./apps/backend-simple)           | REST      | `nest-casl`           | [`frontend`](./apps/frontend) (Vite)                          |
+| [`backend-shared`](./apps/backend-shared)           | REST      | `nest-casl`           | [`frontend`](./apps/frontend) (Vite)                          |
+| [`backend-hono`](./apps/backend-hono)               | REST      | `hono-casl`           | [`frontend`](./apps/frontend) (Vite)                          |
+| [`backend-orpc`](./apps/backend-orpc)               | oRPC      | `orpc-casl` in NestJS | [`frontend-orpc`](./apps/frontend-orpc) (TanStack Router SPA) |
+| [`backend-orpc-hono`](./apps/backend-orpc-hono)     | oRPC      | `orpc-casl` in Hono   | [`frontend-orpc`](./apps/frontend-orpc) (TanStack Router SPA) |
+| [`next-pages`](./apps/next-pages)                   | REST      | `next-casl`           | the same app, `casl-react`                                    |
+| [`next-pages-orpc`](./apps/next-pages-orpc)         | oRPC      | `orpc-casl` in Next   | the same app, `casl-react/tanstack-query`                     |
+| [`tanstack-start`](./apps/tanstack-start)           | REST      | `tanstack-start-casl` | the same app, `casl-react`                                    |
+| [`tanstack-start-orpc`](./apps/tanstack-start-orpc) | oRPC      | `orpc-casl` in Start  | the same app, `casl-react/tanstack-query`                     |
 
-## Try it end-to-end
+Run one:
 
 ```bash
 pnpm install
-pnpm build                                          # build the package graph
-pnpm --filter backend-shared start                  # :3000 (or backend-simple)
-pnpm --filter frontend dev                          # :5173
+pnpm build                              # build the package graph
+pnpm --filter backend-simple dev        # :3000
+pnpm --filter frontend dev              # :5173
 ```
 
-Open http://localhost:5173, switch between users, and watch the UI gating and the
-REST responses stay in sync with the same CASL rules.
-
-## oRPC example (contract-first)
-
-The `orpc-*` packages + `backend-orpc` + `frontend-orpc` show **oRPC mounted in
-NestJS, authorized by the oRPC Adapter**
-([`@jperezmart/orpc-casl`](./packages/orpc-casl)) instead of the NestJS one.
-Architecture (strict, one-way deps):
-
-```
-orpc-domain     Zod schemas + types (source of truth, no deps but zod)
-orpc-contract   oRPC contract        →  depends only on orpc-domain
-orpc-abilities  CASL                 →  depends only on orpc-domain
-backend-orpc    Nest + @orpc/nest + @jperezmart/orpc-casl (in-memory, no database)
-frontend-orpc   TanStack Router SPA: typed oRPC client + TanStack Query + @jperezmart/casl-react
-```
-
-`domain` depends on no one; `contract` and `abilities` depend only on `domain`,
-never on each other. Subjects are `kind`-tagged plain objects resolved via
-`detectSubjectType`; the frontend imports the typing and the detection from the
-client-safe barrel of `orpc-abilities` (the Role permissions sit under its
-`./server` entry) and gets the rules at runtime from the `me.abilities`
-procedure, through oRPC's TanStack Query integration and
-`@jperezmart/casl-react/tanstack-query`. It puts the Client ability in the
-TanStack Router context and checks it in a route's `beforeLoad`, by hand.
-
-**The CASL ↔ oRPC bridge.** `AppModule` hands every procedure the request as its
-context, and [`casl.ts`](./apps/backend-orpc/src/casl.ts) creates the Adapter
-with a `getUser` that reads the demo user from it. Then:
-
-- [`articles.controller.ts`](./apps/backend-orpc/src/articles/articles.controller.ts)
-  implements each procedure with `casl.middleware`, which puts the user's
-  Ability in the context (or answers `UNAUTHORIZED`). The handler checks the
-  subject type with `casl.assertCan`, loads the article from the **validated
-  `input`**, and checks the article: oRPC's own `FORBIDDEN` or `NOT_FOUND` by
-  the Denial rule, with no translation of NestJS exceptions.
-- [`me.controller.ts`](./apps/backend-orpc/src/me/me.controller.ts) implements
-  `me.abilities` with the Adapter's ready-made Rules endpoint
-  (`casl.implementRules`).
-
-Always authorize against the **server-loaded** record, never the incoming body
-(a client could spoof it); a missing record is a real 404.
-
-```bash
-pnpm install
-pnpm build
-pnpm --filter backend-orpc dev     # :3002
-pnpm --filter frontend-orpc dev    # :5174
-```
-
-[`backend-orpc-hono`](./apps/backend-orpc-hono) implements the same contract on
-Hono instead of NestJS, with the same Adapter; point the frontend at it with
-`API_TARGET`:
+The fullstack examples need only themselves (`pnpm --filter next-pages dev`, on :3010; `pnpm --filter tanstack-start dev`, on :3200). The Vite frontends proxy to a backend set by `API_TARGET`, so the same frontend runs against NestJS or Hono:
 
 ```bash
 pnpm --filter backend-orpc-hono dev                                # :3004
 API_TARGET=http://127.0.0.1:3004 pnpm --filter frontend-orpc dev   # :5174
 ```
 
-Likewise [`backend-hono`](./apps/backend-hono) serves `backend-simple`'s REST API
-on Hono with [`@jperezmart/hono-casl`](./packages/hono-casl), for `frontend`
-(`pnpm --filter backend-hono dev`, on :3003, then
-`API_TARGET=http://127.0.0.1:3003 pnpm --filter frontend dev`).
+### Where the permissions live
+
+- **`backend-simple`** defines its Role permissions inline, the common case.
+- **`backend-shared`** imports them, with the `Article` subject, the Roles and the user type, from [`@jperezmart/example-shared`](./packages/example-shared). The `frontend` imports the types and `detectSubjectType` from that same package for its typed `Can`, and fetches the rules at runtime from the Rules endpoint.
+- The **oRPC examples** are contract-first, with strict one-way dependencies:
+
+  ```text
+  orpc-domain     Zod schemas + types (source of truth, no deps but zod)
+  orpc-contract   the oRPC contract   →  depends only on orpc-domain
+  orpc-abilities  CASL                →  depends only on orpc-domain
+  ```
+
+  The frontend imports the typing from the client-safe entry of `orpc-abilities`; the Role permissions sit under its `./server` entry, so they never reach the browser bundle.
+
+Always authorize against the record the server loaded, never the incoming body: a client could spoof it.
+
+## Security
+
+The libraries were reviewed before their first release: see [the October 2026 review](./docs/security/2026-10-review.md). Two things worth knowing:
+
+- In NestJS, a route under `AccessGuard` with no `@UseAbility` answers 403. Open a route on purpose with `@AllowWithoutAbility()`.
+- User fields reach the rule conditions as values. `getUser` must check the type of every field it takes from a token or a session.
 
 ## Develop
 
 ```bash
 pnpm install
-pnpm build       # turbo run build
-pnpm test        # turbo run test
-pnpm typecheck   # turbo run typecheck
+pnpm turbo run typecheck lint test   # builds what the apps import first
+pnpm format:check
 ```
 
-Tooling: **pnpm** workspaces, **Turborepo**, **tsdown** (dual ESM/CJS, via rolldown/oxc), **Vitest**, strict **TypeScript**.
-
-> Status: core implemented; verified end-to-end by the example apps. Test suite next.
+Tooling: **pnpm** workspaces, **Turborepo**, **tsdown** (dual ESM/CJS), **Vitest**, strict **TypeScript**, and **changesets**, so each package is versioned on its own. The domain terms are in [`GLOSSARY.md`](./GLOSSARY.md) and the decisions in [`docs/adr`](./docs/adr).

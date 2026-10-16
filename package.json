@@ -1,8 +1,8 @@
 {
-  "name": "nest-casl-monorepo",
+  "name": "casl-adapters-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "Monorepo for @jperezmart/nest-casl — modern CASL integration for NestJS (REST)",
+  "description": "Monorepo for casl-adapters: a framework-agnostic CASL core with Adapters for NestJS, oRPC, Next.js, TanStack Start and Hono, plus casl-react",
   "license": "MIT",
   "author": "Javier Pérez Martín <javier.perez.martin97@gmail.com>",
   "type": "module",

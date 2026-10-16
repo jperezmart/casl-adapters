@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/next-casl.svg)](https://www.npmjs.com/package/@jperezmart/next-casl)
 [![license](https://img.shields.io/npm/l/@jperezmart/next-casl.svg)](./LICENSE)
 
-The [Next.js](https://nextjs.org) **Pages Router** Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials the Next.js way, following the Denial rule ([ADR 0004](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)). It offers:
+The [Next.js](https://nextjs.org) **Pages Router** Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials the Next.js way, following the Denial rule ([ADR 0004](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)). It offers:
 
 - **wrappers** for `getServerSideProps` and API routes that hand over the request's Ability;
 - an **`assertCan`** that, inside them, answers by the Denial rule;
@@ -207,7 +207,7 @@ Not found has no hook: it always answers not found, so existence stays hidden.
 
 `casl.rulesEndpoint` is a ready-made API route handler: `GET` answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability. An Unauthenticated request gets 401, whatever `onUnauthenticated` says, so the browser can tell there is no session. Its type is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Every answer, the 401 included, carries `Cache-Control: private, no-store`: the rules are the user's own, so no CDN or proxy may store them and serve them to someone else.
 
-Mount it at the path of your choice. At `pages/api/me/abilities.ts`, the default path of [`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react), the browser needs no configuration:
+Mount it at the path of your choice. At `pages/api/me/abilities.ts`, the default path of [`@jperezmart/casl-react`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-react), the browser needs no configuration:
 
 ```ts
 // pages/api/me/abilities.ts
@@ -216,15 +216,15 @@ import { casl } from '../../../lib/casl';
 export default casl.rulesEndpoint;
 ```
 
-The rules never travel through page props. The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
+The rules never travel through page props. The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
 
 ## With oRPC in an API route
 
-[`@jperezmart/orpc-casl`](https://github.com/jperezmart/nest-casl/tree/main/packages/orpc-casl) authorizes oRPC procedures mounted in an API route. Give the procedures the request as their context, and both Adapters can share one `getUser`. The [`next-pages-orpc` example](https://github.com/jperezmart/nest-casl/tree/main/apps/next-pages-orpc) does this.
+[`@jperezmart/orpc-casl`](https://github.com/jperezmart/casl-adapters/tree/main/packages/orpc-casl) authorizes oRPC procedures mounted in an API route. Give the procedures the request as their context, and both Adapters can share one `getUser`. The [`next-pages-orpc` example](https://github.com/jperezmart/casl-adapters/tree/main/apps/next-pages-orpc) does this.
 
 ## Testing
 
-Call a wrapped `getServerSideProps` with a context object, and a wrapped API route with a Node request/response pair; neither needs Next.js running. Build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing).
+Call a wrapped `getServerSideProps` with a context object, and a wrapped API route with a Node request/response pair; neither needs Next.js running. Build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-testing).
 
 ## License
 

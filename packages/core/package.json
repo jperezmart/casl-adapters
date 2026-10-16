@@ -14,13 +14,13 @@
     "guard",
     "rest"
   ],
-  "homepage": "https://github.com/jperezmart/nest-casl/tree/main/packages/core#readme",
+  "homepage": "https://github.com/jperezmart/casl-adapters/tree/main/packages/core#readme",
   "bugs": {
-    "url": "https://github.com/jperezmart/nest-casl/issues"
+    "url": "https://github.com/jperezmart/casl-adapters/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jperezmart/nest-casl.git",
+    "url": "git+https://github.com/jperezmart/casl-adapters.git",
     "directory": "packages/core"
   },
   "license": "MIT",

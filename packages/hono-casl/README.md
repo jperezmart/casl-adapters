@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/hono-casl.svg)](https://www.npmjs.com/package/@jperezmart/hono-casl)
 [![license](https://img.shields.io/npm/l/@jperezmart/hono-casl.svg)](./LICENSE)
 
-The [Hono](https://hono.dev) Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials with HTTP responses, following the Denial rule ([ADR 0004](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)).
+The [Hono](https://hono.dev) Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials with HTTP responses, following the Denial rule ([ADR 0004](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)).
 
 It offers:
 
@@ -172,21 +172,21 @@ They apply to what `casl.middleware` answers: the Unauthenticated request it sto
 
 ## The Rules endpoint
 
-`casl.rulesHandler` is the Rules endpoint as a Hono handler. It answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability, and 401 to an Unauthenticated request (never `onUnauthenticated`'s answer, so the browser can tell there is no session). Its body is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Every answer, the 401 included, carries `Cache-Control: private, no-store`: the rules are the user's own, so no CDN or proxy may store them and serve them to someone else. Mount it where [`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react) fetches it (`/api/me/abilities` by default), or anywhere else:
+`casl.rulesHandler` is the Rules endpoint as a Hono handler. It answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability, and 401 to an Unauthenticated request (never `onUnauthenticated`'s answer, so the browser can tell there is no session). Its body is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Every answer, the 401 included, carries `Cache-Control: private, no-store`: the rules are the user's own, so no CDN or proxy may store them and serve them to someone else. Mount it where [`@jperezmart/casl-react`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-react) fetches it (`/api/me/abilities` by default), or anywhere else:
 
 ```ts
 app.get('/api/me/abilities', casl.rulesHandler);
 ```
 
-The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
+The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
 
 ## With oRPC
 
-To serve an oRPC contract from Hono, use [`@jperezmart/orpc-casl`](https://github.com/jperezmart/nest-casl/tree/main/packages/orpc-casl) in the procedures and hand them the request as their context; this Adapter is for plain Hono routes. The [`backend-orpc-hono` example](https://github.com/jperezmart/nest-casl/tree/main/apps/backend-orpc-hono) does this, and [`backend-hono`](https://github.com/jperezmart/nest-casl/tree/main/apps/backend-hono) uses this Adapter for a REST API.
+To serve an oRPC contract from Hono, use [`@jperezmart/orpc-casl`](https://github.com/jperezmart/casl-adapters/tree/main/packages/orpc-casl) in the procedures and hand them the request as their context; this Adapter is for plain Hono routes. The [`backend-orpc-hono` example](https://github.com/jperezmart/casl-adapters/tree/main/apps/backend-orpc-hono) does this, and [`backend-hono`](https://github.com/jperezmart/casl-adapters/tree/main/apps/backend-hono) uses this Adapter for a REST API.
 
 ## Testing
 
-Drive your app with Hono's `app.request(…)`, as this package's own tests do. Build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing).
+Drive your app with Hono's `app.request(…)`, as this package's own tests do. Build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-testing).
 
 ## License
 
