@@ -24,6 +24,9 @@ import type { AppAbility } from './types.js';
  * - {@link CaslModule.forFeature} — register per feature module with that
  *   feature's permission definitions.
  */
+/** How many forFeature registrations were made, for their tokens. */
+let featureCount = 0;
+
 @Module({})
 export class CaslModule {
   /**
@@ -80,7 +83,11 @@ export class CaslModule {
     TAbility extends AnyAbility = AppAbility,
   >(options: CaslFeatureOptions<string, TUser, TAbility>): DynamicModule {
     const registrationProvider: Provider = {
-      provide: Symbol('CASL_FEATURE_REGISTRATION'),
+      // A token of its own: NestJS 10 (and 11 with `deep-hash` module ids)
+      // keys a dynamic module by a hash of its metadata, where a symbol is
+      // its description and the factory its source, so every forFeature
+      // would be one module and only the first map registered.
+      provide: `CASL_FEATURE_REGISTRATION_${++featureCount}`,
       useFactory: (factory: AbilityFactory) => {
         factory.registerPermissions(options.permissions);
         return true;
