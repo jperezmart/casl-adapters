@@ -205,7 +205,7 @@ Not found has no hook: it always answers not found, so existence stays hidden.
 
 ## The Rules endpoint
 
-`casl.rulesEndpoint` is a ready-made API route handler: `GET` answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability. An Unauthenticated request gets 401, whatever `onUnauthenticated` says, so the browser can tell there is no session. Its type is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here.
+`casl.rulesEndpoint` is a ready-made API route handler: `GET` answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability. An Unauthenticated request gets 401, whatever `onUnauthenticated` says, so the browser can tell there is no session. Its type is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Every answer, the 401 included, carries `Cache-Control: private, no-store`: the rules are the user's own, so no CDN or proxy may store them and serve them to someone else.
 
 Mount it at the path of your choice. At `pages/api/me/abilities.ts`, the default path of [`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react), the browser needs no configuration:
 

@@ -3,9 +3,13 @@ import { detectSubjectType } from '@jperezmart/orpc-abilities';
 import { articlesPermissions } from '@jperezmart/orpc-abilities/server';
 import { createOrpcCasl } from '@jperezmart/orpc-casl';
 import type { AppUser } from '@jperezmart/orpc-domain';
+import type { ResponseHeadersPluginContext } from '@orpc/server/plugins';
 
-/** What the Hono app hands every procedure: the web request. */
-export interface AppContext {
+/**
+ * What the Hono app hands every procedure: the web request, and the response
+ * headers `ResponseHeadersPlugin` adds.
+ */
+export interface AppContext extends ResponseHeadersPluginContext {
   request: Request;
 }
 

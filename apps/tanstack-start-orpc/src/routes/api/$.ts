@@ -1,9 +1,13 @@
 import { OpenAPIHandler } from '@orpc/openapi/fetch';
+import { ResponseHeadersPlugin } from '@orpc/server/plugins';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { router } from '../../server/router';
 
-const handler = new OpenAPIHandler(router);
+// The plugin lets the Rules endpoint keep its answer out of shared caches.
+const handler = new OpenAPIHandler(router, {
+  plugins: [new ResponseHeadersPlugin()],
+});
 
 /**
  * oRPC mounted in a server route: every method under /api (the contract's

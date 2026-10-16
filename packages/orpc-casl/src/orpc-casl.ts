@@ -14,6 +14,7 @@ import {
   createAdapterKit,
   forbiddenDenialOf,
   NoRecordAllowedError,
+  RULES_CACHE_CONTROL,
   rulesResponse,
   unauthenticatedDenial,
 } from '@jperezmart/casl-core';
@@ -134,13 +135,17 @@ export interface OrpcCasl<
   /**
    * The Rules endpoint as a ready-made procedure, for a router-first app:
    * `{ rules }`, the packed rules of the user's Ability. Mount it under any
-   * key, and give it a `.route()` for OpenAPI.
+   * key, and give it a `.route()` for OpenAPI. It answers with
+   * `Cache-Control: private, no-store` when the handler runs oRPC's
+   * `ResponseHeadersPlugin`; without it, no shared cache is kept out.
    */
   rulesProcedure: RulesProcedure<TContext, TUser, TAbility>;
 
   /**
    * The Rules endpoint for a contract-first app: implements `contract`, a
-   * procedure of the app's contract whose output accepts `{ rules }`.
+   * procedure of the app's contract whose output accepts `{ rules }`. Like
+   * {@link OrpcCasl.rulesProcedure}, it sets `Cache-Control` through the
+   * handler's `ResponseHeadersPlugin`.
    */
   implementRules<TContract>(
     contract: RulesContract<TContract, TAbility>,
@@ -187,8 +192,15 @@ export function createOrpcCasl<
   const rulesOf = ({
     context,
   }: {
-    context: CaslContext<TUser, TAbility>;
-  }): RulesResponse<TAbility> => rulesResponse(context.ability);
+    context: CaslContext<TUser, TAbility> & {
+      resHeaders?: { set(name: string, value: string): unknown };
+    };
+  }): RulesResponse<TAbility> => {
+    // Only through oRPC's `ResponseHeadersPlugin`, which puts `resHeaders` in
+    // the context: a procedure has no other way to set a response header.
+    context.resHeaders?.set('cache-control', RULES_CACHE_CONTROL);
+    return rulesResponse(context.ability);
+  };
 
   return {
     middleware,

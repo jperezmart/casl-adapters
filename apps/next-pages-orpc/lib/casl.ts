@@ -6,11 +6,15 @@ import { detectSubjectType } from '@jperezmart/orpc-abilities';
 import { articlesPermissions } from '@jperezmart/orpc-abilities/server';
 import { createOrpcCasl } from '@jperezmart/orpc-casl';
 import type { AppUser } from '@jperezmart/orpc-domain';
+import type { ResponseHeadersPluginContext } from '@orpc/server/plugins';
 
 import { findUser } from './session';
 
-/** What the oRPC API route hands every procedure: the Node request. */
-export interface AppContext {
+/**
+ * What the oRPC API route hands every procedure: the Node request, and the
+ * response headers `ResponseHeadersPlugin` adds.
+ */
+export interface AppContext extends ResponseHeadersPluginContext {
   req: IncomingMessage;
 }
 

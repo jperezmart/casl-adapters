@@ -1,5 +1,6 @@
 import { OpenAPIHandler } from '@orpc/openapi/fetch';
 import { onError } from '@orpc/server';
+import { ResponseHeadersPlugin } from '@orpc/server/plugins';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 
@@ -20,6 +21,8 @@ export function createApp(articles: ArticleStore = createArticleStore()) {
         console.error('[orpc]', error);
       }),
     ],
+    // Lets the Rules endpoint keep its answer out of shared caches.
+    plugins: [new ResponseHeadersPlugin()],
   });
 
   return new Hono()

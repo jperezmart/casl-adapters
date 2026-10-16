@@ -26,6 +26,11 @@ describe('tanstack-start-orpc (e2e)', () => {
       const res = await api().get('/me/abilities');
       expect(res.status).toBe(401);
     });
+
+    it('keeps the rules out of shared caches', async () => {
+      const res = await api('carol').get('/me/abilities');
+      expect(res.headers.get('cache-control')).toBe('private, no-store');
+    });
   });
 
   describe('a protected procedure, /api/articles/{id}', () => {

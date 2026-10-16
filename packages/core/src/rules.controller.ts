@@ -1,7 +1,12 @@
 import type { RulesResponse } from '@jperezmart/casl-core';
-import { rulesResponse, unauthenticatedDenial } from '@jperezmart/casl-core';
+import {
+  RULES_CACHE_CONTROL,
+  rulesResponse,
+  unauthenticatedDenial,
+} from '@jperezmart/casl-core';
 import type { Type } from '@nestjs/common';
-import { Controller, Get, Inject, Req } from '@nestjs/common';
+import { Controller, Get, Inject, Req, Res } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 
 import { enforce } from './assert-can.js';
 import { CASL_ROOT_OPTIONS } from './constants.js';
@@ -28,10 +33,20 @@ export function createRulesController(path: string): Type {
       private readonly abilityFactory: AbilityFactory,
       @Inject(CASL_ROOT_OPTIONS)
       private readonly options: CaslModuleOptions,
+      private readonly adapterHost: HttpAdapterHost,
     ) {}
 
     @Get()
-    async rules(@Req() request: AuthorizableRequest): Promise<RulesResponse> {
+    async rules(
+      @Req() request: AuthorizableRequest,
+      @Res({ passthrough: true }) response: unknown,
+    ): Promise<RulesResponse> {
+      // Set before anything is decided, so the 401 carries it too.
+      this.adapterHost.httpAdapter.setHeader(
+        response,
+        'cache-control',
+        RULES_CACHE_CONTROL,
+      );
       const getUser =
         this.options.getUserFromRequest ??
         ((req: AuthorizableRequest) => req.user);

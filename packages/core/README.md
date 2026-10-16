@@ -289,7 +289,10 @@ The browser builds its Client ability from the rules of the current user's
 Ability, fetched from a Rules endpoint
 ([`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react)
 fetches `/api/me/abilities` by default). Import `CaslModule.forRulesEndpoint`
-to serve one at the path of your choice, instead of writing the controller:
+to serve one at the path of your choice, instead of writing the controller.
+Every answer, the 401 included, carries `Cache-Control: private, no-store`:
+the rules are the user's own, so no CDN or proxy may store them and serve them
+to someone else.
 
 ```ts
 @Module({

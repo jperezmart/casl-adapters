@@ -14,6 +14,7 @@ import {
   forbiddenDenialOf,
   NoRecordAllowedError,
   notFoundDenial,
+  RULES_CACHE_CONTROL,
   rulesResponse,
   unauthenticatedDenial,
 } from '@jperezmart/casl-core';
@@ -196,8 +197,11 @@ export function createStartCasl<
 
     async rulesHandler({ request }) {
       const context = await kit.contextOf(request);
-      if (!context) return jsonResponse(401, unauthenticatedDenial.message);
-      return Response.json(rulesResponse(context.ability));
+      const response = context
+        ? Response.json(rulesResponse(context.ability))
+        : jsonResponse(401, unauthenticatedDenial.message);
+      response.headers.set('cache-control', RULES_CACHE_CONTROL);
+      return response;
     },
   };
 }

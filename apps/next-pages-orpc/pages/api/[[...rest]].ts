@@ -1,9 +1,13 @@
 import { OpenAPIHandler } from '@orpc/openapi/node';
+import { ResponseHeadersPlugin } from '@orpc/server/plugins';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { router } from '../../lib/router';
 
-const handler = new OpenAPIHandler(router);
+// The plugin lets the Rules endpoint keep its answer out of shared caches.
+const handler = new OpenAPIHandler(router, {
+  plugins: [new ResponseHeadersPlugin()],
+});
 
 /**
  * Serves the whole oRPC contract (its routes carry the `/api` prefix) from one

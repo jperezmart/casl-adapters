@@ -92,6 +92,14 @@ describe('CaslModule.forRulesEndpoint', () => {
     expect(res.body).toEqual({ rules: [['manage', 'all']] });
   });
 
+  it('keeps every answer out of shared caches', async () => {
+    const ok = await api().get('/me/abilities').set('x-id', 'u1').expect(200);
+    const unauthenticated = await api().get('/me/abilities').expect(401);
+
+    expect(ok.headers['cache-control']).toBe('private, no-store');
+    expect(unauthenticated.headers['cache-control']).toBe('private, no-store');
+  });
+
   it('answers an Unauthenticated request with 401', async () => {
     const res = await api().get('/me/abilities').expect(401);
 
