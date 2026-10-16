@@ -99,6 +99,9 @@ catalogs:
     express:
       specifier: ^5.1.0
       version: 5.2.1
+    hono:
+      specifier: ^4.13.13
+      version: 4.13.13
     jsdom:
       specifier: ^30.1.2
       version: 30.1.2
@@ -1035,6 +1038,36 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  packages/hono-casl:
+    devDependencies:
+      '@casl/ability':
+        specifier: 'catalog:'
+        version: 7.0.0
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../casl-core
+      '@jperezmart/eslint-config':
+        specifier: 'catalog:'
+        version: 1.0.0(eslint@10.5.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+      '@jperezmart/typescript-config':
+        specifier: 'catalog:'
+        version: 1.0.0(typescript@6.0.3)
+      eslint:
+        specifier: 'catalog:'
+        version: 10.5.0(jiti@2.7.0)(supports-color@8.1.1)
+      hono:
+        specifier: 'catalog:'
+        version: 4.13.13
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.2(typescript@6.0.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(jsdom@30.1.2(@noble/hashes@1.8.0))(terser@5.48.0)(yaml@2.9.0)
 
   packages/next-casl:
     devDependencies:
@@ -3568,6 +3601,10 @@ packages:
 
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
+
+  hono@4.13.13:
+    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
+    engines: {node: '>=16.9.0'}
 
   hookable@6.1.1:
     resolution: {integrity: sha512-U9LYDy1CwhMCnprUfeAZWZGByVbhd54hwepegYTK7Pi5NvqEj63ifz5z+xukznehT7i6NIZRu89Ay1AZmRsLEQ==}
@@ -7468,6 +7505,8 @@ snapshots:
   hermes-parser@0.25.1:
     dependencies:
       hermes-estree: 0.25.1
+
+  hono@4.13.13: {}
 
   hookable@6.1.1: {}
 
