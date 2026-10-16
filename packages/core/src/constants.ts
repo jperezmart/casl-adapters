@@ -6,6 +6,9 @@
 /** Metadata key under which {@link UseAbilityMetadata} is stored on handlers. */
 export const CASL_ABILITY_METADATA = 'casl:ability-metadata' as const;
 
+/** Metadata key set by `@AllowWithoutAbility()` on a handler or a controller. */
+export const CASL_ALLOW_WITHOUT_ABILITY = 'casl:allow-without-ability' as const;
+
 /** DI token holding the global {@link CaslModuleOptions} from `forRoot`. */
 export const CASL_ROOT_OPTIONS = Symbol('CASL_ROOT_OPTIONS');
 

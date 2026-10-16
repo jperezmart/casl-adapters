@@ -10,6 +10,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 
 import { enforce } from './assert-can.js';
 import { CASL_ROOT_OPTIONS } from './constants.js';
+import { AllowWithoutAbility } from './decorators/allow-without-ability.decorator.js';
 import { AbilityFactory } from './factories/ability.factory.js';
 import type { AuthorizableRequest } from './interfaces/authorizable-request.interface.js';
 import type { CaslModuleOptions } from './interfaces/casl-options.interface.js';
@@ -24,10 +25,12 @@ export interface CaslRulesEndpointOptions {
  * Builds the controller of the Rules endpoint, mounted at `path`: `GET` answers
  * `{ rules }`, the packed rules of the request user's Ability, found as the
  * guard finds it (`getUserFromRequest`, or `request.user`). An Unauthenticated
- * request gets 401.
+ * request gets 401. It is marked `@AllowWithoutAbility()`, so a global
+ * `AccessGuard` lets it through to answer that 401 itself.
  */
 export function createRulesController(path: string): Type {
   @Controller(path)
+  @AllowWithoutAbility()
   class CaslRulesController {
     constructor(
       private readonly abilityFactory: AbilityFactory,
