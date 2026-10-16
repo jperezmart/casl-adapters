@@ -241,7 +241,7 @@ In a server route, return a `Response` (a redirect is one): the route middleware
 
 ## The Rules endpoint
 
-`casl.rulesHandler` is the Rules endpoint as a server route handler. It answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability, and 401 to an Unauthenticated request. Its body is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Mount it at `/api/me/abilities`, the path [`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react) fetches by default, or anywhere else:
+`casl.rulesHandler` is the Rules endpoint as a server route handler. It answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability, and 401 to an Unauthenticated request. Its body is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Every answer, the 401 included, carries `Cache-Control: private, no-store`: the rules are the user's own, so no CDN or proxy may store them and serve them to someone else. Mount it at `/api/me/abilities`, the path [`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react) fetches by default, or anywhere else:
 
 ```ts
 // src/routes/api/me/abilities.ts

@@ -139,6 +139,24 @@ describe('createOrpcCasl', () => {
       ).resolves.toEqual({ rules: carolsRules });
     });
 
+    it("keeps the answer out of shared caches through ResponseHeadersPlugin's resHeaders", async () => {
+      const resHeaders = new Map<string, string>();
+      await call(casl.rulesProcedure, undefined, {
+        context: { userId: 'carol', resHeaders },
+      });
+      expect(resHeaders.get('cache-control')).toBe('private, no-store');
+
+      const implemented = new Map<string, string>();
+      await call(
+        casl.implementRules(
+          oc.output(z.object({ rules: z.array(z.unknown()) })),
+        ),
+        undefined,
+        { context: { userId: 'carol', resHeaders: implemented } },
+      );
+      expect(implemented.get('cache-control')).toBe('private, no-store');
+    });
+
     it('rulesProcedure answers UNAUTHORIZED for an Unauthenticated request', async () => {
       const error = await rejection(
         call(casl.rulesProcedure, undefined, { context: {} }),

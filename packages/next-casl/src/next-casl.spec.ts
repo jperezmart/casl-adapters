@@ -335,6 +335,21 @@ describe('createNextCasl', () => {
         .expect(401);
     });
 
+    it('keeps every answer out of shared caches', async () => {
+      const ok = await serve(casl.rulesEndpoint)
+        .get('/api/me/abilities')
+        .set('x-user-id', 'carol')
+        .expect(200);
+      const unauthenticated = await serve(casl.rulesEndpoint)
+        .get('/api/me/abilities')
+        .expect(401);
+
+      expect(ok.headers['cache-control']).toBe('private, no-store');
+      expect(unauthenticated.headers['cache-control']).toBe(
+        'private, no-store',
+      );
+    });
+
     it('answers 405 to any method but GET', async () => {
       const res = await serve(casl.rulesEndpoint)
         .post('/api/me/abilities')

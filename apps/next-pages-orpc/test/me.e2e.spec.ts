@@ -24,6 +24,11 @@ describe(`${APP.name} me (e2e)`, () => {
     });
   });
 
+  it('GET /me/abilities keeps the rules out of shared caches', async () => {
+    const res = await api('carol').get('/me/abilities').expect(200);
+    expect(res.headers['cache-control']).toBe('private, no-store');
+  });
+
   it('GET /me/abilities answers an Unauthenticated request with 401', async () => {
     await api().get('/me/abilities').expect(401);
   });

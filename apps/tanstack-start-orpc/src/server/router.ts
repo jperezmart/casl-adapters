@@ -7,6 +7,7 @@ import { createOrpcCasl } from '@jperezmart/orpc-casl';
 import { contract } from '@jperezmart/orpc-contract';
 import type { AppUser, Article } from '@jperezmart/orpc-domain';
 import { implement, ORPCError } from '@orpc/server';
+import type { ResponseHeadersPluginContext } from '@orpc/server/plugins';
 
 import {
   createArticle,
@@ -17,8 +18,11 @@ import {
 } from './articles';
 import { parseUser } from './auth';
 
-/** What the server route hands every procedure: the web `Request`. */
-export interface AppContext {
+/**
+ * What the server route hands every procedure: the web `Request`, and the
+ * response headers `ResponseHeadersPlugin` adds.
+ */
+export interface AppContext extends ResponseHeadersPluginContext {
   request: Request;
 }
 

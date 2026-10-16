@@ -14,6 +14,7 @@ import {
   forbiddenDenialOf,
   NoRecordAllowedError,
   notFoundDenial,
+  RULES_CACHE_CONTROL,
   rulesResponse,
   unauthenticatedDenial,
 } from '@jperezmart/casl-core';
@@ -151,8 +152,11 @@ export function createHonoCasl<
 
     async rulesHandler(c) {
       const context = await kit.contextOf(c as Context<TEnv>);
-      if (!context) return denialResponse(unauthenticatedDenial);
-      return c.json(rulesResponse(context.ability));
+      const response = context
+        ? c.json(rulesResponse(context.ability))
+        : denialResponse(unauthenticatedDenial);
+      response.headers.set('cache-control', RULES_CACHE_CONTROL);
+      return response;
     },
   };
 }

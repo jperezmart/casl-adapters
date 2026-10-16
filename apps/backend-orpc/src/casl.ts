@@ -4,12 +4,16 @@ import { articlesPermissions } from '@jperezmart/orpc-abilities/server';
 import { createOrpcCasl } from '@jperezmart/orpc-casl';
 import type { AppUser } from '@jperezmart/orpc-domain';
 import type { ORPCGlobalContext } from '@orpc/nest';
+import type { ResponseHeadersPluginContext } from '@orpc/server/plugins';
 
 import { parseUser } from './auth/parse-user.js';
 
 declare module '@orpc/nest' {
-  /** What `AppModule` hands every procedure: the HTTP request. */
-  interface ORPCGlobalContext {
+  /**
+   * What `AppModule` hands every procedure: the HTTP request, and the response
+   * headers `ResponseHeadersPlugin` adds.
+   */
+  interface ORPCGlobalContext extends ResponseHeadersPluginContext {
     request: { headers?: Record<string, unknown> };
   }
 }

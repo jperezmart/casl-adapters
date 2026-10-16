@@ -218,6 +218,19 @@ describe('createHonoCasl', () => {
       });
     });
 
+    it('keeps every answer out of shared caches', async () => {
+      const { app } = appWith();
+      const ok = await app.request('/me/abilities', {
+        headers: { 'x-user-id': 'carol' },
+      });
+      const unauthenticated = await app.request('/me/abilities');
+
+      expect(ok.headers.get('cache-control')).toBe('private, no-store');
+      expect(unauthenticated.headers.get('cache-control')).toBe(
+        'private, no-store',
+      );
+    });
+
     it('answers an Unauthenticated request with 401, never onUnauthenticated', async () => {
       const onUnauthenticated = vi.fn((_denial: unknown, c: Context) =>
         c.redirect('/login'),

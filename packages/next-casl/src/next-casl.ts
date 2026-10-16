@@ -18,6 +18,7 @@ import {
   forbiddenDenialOf,
   NoRecordAllowedError,
   notFoundDenial,
+  RULES_CACHE_CONTROL,
   rulesResponse,
   unauthenticatedDenial,
 } from '@jperezmart/casl-core';
@@ -198,6 +199,7 @@ export function createNextCasl<
         res.end();
         return;
       }
+      res.setHeader('cache-control', RULES_CACHE_CONTROL);
       const caslContext = await kit.contextOf(req);
       if (!caslContext) return sendDenialJson(res, unauthenticatedDenial);
       res.statusCode = 200;

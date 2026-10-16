@@ -36,7 +36,7 @@ export {
 
 // Rules endpoint
 export type { RulesResponse } from './rules-response.js';
-export { rulesResponse } from './rules-response.js';
+export { RULES_CACHE_CONTROL, rulesResponse } from './rules-response.js';
 
 // Role permissions and ability types
 export type {

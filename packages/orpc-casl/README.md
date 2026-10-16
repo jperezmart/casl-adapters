@@ -196,6 +196,22 @@ export const contractRouter = implement(contract)
   .router({ me: { rules: casl.implementRules(contract.me.rules) } });
 ```
 
+Both answer with `Cache-Control: private, no-store`, so no CDN or proxy stores one user's rules and serves them to someone else, but a procedure can only set a response header through oRPC's `ResponseHeadersPlugin`. Give it to your handler, and let your context take the headers it adds:
+
+```ts
+import { OpenAPIHandler } from '@orpc/openapi/fetch';
+import type { ResponseHeadersPluginContext } from '@orpc/server/plugins';
+import { ResponseHeadersPlugin } from '@orpc/server/plugins';
+
+interface AppContext extends ResponseHeadersPluginContext {
+  request: Request;
+}
+
+const handler = new OpenAPIHandler(router, {
+  plugins: [new ResponseHeadersPlugin()],
+});
+```
+
 The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
 
 ## Mounted in NestJS

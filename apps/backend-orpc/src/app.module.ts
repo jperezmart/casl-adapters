@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import type { ORPCGlobalContext } from '@orpc/nest';
 import { onError, ORPCModule } from '@orpc/nest';
+import { ResponseHeadersPlugin } from '@orpc/server/plugins';
 
 import { ArticlesModule } from './articles/articles.module.js';
 import { MeModule } from './me/me.module.js';
@@ -18,6 +19,8 @@ import { MeModule } from './me/me.module.js';
             console.error('[orpc]', error);
           }),
         ],
+        // Lets the Rules endpoint keep its answer out of shared caches.
+        plugins: [new ResponseHeadersPlugin()],
         context: { request },
       }),
       inject: [REQUEST],
