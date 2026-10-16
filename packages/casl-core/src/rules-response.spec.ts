@@ -1,6 +1,6 @@
 import { AbilityBuilder, createMongoAbility } from '@casl/ability';
 
-import { rulesResponse } from './index.js';
+import { RULES_CACHE_CONTROL, rulesResponse } from './index.js';
 
 describe('rulesResponse', () => {
   it("answers the Ability's rules packed under `rules`", () => {
@@ -19,5 +19,9 @@ describe('rulesResponse', () => {
 
   it('answers no rules for an Ability that allows nothing', () => {
     expect(rulesResponse(createMongoAbility())).toEqual({ rules: [] });
+  });
+
+  it("is never stored by a shared cache: the rules are one user's", () => {
+    expect(RULES_CACHE_CONTROL).toBe('private, no-store');
   });
 });

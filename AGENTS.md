@@ -3,6 +3,7 @@
 `packages/core` is the library and `packages/testing` its test helpers; `apps/*` are examples that consume the built packages.
 
 - **Checks**: `pnpm turbo run typecheck lint test` (turbo builds what the apps import first), then `pnpm format:check`.
+- **Mutation testing**: after touching `packages/casl-core/src`, run `pnpm --filter @jperezmart/casl-core mutate` (CI breaks below 100%). Kill each surviving mutant with a test when it changes what the code decides, returns or throws; otherwise mark it `// Stryker disable next-line <mutator>: <why it is equivalent>`, never a test that pins wording nobody relies on.
 - **Tickets**: read with `gh issue view <n> --json title,state,body,comments`; a closed ticket is done, so stop and ask.
 - **Publishing** (release, npm, trusted publisher, a new package): `release.yml` is canon from `jperezmart/package-template` (`../package-template` locally); its README covers it, and § Day zero covers a package that was never published.
 - **Git**: PRs land with "Rebase and merge", so sync with main by `git rebase origin/main`, never a merge (nor `sync_with_base_branch`, which merges). The user pushes.
