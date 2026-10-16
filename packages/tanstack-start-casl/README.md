@@ -19,6 +19,13 @@ pnpm add @jperezmart/tanstack-start-casl @jperezmart/casl-core @casl/ability
 
 `@jperezmart/casl-core`, `@casl/ability@^7`, `@tanstack/react-start@^1.169` and `@tanstack/react-router@^1.170` are peer dependencies, so an app that also uses another Adapter (oRPC inside Start, say) has exactly one copy of the core.
 
+## Two entry points
+
+- **`@jperezmart/tanstack-start-casl/server`** holds `createStartCasl`, the Adapter. It reaches Start's server-only module, so import it only from modules the client bundle never loads, or only inside `.server(…)` steps, which Start strips from the client.
+- **`@jperezmart/tanstack-start-casl`**, the root, is client-safe: `DenialError`, `isDenialError`, `denialErrorAdapter` and the types. Error components and `src/start.ts` import from here. `/server` re-exports all of it too.
+
+Importing the Adapter from client code would drag Start's server code into the browser, and in `vite dev` the page would not hydrate.
+
 ## Set up: `createStartCasl`
 
 Create the Adapter once, with the Role permissions and a `getUser` that finds the Authorizable user of a web `Request` (from its session cookie, say):
@@ -27,7 +34,7 @@ Create the Adapter once, with the Role permissions and a `getUser` that finds th
 // src/casl.ts
 import type { InferSubjects, MongoAbility } from '@casl/ability';
 import type { RolePermissions } from '@jperezmart/casl-core';
-import { createStartCasl } from '@jperezmart/tanstack-start-casl';
+import { createStartCasl } from '@jperezmart/tanstack-start-casl/server';
 
 interface AppUser {
   id: string;

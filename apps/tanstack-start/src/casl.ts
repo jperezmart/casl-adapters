@@ -6,7 +6,7 @@ import {
   parseUser,
 } from '@jperezmart/example-shared/server';
 import type { StartCaslOptions } from '@jperezmart/tanstack-start-casl';
-import { createStartCasl } from '@jperezmart/tanstack-start-casl';
+import { createStartCasl } from '@jperezmart/tanstack-start-casl/server';
 import { redirect } from '@tanstack/react-router';
 
 const options: StartCaslOptions<AppUser, AppAbility> = {
