@@ -308,6 +308,67 @@ importers:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@24.13.2)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(jsdom@30.1.2(@noble/hashes@1.8.0))(terser@5.48.0)(yaml@2.9.0)
 
+  apps/backend-orpc-hono:
+    dependencies:
+      '@casl/ability':
+        specifier: 'catalog:'
+        version: 7.0.0
+      '@hono/node-server':
+        specifier: 'catalog:'
+        version: 2.1.5(hono@4.13.13)
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../../packages/casl-core
+      '@jperezmart/orpc-abilities':
+        specifier: workspace:*
+        version: link:../../packages/orpc-abilities
+      '@jperezmart/orpc-casl':
+        specifier: workspace:*
+        version: link:../../packages/orpc-casl
+      '@jperezmart/orpc-contract':
+        specifier: workspace:*
+        version: link:../../packages/orpc-contract
+      '@jperezmart/orpc-domain':
+        specifier: workspace:*
+        version: link:../../packages/orpc-domain
+      '@orpc/openapi':
+        specifier: 'catalog:'
+        version: 1.14.6
+      '@orpc/server':
+        specifier: 'catalog:'
+        version: 1.14.6
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
+      hono:
+        specifier: 'catalog:'
+        version: 4.13.13
+    devDependencies:
+      '@jperezmart/eslint-config':
+        specifier: 'catalog:'
+        version: 1.0.0(eslint@10.5.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+      '@jperezmart/typescript-config':
+        specifier: 'catalog:'
+        version: 1.0.0(typescript@6.0.3)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.2
+      '@types/supertest':
+        specifier: 'catalog:'
+        version: 7.2.0
+      eslint:
+        specifier: 'catalog:'
+        version: 10.5.0(jiti@2.7.0)(supports-color@8.1.1)
+      supertest:
+        specifier: 'catalog:'
+        version: 7.2.2(supports-color@8.1.1)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(jsdom@30.1.2(@noble/hashes@1.8.0))(terser@5.48.0)(yaml@2.9.0)
+
   apps/backend-shared:
     dependencies:
       '@casl/ability':

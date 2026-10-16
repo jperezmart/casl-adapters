@@ -1,0 +1,39 @@
+{
+  "name": "backend-orpc-hono",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Hono + oRPC app — the same oRPC contract as backend-orpc, mounted on Hono and authorized by @jperezmart/orpc-casl. In-memory, no database.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo",
+    "dev": "node --watch src/main.ts",
+    "lint": "eslint .",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@casl/ability": "catalog:",
+    "@hono/node-server": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/orpc-abilities": "workspace:*",
+    "@jperezmart/orpc-casl": "workspace:*",
+    "@jperezmart/orpc-contract": "workspace:*",
+    "@jperezmart/orpc-domain": "workspace:*",
+    "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
+    "@ucast/mongo2js": "catalog:",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@types/node": "catalog:",
+    "@types/supertest": "catalog:",
+    "eslint": "catalog:",
+    "supertest": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
