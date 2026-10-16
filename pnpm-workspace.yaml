@@ -24,6 +24,8 @@ minimumReleaseAgeStrict: true
 minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
   - '@jperezmart/*'
+  - ts-devtools-plugin-radix-themes
+  - tw-preset-radix
 
 # Centralized versions (pnpm catalog). Reference with "catalog:" in package.json.
 # Peer-dependency ranges in packages/core and packages/testing stay explicit on
