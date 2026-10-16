@@ -1,4 +1,8 @@
+import { inject } from 'vitest';
+
 import { api } from './app.js';
+
+const origin = inject('origin');
 
 /**
  * The Adapter in server routes (the REST API under /api): its middleware adds
@@ -48,5 +52,50 @@ describe('tanstack-start server routes (e2e)', () => {
     expect(hidden.status).toBe(404);
     expect(missing.status).toBe(404);
     expect(await hidden.text()).toEqual(await missing.text());
+  });
+
+  describe('cross-site requests', () => {
+    const title = async () =>
+      (
+        (await (await api('alice').get('/api/articles/1')).json()) as {
+          title: string;
+        }
+      ).title;
+
+    it.each([
+      ['a cross-site Sec-Fetch-Site', { 'sec-fetch-site': 'cross-site' }],
+      ['a same-site Sec-Fetch-Site', { 'sec-fetch-site': 'same-site' }],
+      ['a foreign Origin', { origin: 'https://evil.example' }],
+    ])(
+      'refuses a write with %s as forbidden, before the handler runs',
+      async (_name, headers) => {
+        const before = await title();
+        const res = await api('alice').patch(
+          '/api/articles/1',
+          { title: 'pwned' },
+          headers,
+        );
+        expect(res.status).toBe(403);
+        expect(await title()).toBe(before);
+      },
+    );
+
+    it('lets a same-origin write through', async () => {
+      const before = await title();
+      const res = await api('alice').patch(
+        '/api/articles/1',
+        { title: before },
+        { 'sec-fetch-site': 'same-origin', origin },
+      );
+      expect(res.status).toBe(200);
+    });
+
+    it('lets a cross-site read through: CORS decides who may read it', async () => {
+      const res = await api('carol').get('/api/articles/3', {
+        'sec-fetch-site': 'cross-site',
+        origin: 'https://evil.example',
+      });
+      expect(res.status).toBe(200);
+    });
   });
 });

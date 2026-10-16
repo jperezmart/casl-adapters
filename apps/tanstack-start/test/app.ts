@@ -5,8 +5,12 @@ const origin = inject('origin');
 
 /** An HTTP client of the example's server, as a demo user or unauthenticated. */
 export interface Api {
-  get(path: string): Promise<Response>;
-  patch(path: string, body: unknown): Promise<Response>;
+  get(path: string, headers?: Record<string, string>): Promise<Response>;
+  patch(
+    path: string,
+    body: unknown,
+    headers?: Record<string, string>,
+  ): Promise<Response>;
   /**
    * Calls a server function by its id (its export name, see
    * `vite.config.ts`) the way Start's client does.
@@ -35,11 +39,11 @@ export function api(user?: string): Api {
     });
 
   return {
-    get: path => send(path),
-    patch: (path, body) =>
+    get: (path, headers = {}) => send(path, { headers }),
+    patch: (path, body, headers) =>
       send(path, {
         method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', ...headers },
         body: JSON.stringify(body),
       }),
     async serverFn(id, data, method = 'GET') {

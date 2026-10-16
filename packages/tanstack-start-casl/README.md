@@ -184,6 +184,8 @@ Server routes never reach the client, so their middleware is ready-made: `casl.r
 
 A `notFound()` the handler throws itself (a missing record) answers the same 404.
 
+Before anything else, `casl.routeMiddleware` refuses with a 403 a write (`POST`, `PUT`, `PATCH` or `DELETE`) the browser marks as cross-site, by `Sec-Fetch-Site` or else `Origin`, the same check as server functions. Start's CSRF middleware never covers server routes, so without it another site could send a form or a simple `fetch` to the route with the user's session cookie. Reads (`GET`, `HEAD`, `OPTIONS`) go through: CORS decides who may read the answer. A request with neither header comes from no browser (a server, a webhook) and goes through too. A route meant to take cross-site writes from browsers does not use `casl.routeMiddleware`.
+
 ```ts
 // src/routes/api/articles/$id.ts
 import { createFileRoute, notFound } from '@tanstack/react-router';

@@ -102,6 +102,9 @@ export interface StartCasl<
    * client): it adds {@link CaslContext} as the server function middleware
    * does, but every denial, thrown by it or by the handler's `assertCan`, is
    * answered with a `Response`: 401, 403 or 404, with a JSON `{ message }`.
+   * A write (`POST`, `PUT`, `PATCH`, `DELETE`) the browser marks as cross-site
+   * is refused as forbidden before anything else, by the same check as server
+   * functions; reads are left to CORS, which decides who may read the answer.
    */
   routeMiddleware: CaslRouteMiddleware<TUser, TAbility>;
 
@@ -177,7 +180,7 @@ export function createStartCasl<
     // Server functions are same-origin RPC, and an app's own `startInstance`
     // replaces Start's default CSRF middleware: refuse a call the browser
     // marks as cross-site before the session cookie it carries counts.
-    if (isCrossSite(request)) throwDenial(crossSiteDenial);
+    if (isCrossSite(request)) throwDenial(crossSiteCallDenial);
     const context = await contextOrThrow(request);
     return guarded(() => next({ context }));
   };
@@ -185,6 +188,10 @@ export function createStartCasl<
   const routeMiddleware = createMiddleware().server(
     async ({ request, next }) => {
       try {
+        // Start's CSRF middleware never covers server routes: refuse a
+        // cross-site write before the session cookie it carries counts.
+        if (UNSAFE_METHODS.has(request.method) && isCrossSite(request))
+          throwDenial(crossSiteWriteDenial);
         const context = await contextOrThrow(request);
         return await guarded(() => next({ context }));
       } catch (error) {
@@ -213,13 +220,27 @@ export function createStartCasl<
   };
 }
 
-/** A server route's answer to what a denied check threw. */
 /** A server function call refused as cross-site: forbidden. */
-const crossSiteDenial: Denial = Object.freeze({
+const crossSiteCallDenial: Denial = Object.freeze({
   allowed: false,
   kind: 'forbidden',
   message: 'Cross-site server function calls are refused.',
 });
+
+/** A server route write refused as cross-site: forbidden. */
+const crossSiteWriteDenial: Denial = Object.freeze({
+  allowed: false,
+  kind: 'forbidden',
+  message: 'Cross-site writes are refused.',
+});
+
+/** The methods a server route refuses from another site. */
+const UNSAFE_METHODS: ReadonlySet<string> = new Set([
+  'POST',
+  'PUT',
+  'PATCH',
+  'DELETE',
+]);
 
 /**
  * Whether the browser says `request` comes from another site, by
@@ -233,6 +254,7 @@ function isCrossSite(request: Request): boolean {
   return origin !== null && origin !== new URL(request.url).origin;
 }
 
+/** A server route's answer to what a denied check threw. */
 function denialResponse(error: unknown): Response {
   if (error instanceof DenialError)
     return jsonResponse(error.status, error.message);
