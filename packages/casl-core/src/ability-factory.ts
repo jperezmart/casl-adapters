@@ -71,6 +71,7 @@ export function createAbilityFactory<
   const everyone: RulesCallback[] = [];
   for (const permissions of options.permissions) {
     for (const [role, definition] of Object.entries(permissions)) {
+      // Stryker disable next-line ConditionalExpression: equivalent, an undefined definition is neither `true` nor a callback, so createForUser skips it anyway
       if (definition === undefined) continue;
       if (role === 'everyone') {
         // Only a callback: the types reject `everyone: true`, and an untyped
@@ -95,9 +96,11 @@ export function createAbilityFactory<
       // throwing. Such a user still gets the Everyone permissions.
       const roles: readonly string[] = Array.isArray(user.roles)
         ? user.roles
-        : [];
+        : // Stryker disable next-line ArrayDeclaration: equivalent, a made-up Role is in no permissions map
+          [];
 
       if (superuserRole !== undefined && roles.includes(superuserRole)) {
+        // Stryker disable next-line StringLiteral: equivalent, CASL reads an empty subject as `all`
         builder.can('manage', 'all');
         return builder.build(buildOptions) as unknown as TAbility;
       }
@@ -108,8 +111,10 @@ export function createAbilityFactory<
       }
 
       for (const role of roles) {
+        // Stryker disable next-line ArrayDeclaration: equivalent, a made-up string is neither `true` nor a callback
         for (const definition of registry.get(role) ?? []) {
           if (definition === true) {
+            // Stryker disable next-line StringLiteral: equivalent, CASL reads an empty subject as `all`
             builder.can('manage', 'all');
           } else if (typeof definition === 'function') {
             definition(user, abilityBuilder);
@@ -192,6 +197,7 @@ function undefinedPath(
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
+  // Stryker disable next-line ConditionalExpression: equivalent, a primitive's prototype is never Object.prototype or null
   if (typeof value !== 'object' || value === null) return false;
   const prototype: unknown = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;

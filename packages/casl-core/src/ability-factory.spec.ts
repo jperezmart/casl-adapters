@@ -263,7 +263,14 @@ describe('createAbilityFactory', () => {
       const user = { roles: ['author'] } as unknown as User;
 
       expect(() => factory.createForUser(user)).toThrow(
-        /update Article.*authorId/,
+        expect.objectContaining({
+          name: 'UndefinedConditionError',
+          action: 'update',
+          subjectType: 'Article',
+          path: 'authorId',
+          message:
+            'The conditions of a rule for update Article hold undefined at authorId: a user field the rule reads is probably missing.',
+        }),
       );
     });
 
@@ -271,8 +278,90 @@ describe('createAbilityFactory', () => {
       const user = { roles: ['reviewer'] } as unknown as User;
 
       expect(() => factory.createForUser(user)).toThrow(
-        /read Article.*\$or\.0\.reviewerId/,
+        expect.objectContaining({
+          action: 'read',
+          subjectType: 'Article',
+          path: '$or.0.reviewerId',
+        }),
       );
+    });
+
+    it('throws for `undefined` after a defined key or item', () => {
+      const late = createAbilityFactory<User>({
+        permissions: [
+          {
+            keyed: (user, { can }) => {
+              can('update', 'Article', { published: true, authorId: user.id });
+            },
+            listed: (user, { can }) => {
+              can('read', 'Article', {
+                $or: [{ published: true }, { authorId: user.id }],
+              });
+            },
+          },
+        ],
+      });
+
+      expect(() => late.createForUser({ roles: ['keyed'] } as never)).toThrow(
+        expect.objectContaining({ path: 'authorId' }),
+      );
+      expect(() => late.createForUser({ roles: ['listed'] } as never)).toThrow(
+        expect.objectContaining({ path: '$or.1.authorId' }),
+      );
+    });
+
+    it('names every action and subject type of the rule', () => {
+      class Comment {
+        static readonly modelName = 'Remark';
+      }
+      const many = createAbilityFactory<User>({
+        permissions: [
+          {
+            author: (user, { can }) => {
+              can(['read', 'update'], ['Article', Comment], {
+                authorId: user.id,
+              });
+            },
+          },
+        ],
+      });
+
+      expect(() => many.createForUser({ roles: ['author'] } as never)).toThrow(
+        expect.objectContaining({
+          action: 'read, update',
+          subjectType: 'Article, Remark',
+        }),
+      );
+    });
+
+    it('accepts `null` and class instances, and looks into null-prototype objects', () => {
+      // A class instance (a Date, an ObjectId) is a value, not more conditions.
+      class Ref {
+        readonly cached: unknown = undefined;
+      }
+      const values = createAbilityFactory<User>({
+        permissions: [
+          {
+            author: (user, { can }) => {
+              can('read', 'Article', {
+                deletedAt: null,
+                publishedAt: { $lte: new Date(0) },
+                ref: new Ref(),
+                meta: Object.assign(Object.create(null) as object, {
+                  authorId: user.id,
+                }),
+              });
+            },
+          },
+        ],
+      });
+
+      expect(() =>
+        values.createForUser({ roles: ['author'] } as never),
+      ).toThrow(expect.objectContaining({ path: 'meta.authorId' }));
+      expect(() =>
+        values.createForUser({ id: 'u1', roles: ['author'] }),
+      ).not.toThrow();
     });
 
     it('builds the Ability when the field is there', () => {

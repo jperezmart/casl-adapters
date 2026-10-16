@@ -24,8 +24,6 @@ minimumReleaseAgeStrict: true
 minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
   - '@jperezmart/*'
-  - ts-devtools-plugin-radix-themes
-  - tw-preset-radix
 
 # Centralized versions (pnpm catalog). Reference with "catalog:" in package.json.
 # Peer-dependency ranges in packages/core and packages/testing stay explicit on
@@ -75,6 +73,10 @@ catalog:
   # testing
   supertest: ^7.2.2
   '@ucast/mongo2js': ^2.0.0
+  # Mutation testing: casl-core's gate in CI (see AGENTS.md § Checks).
+  '@stryker-mutator/core': ^10.0.0
+  '@stryker-mutator/typescript-checker': ^10.0.0
+  '@stryker-mutator/vitest-runner': ^10.0.0
   # Encodes server function payloads in the TanStack Start examples' HTTP tests.
   seroval: ^1.6.9
   '@testing-library/dom': ^10.4.2

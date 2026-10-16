@@ -120,6 +120,7 @@ function denial(kind: DenialKind, message: string): Denial {
 }
 
 function isSubjectType(subject: unknown): subject is SubjectType {
+  // Stryker disable next-line all: equivalent while CASL detects a type as itself; kept so the Denial rule does not lean on that
   return typeof subject === 'string' || typeof subject === 'function';
 }
 

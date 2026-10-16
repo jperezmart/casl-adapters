@@ -88,7 +88,12 @@ describe('accessConditions', () => {
 
     expect(conditions.hasConditions).toBe(true);
     expect(() => conditions.get()).toThrow(
-      'No record of Article is allowed for read.',
+      expect.objectContaining({
+        name: 'NoRecordAllowedError',
+        action: 'read',
+        subjectType: 'Article',
+        message: 'No record of Article is allowed for read.',
+      }),
     );
   });
 
