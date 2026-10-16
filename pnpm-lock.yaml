@@ -12,6 +12,9 @@ catalogs:
     '@casl/react':
       specifier: ^7.0.0
       version: 7.0.0
+    '@hono/node-server':
+      specifier: ^2.1.5
+      version: 2.1.5
     '@jperezmart/eslint-config':
       specifier: ^1.0.0
       version: 1.0.0
@@ -173,6 +176,55 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  apps/backend-hono:
+    dependencies:
+      '@casl/ability':
+        specifier: 'catalog:'
+        version: 7.0.0
+      '@hono/node-server':
+        specifier: 'catalog:'
+        version: 2.1.5(hono@4.13.13)
+      '@jperezmart/casl-core':
+        specifier: workspace:*
+        version: link:../../packages/casl-core
+      '@jperezmart/example-shared':
+        specifier: workspace:*
+        version: link:../../packages/example-shared
+      '@jperezmart/hono-casl':
+        specifier: workspace:*
+        version: link:../../packages/hono-casl
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
+      hono:
+        specifier: 'catalog:'
+        version: 4.13.13
+    devDependencies:
+      '@jperezmart/eslint-config':
+        specifier: 'catalog:'
+        version: 1.0.0(eslint@10.5.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+      '@jperezmart/typescript-config':
+        specifier: 'catalog:'
+        version: 1.0.0(typescript@6.0.3)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.2
+      '@types/supertest':
+        specifier: 'catalog:'
+        version: 7.2.0
+      eslint:
+        specifier: 'catalog:'
+        version: 10.5.0(jiti@2.7.0)(supports-color@8.1.1)
+      supertest:
+        specifier: 'catalog:'
+        version: 7.2.2(supports-color@8.1.1)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@24.13.2)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(jsdom@30.1.2(@noble/hashes@1.8.0))(terser@5.48.0)(yaml@2.9.0)
 
   apps/backend-orpc:
     dependencies:
@@ -1648,6 +1700,12 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@hono/node-server@2.1.5':
+    resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      hono: ^4 || ^5.0.0-0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -4557,10 +4615,6 @@ packages:
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
 
-  tinyexec@1.2.4:
-    resolution: {integrity: sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg==}
-    engines: {node: '>=18'}
-
   tinyexec@1.3.1:
     resolution: {integrity: sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==}
     engines: {node: '>=18'}
@@ -5255,7 +5309,7 @@ snapshots:
       '@changesets/should-skip-package': 1.0.0
       '@changesets/types': 7.0.0
       '@manypkg/get-packages': 3.1.0
-      picomatch: 4.0.4
+      picomatch: 4.0.7
 
   '@changesets/errors@1.0.0': {}
 
@@ -5278,7 +5332,7 @@ snapshots:
       '@changesets/errors': 1.0.0
       '@changesets/types': 7.0.0
       '@manypkg/get-packages': 3.1.0
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       tinyexec: 1.3.1
 
   '@changesets/parse@1.0.0':
@@ -5423,6 +5477,10 @@ snapshots:
   '@exodus/bytes@1.16.0(@noble/hashes@1.8.0)':
     optionalDependencies:
       '@noble/hashes': 1.8.0
+
+  '@hono/node-server@2.1.5(hono@4.13.13)':
+    dependencies:
+      hono: 4.13.13
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -7202,7 +7260,7 @@ snapshots:
   eslint-plugin-react-hooks@7.1.1(eslint@10.5.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1):
     dependencies:
       '@babel/core': 7.29.7(supports-color@8.1.1)
-      '@babel/parser': 7.29.7
+      '@babel/parser': 7.29.9
       eslint: 10.5.0(jiti@2.7.0)(supports-color@8.1.1)
       hermes-parser: 0.25.1
       zod: 4.6.7
@@ -8384,8 +8442,6 @@ snapshots:
 
   tinybench@2.9.0: {}
 
-  tinyexec@1.2.4: {}
-
   tinyexec@1.3.1: {}
 
   tinyglobby@0.2.17:
@@ -8589,10 +8645,10 @@ snapshots:
       magic-string: 0.30.21
       obug: 2.1.3
       pathe: 2.0.3
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       std-env: 4.1.0
       tinybench: 2.9.0
-      tinyexec: 1.2.4
+      tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 8.0.16(@types/node@24.13.2)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)
