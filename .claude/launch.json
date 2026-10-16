@@ -23,6 +23,30 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "frontend-orpc", "dev"],
       "port": 5174
+    },
+    {
+      "name": "next-pages",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "next-pages", "dev"],
+      "port": 3010
+    },
+    {
+      "name": "next-pages-orpc",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "next-pages-orpc", "dev"],
+      "port": 3011
+    },
+    {
+      "name": "tanstack-start",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "tanstack-start", "dev"],
+      "port": 3200
+    },
+    {
+      "name": "tanstack-start-orpc",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "tanstack-start-orpc", "dev"],
+      "port": 3201
     }
   ],
   "version": "0.0.1"
