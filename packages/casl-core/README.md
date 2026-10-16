@@ -41,7 +41,7 @@ const permissions: RolePermissions<Role, AppUser> = {
 };
 ```
 
-The values a rule's conditions take from the user are part of the query: a user field holding an object is read as Mongo operators, so a token claim `{ "id": { "$ne": null } }` turns `{ authorId: user.id }` into a condition every article matches. Check the type of every field `getUser` takes from a token or a session before it reaches a rule (`typeof id === 'string'`).
+The values a rule's conditions take from the user are part of the query: a user field holding an object is read as Mongo operators, so a token claim `{ "id": { "$ne": null } }` turns `{ authorId: user.id }` into a condition every article matches. The library does not check these values, since it cannot tell an injected object from a deliberate one (`{ authorId: { $in: user.teamIds } }`): `getUser` is the seam that must check the type of every field it takes from a token or a session before it reaches a rule (`typeof id === 'string'`).
 
 Only the Roles the map declares are typed; the user's own `roles` are plain strings, and Roles no map declares are ignored. The user needs nothing but its `roles` (`AuthorizableUser`).
 
