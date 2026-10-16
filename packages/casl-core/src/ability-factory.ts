@@ -117,7 +117,82 @@ export function createAbilityFactory<
         }
       }
 
+      for (const rule of builder.rules) assertNoUndefined(rule);
+
       return builder.build(buildOptions) as unknown as TAbility;
     },
   };
+}
+
+/**
+ * Thrown by {@link AbilityFactory.createForUser} when a rule's conditions hold
+ * `undefined`, typically a user field the rule reads (`user.id`) that is
+ * missing. Such conditions are never what the rule meant: `JSON.stringify`,
+ * the MongoDB driver's `ignoreUndefined`, Mongoose and Prisma all drop the
+ * field, so the Access conditions would let every record through and the
+ * Client ability would allow every instance. No Ability is built instead, and
+ * an Adapter answers the request as an error (500).
+ */
+export class UndefinedConditionError extends Error {
+  override readonly name = 'UndefinedConditionError';
+
+  constructor(
+    readonly action: string,
+    readonly subjectType: string,
+    readonly path: string,
+  ) {
+    super(
+      `The conditions of a rule for ${action} ${subjectType} hold undefined at ${path}: a user field the rule reads is probably missing.`,
+    );
+  }
+}
+
+interface BuiltRule {
+  action: string | string[];
+  subject?: unknown;
+  conditions?: unknown;
+}
+
+function assertNoUndefined(rule: BuiltRule): void {
+  if (rule.conditions === undefined) return;
+  const path = undefinedPath(rule.conditions, []);
+  if (path === undefined) return;
+  throw new UndefinedConditionError(
+    [rule.action].flat().join(', '),
+    [rule.subject]
+      .flat()
+      .map(type =>
+        typeof type === 'function'
+          ? ((type as { modelName?: string }).modelName ?? type.name)
+          : String(type),
+      )
+      .join(', '),
+    path,
+  );
+}
+
+/** The path of the first `undefined` in `value`, a plain object or array. */
+function undefinedPath(
+  value: unknown,
+  path: readonly string[],
+): string | undefined {
+  if (value === undefined) return path.join('.');
+  if (Array.isArray(value)) {
+    for (const [index, item] of value.entries()) {
+      const found = undefinedPath(item, [...path, String(index)]);
+      if (found !== undefined) return found;
+    }
+  } else if (isPlainObject(value)) {
+    for (const [key, item] of Object.entries(value)) {
+      const found = undefinedPath(item, [...path, key]);
+      if (found !== undefined) return found;
+    }
+  }
+  return undefined;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false;
+  const prototype: unknown = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
 }

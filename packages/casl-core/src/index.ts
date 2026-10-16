@@ -3,7 +3,10 @@ export type {
   AbilityFactory,
   AbilityFactoryOptions,
 } from './ability-factory.js';
-export { createAbilityFactory } from './ability-factory.js';
+export {
+  createAbilityFactory,
+  UndefinedConditionError,
+} from './ability-factory.js';
 
 // Adapter building
 export type { AdapterKit, AdapterOptions, CaslContext } from './adapter-kit.js';

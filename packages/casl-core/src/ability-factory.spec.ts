@@ -239,4 +239,71 @@ describe('createAbilityFactory', () => {
       expect(ability.can('read', 'Tag')).toBe(true);
     });
   });
+
+  describe('refuses conditions that hold `undefined`', () => {
+    // A user field a rule reads (`user.id`) that is missing would make
+    // `{ authorId: undefined }`: dropped by `JSON.stringify`, the MongoDB
+    // driver's `ignoreUndefined`, Mongoose or Prisma, it filters nothing.
+    const factory = createAbilityFactory<User>({
+      permissions: [
+        {
+          author: (user, { can }) => {
+            can('read', 'Article', { published: true });
+            can('update', 'Article', { authorId: user.id });
+          },
+          reviewer: (user, { can, cannot }) => {
+            can('read', 'Article');
+            cannot('read', 'Article', { $or: [{ reviewerId: user.id }] });
+          },
+        },
+      ],
+    });
+
+    it('throws for a user whose field a rule reads is missing', () => {
+      const user = { roles: ['author'] } as unknown as User;
+
+      expect(() => factory.createForUser(user)).toThrow(
+        /update Article.*authorId/,
+      );
+    });
+
+    it('throws for `undefined` nested in operators', () => {
+      const user = { roles: ['reviewer'] } as unknown as User;
+
+      expect(() => factory.createForUser(user)).toThrow(
+        /read Article.*\$or\.0\.reviewerId/,
+      );
+    });
+
+    it('builds the Ability when the field is there', () => {
+      const ability = factory.createForUser({ id: 'u1', roles: ['author'] });
+
+      expect(ability.can('update', subject('Article', {}))).toBe(false);
+    });
+  });
+
+  describe('ignores foreign Roles named like Object.prototype keys', () => {
+    const factory = createAbilityFactory({
+      permissions: [{ author: (_user, { can }) => can('read', 'Article') }],
+      superuserRole: 'admin',
+    });
+
+    it.each(['__proto__', 'constructor', 'toString', 'hasOwnProperty'])(
+      '%s grants nothing',
+      role => {
+        const ability = factory.createForUser({ roles: [role] });
+
+        expect(ability.rules).toEqual([]);
+      },
+    );
+
+    it.each(['Admin', ' admin', 'admin '])(
+      'a Superuser role spelt %j is not the Superuser role',
+      role => {
+        const ability = factory.createForUser({ roles: [role] });
+
+        expect(ability.can('manage', 'all')).toBe(false);
+      },
+    );
+  });
 });
