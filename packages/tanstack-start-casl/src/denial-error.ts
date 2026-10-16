@@ -41,8 +41,9 @@ export interface SerializedDenialError {
 /**
  * Carries a {@link DenialError} across Start's wire (a server function's
  * answer, the SSR payload), which otherwise keeps only an error's message.
- * Register it in the app's `src/start.ts`:
- * `createStart(() => ({ serializationAdapters: [denialErrorAdapter] }))`.
+ * Register it in the app's `src/start.ts`, with Start's CSRF middleware, which
+ * a `startInstance` of your own otherwise drops:
+ * `createStart(() => ({ requestMiddleware: [createCsrfMiddleware({ filter: ctx => ctx.handlerType === 'serverFn' })], serializationAdapters: [denialErrorAdapter] }))`.
  */
 export const denialErrorAdapter: SerializationAdapter<
   DenialError,
