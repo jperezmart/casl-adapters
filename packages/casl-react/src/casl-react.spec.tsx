@@ -2,12 +2,22 @@ import type { RulesResponse } from '@jperezmart/casl-core';
 import { act, render, screen } from '@testing-library/react';
 
 import type { ClientAbilityState } from './index.js';
-import { createCaslReact, RulesRequestError } from './index.js';
+import {
+  createCaslReact,
+  MalformedRulesError,
+  RulesRequestError,
+} from './index.js';
 import type { AppAbility, Article } from './test-app.js';
 import { deferred, detectSubjectType, rulesFor } from './test-app.js';
 
-const { AbilityProvider, Can, useAbility, useAbilityState, useCan } =
-  createCaslReact<AppAbility>({ detectSubjectType });
+const {
+  AbilityProvider,
+  Can,
+  createAbility,
+  useAbility,
+  useAbilityState,
+  useCan,
+} = createCaslReact<AppAbility>({ detectSubjectType });
 
 const own: Article = { kind: 'Article', id: '1', authorId: 'u1' };
 const others: Article = { kind: 'Article', id: '2', authorId: 'u2' };
@@ -98,6 +108,28 @@ describe('AbilityProvider', () => {
     expect(state?.error).toEqual(new RulesRequestError(500));
     expect(screen.queryByText('articles')).toBeNull();
   });
+
+  it.each([
+    ['rules that are not an array', { rules: 'x' }],
+    ['no rules', {}],
+    ['a rule with no action', { rules: [[]] }],
+    ['a rule that is not packed', { rules: [{ action: 'read' }] }],
+    ['null', null],
+  ])(
+    'allows nothing after a body with %s, and says it is malformed',
+    async (_name, body) => {
+      let state: ClientAbilityState<AppAbility> | undefined;
+      render(
+        <AbilityProvider fetchRules={async () => body as never}>
+          <Probe onState={s => (state = s)} />
+        </AbilityProvider>,
+      );
+
+      expect(await screen.findByText('ready')).toBeTruthy();
+      expect(state?.error).toBeInstanceOf(MalformedRulesError);
+      expect(screen.queryByText('articles')).toBeNull();
+    },
+  );
 
   it('refetches the rules on refresh(), as after a login', async () => {
     let user = 'u1';
@@ -203,4 +235,16 @@ describe('hooks', () => {
 
     expect(screen.getByText('rules: 2, may edit own')).toBeTruthy();
   });
+});
+
+describe('createAbility', () => {
+  it.each([{ rules: 'x' }, {}, { rules: [[]] }, { rules: [{}] }])(
+    'allows nothing for the malformed payload %j, rather than throw',
+    payload => {
+      const ability = createAbility(payload as never);
+
+      expect(ability.can('read', 'Article')).toBe(false);
+      expect(ability.rules).toEqual([]);
+    },
+  );
 });

@@ -50,7 +50,7 @@ import { fetchRulesFrom } from '@jperezmart/casl-react';
 <AbilityProvider fetchRules={() => client.me.rules()}>…</AbilityProvider>
 ```
 
-`fetchRules` resolves to `{ rules }`. It rejects for a failed fetch; a rejection whose `status` is 401 (as `fetchRulesFrom`'s `RulesRequestError` or oRPC's `ORPCError` carry) means there is no session.
+`fetchRules` resolves to `{ rules }`. It rejects for a failed fetch; a rejection whose `status` is 401 (as `fetchRulesFrom`'s `RulesRequestError` or oRPC's `ORPCError` carry) means there is no session. A body that is not `{ rules }` with packed rules (an HTML page, a proxy's error page served with a 200) settles as a `MalformedRulesError` in `error`, and the Client ability allows nothing, as after any other failure; `createAbility` likewise allows nothing for a malformed payload rather than throw.
 
 The Client ability **allows nothing** while the rules load, after a 401 and after any other failure, so no control flashes into view and then disappears.
 
