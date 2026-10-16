@@ -99,6 +99,8 @@ export const caslMiddleware = createMiddleware({ type: 'function' }).server(
 
 It calls `getUser` with the request, builds the user's Ability and adds `{ ability, user }` to the context. An Unauthenticated request is answered before the handler runs, so server functions open to Unauthenticated requests do not use it ([Unauthenticated requests](#unauthenticated-requests)).
 
+Before that, it refuses as forbidden (403, a `DenialError`) a call the browser marks as cross-site, by `Sec-Fetch-Site` or else `Origin`, so another site cannot call a server function with the user's session cookie. It is a second line: register Start's own CSRF middleware in `src/start.ts` too ([below](#recognising-the-denial-in-an-error-component)).
+
 Then check with `casl.assertCan(ability, action, subject)`. There is no load-then-check helper: check the subject type, load the instance, then check the instance. Checking the type first answers 403 to a user who may act on no article, the same for every id, before anything is loaded.
 
 ```ts
@@ -136,14 +138,18 @@ The status is that of the whole response: a server function call answers 401 or 
 
 ### Recognising the denial in an error component
 
-`DenialError` carries the denial's `kind` (`'unauthenticated'` or `'forbidden'`), its `status` (401 or 403) and the core's message. Start keeps only an error's message across the wire, so register the package's serialization adapter for the error to reach the browser as itself:
+`DenialError` carries the denial's `kind` (`'unauthenticated'` or `'forbidden'`), its `status` (401 or 403) and the core's message. Start keeps only an error's message across the wire, so register the package's serialization adapter for the error to reach the browser as itself. A `startInstance` of your own replaces Start's default CSRF middleware, so register that again too:
 
 ```ts
 // src/start.ts
 import { denialErrorAdapter } from '@jperezmart/tanstack-start-casl';
-import { createStart } from '@tanstack/react-start';
+import { createCsrfMiddleware, createStart } from '@tanstack/react-start';
 
 export const startInstance = createStart(() => ({
+  // Server functions are same-origin RPC endpoints: refuse cross-site calls.
+  requestMiddleware: [
+    createCsrfMiddleware({ filter: ctx => ctx.handlerType === 'serverFn' }),
+  ],
   serializationAdapters: [denialErrorAdapter],
 }));
 ```

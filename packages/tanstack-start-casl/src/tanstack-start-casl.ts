@@ -82,7 +82,9 @@ export interface StartCasl<
 > {
   /**
    * The server step of the server function middleware; pass it to
-   * `createMiddleware({ type: 'function' }).server(…)`. It finds the
+   * `createMiddleware({ type: 'function' }).server(…)`. It refuses as
+   * forbidden a call the browser marks as cross-site (`Sec-Fetch-Site`, or
+   * else `Origin`), before anything else. Then it finds the
    * request's Authorizable user with `getUser`, builds their Ability and adds
    * both to the context ({@link CaslContext}). An Unauthenticated request is
    * answered (401, or `onUnauthenticated`) before the handler runs, and the
@@ -171,7 +173,12 @@ export function createStartCasl<
     TUser,
     TAbility
   > = async ({ next }) => {
-    const context = await contextOrThrow(getRequest());
+    const request = getRequest();
+    // Server functions are same-origin RPC, and an app's own `startInstance`
+    // replaces Start's default CSRF middleware: refuse a call the browser
+    // marks as cross-site before the session cookie it carries counts.
+    if (isCrossSite(request)) throwDenial(crossSiteDenial);
+    const context = await contextOrThrow(request);
     return guarded(() => next({ context }));
   };
 
@@ -207,6 +214,25 @@ export function createStartCasl<
 }
 
 /** A server route's answer to what a denied check threw. */
+/** A server function call refused as cross-site: forbidden. */
+const crossSiteDenial: Denial = Object.freeze({
+  allowed: false,
+  kind: 'forbidden',
+  message: 'Cross-site server function calls are refused.',
+});
+
+/**
+ * Whether the browser says `request` comes from another site, by
+ * `Sec-Fetch-Site` or else `Origin` (Start's own CSRF check). A request with
+ * neither, from no browser, carries no ambient session to abuse.
+ */
+function isCrossSite(request: Request): boolean {
+  const fetchSite = request.headers.get('sec-fetch-site');
+  if (fetchSite !== null) return fetchSite !== 'same-origin';
+  const origin = request.headers.get('origin');
+  return origin !== null && origin !== new URL(request.url).origin;
+}
+
 function denialResponse(error: unknown): Response {
   if (error instanceof DenialError)
     return jsonResponse(error.status, error.message);
