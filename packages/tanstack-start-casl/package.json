@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/tanstack-start-casl",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The TanStack Start Adapter of @jperezmart/casl-core: middleware that adds the request's CASL Ability to server functions and server routes, an assertCan that answers by the Denial rule, and a ready-made Rules endpoint handler.",
   "keywords": [
     "tanstack-start",

@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/casl-react",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The browser side of the jperezmart CASL Adapters: a React provider that builds the Client ability from a Rules endpoint, a typed Can and hooks, and a TanStack Query integration.",
   "keywords": [
     "react",

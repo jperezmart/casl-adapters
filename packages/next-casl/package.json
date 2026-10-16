@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/next-casl",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The Next.js Pages Router Adapter of @jperezmart/casl-core: getServerSideProps and API route wrappers that hand over the request's CASL Ability, an assertCan that answers by the Denial rule, a custom App helper for denied pages and a ready-made Rules endpoint API route.",
   "keywords": [
     "nextjs",

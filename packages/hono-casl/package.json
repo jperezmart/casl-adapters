@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/hono-casl",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The Hono Adapter of @jperezmart/casl-core: middleware that adds the request's CASL Ability to the Hono context, an assertCan that answers by the Denial rule, and a ready-made Rules endpoint handler.",
   "keywords": [
     "hono",

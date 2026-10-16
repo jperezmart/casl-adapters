@@ -1,5 +1,45 @@
 # @jperezmart/nest-casl
 
+## 0.4.0
+
+### Minor Changes
+
+- [#49](https://github.com/jperezmart/casl-adapters/pull/49) [`61eff21`](https://github.com/jperezmart/casl-adapters/commit/61eff218adadee3b95ec3b8150963e491962d20c) Thanks [@jperezmart](https://github.com/jperezmart)! - `@jperezmart/nest-casl` is now the NestJS Adapter of `@jperezmart/casl-core`, with no change in public API and one in behaviour. The guard, the decorators and `assertCan` decide with the core's `decide` and answer with the same `UnauthorizedException`, `ForbiddenException` and `NotFoundException` as before; `CaslModule.forFeature` accumulates the core's list of Role permissions maps; the types it exported (`RolePermissions`, `AuthorizableUser`, `AccessConditionsAst`, `DefaultActions`…) are the core's, re-exported. The change: the `ForbiddenException` that `@CaslConditions()` throws when no record is allowed now carries the core's message (`No record of Article is allowed for read.`) instead of Nest's default `Forbidden`, as every other Adapter answers it.
+  
+  `@jperezmart/casl-core` is a new peer dependency, as `@casl/ability` already is, so an app using several Adapters has one copy of it. Install it alongside:
+  
+  ```bash
+  pnpm add @jperezmart/casl-core
+  ```
+
+- [#49](https://github.com/jperezmart/casl-adapters/pull/49) [`1abd9ab`](https://github.com/jperezmart/casl-adapters/commit/1abd9ab9856b09f6f421e62348f42546a10ec83b) Thanks [@jperezmart](https://github.com/jperezmart)! - `CaslModule.forRulesEndpoint({ path })` serves the Rules endpoint, ready-made and optional: `GET <path>` answers `{ rules }`, the packed rules of the Ability of the user `getUserFromRequest` finds, and 401 to an Unauthenticated request. The browser builds its Client ability from it with `@jperezmart/casl-react`, so you no longer write the "my abilities" controller yourself.
+
+- [#49](https://github.com/jperezmart/casl-adapters/pull/49) [`0864a7c`](https://github.com/jperezmart/casl-adapters/commit/0864a7c56013729b2914d4ebd1120c39a49a1bf5) Thanks [@jperezmart](https://github.com/jperezmart)! - **Breaking:** `AccessGuard` now denies (403) a route that has no `@UseAbility`, on the handler or its controller, whether the guard is applied per controller or as a global `APP_GUARD`. It used to let such a route through, so a forgotten decorator left the route open. The new `@AllowWithoutAbility()` decorator, on a handler or a whole controller, opens a route on purpose. There is no option to restore the old behaviour. The Rules endpoint of `CaslModule.forRulesEndpoint` carries the opt-out itself, so it still answers its own 401 under a global guard.
+  
+  To migrate, add `@AllowWithoutAbility()` to every route under the guard that is meant to be open (a health check, a public list, a grouped oRPC handler that checks inside):
+  
+  ```diff
+  +import { AllowWithoutAbility } from '@jperezmart/nest-casl';
+  
+   @Get('health')
+  +@AllowWithoutAbility()
+   health() {}
+  ```
+  
+  A route that is not under `AccessGuard` at all (no global guard, no `@UseGuards(AccessGuard)` on its controller, no `@UseAbility`) is not affected.
+
+- [#49](https://github.com/jperezmart/casl-adapters/pull/49) [`f1a0088`](https://github.com/jperezmart/casl-adapters/commit/f1a00884e1542a3edf7878e2a431f742d37429e3) Thanks [@jperezmart](https://github.com/jperezmart)! - `createAbilityFactory().createForUser(user)` throws an `UndefinedConditionError` instead of building an Ability whose rule conditions hold `undefined`, such as `can('update', 'Article', { authorId: user.id })` for a user without `id`. Those conditions let every record through: `JSON.stringify` (the Rules endpoint), the MongoDB driver's `ignoreUndefined`, Mongoose and Prisma drop the field, so the Access conditions filtered nothing and the Client ability allowed every instance. Every Adapter answers such a request as an error (500), never as allowed. In `@jperezmart/nest-casl` this changes behaviour: the guard and the Rules endpoint now answer 500 for such a user, where they used to allow by those conditions.
+
+### Patch Changes
+
+- [#51](https://github.com/jperezmart/casl-adapters/pull/51) [`b47ec8a`](https://github.com/jperezmart/casl-adapters/commit/b47ec8a3a25207cfa9507e847735de4d802fae2a) Thanks [@jperezmart](https://github.com/jperezmart)! - The repository is now `jperezmart/casl-adapters`: the package metadata (`homepage`, `bugs`, `repository`) and the README links point at it. GitHub redirects the old URLs.
+
+- [#49](https://github.com/jperezmart/casl-adapters/pull/49) [`1c5944d`](https://github.com/jperezmart/casl-adapters/commit/1c5944d7c03c5786101c8cdddb1ef0e51147c7c3) Thanks [@jperezmart](https://github.com/jperezmart)! - Every `CaslModule.forFeature` is now its own module on NestJS 10, and on NestJS 11 with `moduleIdGeneratorAlgorithm: 'deep-hash'`. Those key a dynamic module by a hash of its metadata, which was the same for every `forFeature`, so only the first permissions map was registered: the `cannot` rules and Role restrictions of every later feature were silently not enforced (and its grants were missing). Apps on those setups now get the rules of every feature, as on NestJS 11's default.
+
+- [#49](https://github.com/jperezmart/casl-adapters/pull/49) [`7c64eb6`](https://github.com/jperezmart/casl-adapters/commit/7c64eb613ec70e414453a5649900f28d2100d769) Thanks [@jperezmart](https://github.com/jperezmart)! - Every Rules endpoint answers with `Cache-Control: private, no-store` (`RULES_CACHE_CONTROL`, exported by `@jperezmart/casl-core`), so a CDN or a shared proxy can no longer store one user's rules and serve them to another, and the browser keeps no copy that outlives a change of user. `CaslModule.forRulesEndpoint`, `rulesEndpoint` (Next.js) and both `rulesHandler`s (Hono, TanStack Start) set it on the 401 too. `@jperezmart/orpc-casl`'s `rulesProcedure` and `implementRules` set it through oRPC's `ResponseHeadersPlugin`, the only way a procedure sets a response header: add `new ResponseHeadersPlugin()` to your handler's `plugins`.
+- Updated dependencies [[`61eff21`](https://github.com/jperezmart/casl-adapters/commit/61eff218adadee3b95ec3b8150963e491962d20c), [`b47ec8a`](https://github.com/jperezmart/casl-adapters/commit/b47ec8a3a25207cfa9507e847735de4d802fae2a), [`7c64eb6`](https://github.com/jperezmart/casl-adapters/commit/7c64eb613ec70e414453a5649900f28d2100d769), [`f1a0088`](https://github.com/jperezmart/casl-adapters/commit/f1a00884e1542a3edf7878e2a431f742d37429e3)]:
+  - @jperezmart/casl-core@0.1.0
+
 ## 0.3.0
 
 ### Minor Changes

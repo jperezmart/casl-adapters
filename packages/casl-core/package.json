@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/casl-core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Framework-free core of the jperezmart CASL Adapters: Role permissions, the Ability, the Denial rule and the Access conditions. Depends only on CASL.",
   "keywords": [
     "casl",

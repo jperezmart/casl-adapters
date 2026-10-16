@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/orpc-casl",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The oRPC Adapter of @jperezmart/casl-core: a middleware that adds the request's CASL Ability to the procedure context, an assertCan that throws oRPC's errors by the Denial rule, and a ready-made Rules endpoint procedure.",
   "keywords": [
     "orpc",
