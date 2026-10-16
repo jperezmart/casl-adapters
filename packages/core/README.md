@@ -24,6 +24,7 @@ import {
   assertCan,
   AbilityFactory,
   UseAbility,
+  AllowWithoutAbility,
   CaslUser,
   CaslAbility,
   CaslConditions,
@@ -105,6 +106,33 @@ export class ArticlesController {
   update(@CaslSubject() article: Article, @CaslUser() user: AppUser) {}
 }
 ```
+
+### Routes without `@UseAbility`: denied by default
+
+`AccessGuard` answers 403 to a route that has no `@UseAbility`, on the handler
+or its controller, whether you apply it per controller (`@UseGuards`) or as a
+global `APP_GUARD`. A forgotten decorator therefore fails closed. To open a
+route on purpose (a health check, a public list), mark the handler or the whole
+controller `@AllowWithoutAbility()`:
+
+```ts
+@UseGuards(AccessGuard)
+@Controller('articles')
+export class ArticlesController {
+  @Get('count')
+  @AllowWithoutAbility() // open on purpose: no Ability is built or checked
+  count() {}
+
+  @Get('drafts')
+  drafts() {} // no @UseAbility: 403
+}
+```
+
+A `@UseAbility` on the handler wins over an `@AllowWithoutAbility()` on its
+controller, and an `@AllowWithoutAbility()` on the handler wins over a
+`@UseAbility` on its controller. There is no option to allow unmarked routes
+again. The Rules endpoint of `CaslModule.forRulesEndpoint` carries the opt-out
+itself, so it answers its own 401 under a global guard.
 
 Typing the map is what catches a misspelt role: `RolePermissions<Role, AppUser>`
 rejects any key outside `Role`.
@@ -477,7 +505,8 @@ nest-casl works with **both using only its core API** — no oRPC-specific packa
 - **Grouped** — `@Implement(contract.articles)` returns a map of handlers under
   one Nest handler, so `@UseAbility` can't target individual procedures. Read the
   user from the request (`@Req()`) and build the ability inline with the (generic)
-  `AbilityFactory`:
+  `AbilityFactory`. Under `AccessGuard` (a global `APP_GUARD`, say), mark that
+  handler `@AllowWithoutAbility()`, since it checks inside:
 
   ```ts
   @Implement(contract.me)

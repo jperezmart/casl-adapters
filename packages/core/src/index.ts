@@ -16,6 +16,7 @@ export { AbilityFactory } from './factories/index.js';
 
 // Decorators
 export {
+  AllowWithoutAbility,
   CaslAbility,
   CaslConditions,
   CaslSubject,
@@ -49,6 +50,7 @@ export type {
 // Constants & enums
 export {
   CASL_ABILITY_METADATA,
+  CASL_ALLOW_WITHOUT_ABILITY,
   CASL_FEATURE_OPTIONS,
   CASL_REQUEST_CONTEXT,
   CASL_ROOT_OPTIONS,

@@ -1,12 +1,18 @@
 import { decide } from '@jperezmart/casl-core';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ModuleRef, Reflector } from '@nestjs/core';
 
 import { assertCan, enforce } from '../assert-can.js';
 import { ConditionsProxyImpl } from '../conditions.proxy.js';
 import {
   CASL_ABILITY_METADATA,
+  CASL_ALLOW_WITHOUT_ABILITY,
   CASL_REQUEST_CONTEXT,
   CASL_ROOT_OPTIONS,
 } from '../constants.js';
@@ -22,8 +28,9 @@ import type { UseAbilityMetadata } from '../interfaces/use-ability-metadata.inte
  * the request for the parameter decorators, and decides with {@link assertCan}:
  * 401 without a user; 403, before the hook runs, when the action is denied on
  * the subject type; then 404 for a hook that loads nothing or an instance the
- * user cannot read either, 403 for any other denial (ADR 0004). Routes without
- * `@UseAbility` metadata are allowed through.
+ * user cannot read either, 403 for any other denial (ADR 0004). A route without
+ * `@UseAbility` metadata is denied (403) unless it is marked
+ * `@AllowWithoutAbility()`, so a forgotten check fails closed.
  */
 @Injectable()
 export class AccessGuard implements CanActivate {
@@ -36,13 +43,10 @@ export class AccessGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Read handler metadata first, falling back to the controller class so a
-    // class-level `@UseAbility` protects every route instead of silently
-    // allowing them through (handler metadata, when present, takes precedence).
-    const metadata = this.reflector.getAllAndOverride<
-      UseAbilityMetadata | undefined
-    >(CASL_ABILITY_METADATA, [context.getHandler(), context.getClass()]);
-    if (!metadata) return true;
+    const metadata = this.metadataOf(context);
+    if (metadata === 'allowed') return true;
+    // No `@UseAbility` and no opt-out: a forgotten check, denied.
+    if (!metadata) throw new ForbiddenException();
 
     const request = context.switchToHttp().getRequest<AuthorizableRequest>();
 
@@ -99,5 +103,25 @@ export class AccessGuard implements CanActivate {
       { readAction: this.options.readAction },
     );
     return true;
+  }
+
+  /**
+   * The closest decision wins: the handler's `@UseAbility`, then its
+   * `@AllowWithoutAbility()`, then the controller's, in the same order.
+   */
+  private metadataOf(
+    context: ExecutionContext,
+  ): UseAbilityMetadata | 'allowed' | undefined {
+    for (const target of [context.getHandler(), context.getClass()]) {
+      const metadata = this.reflector.get<UseAbilityMetadata | undefined>(
+        CASL_ABILITY_METADATA,
+        target,
+      );
+      if (metadata) return metadata;
+      if (this.reflector.get<boolean>(CASL_ALLOW_WITHOUT_ABILITY, target)) {
+        return 'allowed';
+      }
+    }
+    return undefined;
   }
 }

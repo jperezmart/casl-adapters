@@ -12,6 +12,7 @@ import request from 'supertest';
 import type { ConditionsProxy, RolePermissions } from '../src/index.js';
 import {
   AccessGuard,
+  AllowWithoutAbility,
   CaslConditions,
   CaslModule,
   UseAbility,
@@ -32,8 +33,9 @@ const permissions: RolePermissions<Role, User> = {
 
 @Controller()
 class DocsController {
-  /** No `@UseAbility`: the global guard has nothing to check here. */
+  /** No `@UseAbility`: opened on purpose, under the global guard. */
   @Get('health')
+  @AllowWithoutAbility()
   health(): { ok: true } {
     return { ok: true };
   }
@@ -102,6 +104,6 @@ describe('AccessGuard defaults', () => {
   it('401s when `req.user` is missing', () =>
     request(server()).get('/docs').expect(401));
 
-  it('lets a route without @UseAbility through, even registered as a global guard', () =>
+  it('lets a route marked @AllowWithoutAbility() through the global guard', () =>
     request(server()).get('/health').expect(200, { ok: true }));
 });
