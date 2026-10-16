@@ -52,4 +52,19 @@ describe('withDenialPage', () => {
       }),
     ).toBe('<main><p>Error 401</p></main>');
   });
+
+  it("keeps the App's getInitialProps, so an App-level gate still runs", () => {
+    const gate = vi.fn(async () => ({ pageProps: { title: 'Gated' } }));
+    const Gated = Object.assign((props: AppProps): ReactNode => App(props), {
+      getInitialProps: gate,
+    });
+
+    const wrapped = withDenialPage(Gated) as { getInitialProps?: unknown };
+
+    expect(wrapped.getInitialProps).toBe(gate);
+  });
+
+  it('adds no getInitialProps to an App without one', () => {
+    expect('getInitialProps' in withDenialPage(App)).toBe(false);
+  });
 });

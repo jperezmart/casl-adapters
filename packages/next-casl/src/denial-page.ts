@@ -40,7 +40,8 @@ const TITLES = { 401: 'Unauthorized', 403: 'Forbidden' } as const;
 /**
  * Wraps the custom App (`pages/_app`) so a page whose `getServerSideProps`
  * answered a denial renders the error page, inside the App, instead of the
- * page: no page checks the denial prop itself.
+ * page: no page checks the denial prop itself. The App's `getInitialProps`,
+ * if it has one, is kept.
  */
 export function withDenialPage<TProps extends AppProps>(
   App: ComponentType<TProps>,
@@ -61,6 +62,12 @@ export function withDenialPage<TProps extends AppProps>(
     });
   };
   DeniedApp.displayName = `withDenialPage(${App.displayName ?? App.name})`;
+  // Next.js runs the App's `getInitialProps` before every page, often as an
+  // App-level gate (a login redirect): the wrapper must keep it.
+  const { getInitialProps } = App as { getInitialProps?: unknown };
+  if (getInitialProps !== undefined) {
+    Object.assign(DeniedApp, { getInitialProps });
+  }
   return DeniedApp;
 }
 
