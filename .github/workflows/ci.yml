@@ -30,6 +30,7 @@ jobs:
 
       # ↓ your checks. Delete the ones you don't have.
       - run: pnpm check:manifests
+      - run: pnpm check:registry
       - run: pnpm format:check
       - run: pnpm build
       - run: pnpm typecheck

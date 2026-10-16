@@ -12,6 +12,7 @@
     "changeset:publish": "changeset publish",
     "changeset:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm format",
     "check:manifests": "node scripts/check-manifests.mjs",
+    "check:registry": "node scripts/check-registry.mjs",
     "clean": "turbo run clean && rm -rf node_modules",
     "dev": "turbo run dev",
     "format": "prettier --write .",
