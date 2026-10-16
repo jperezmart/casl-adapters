@@ -8,7 +8,7 @@ import type {
   ClientAbilityState,
   RulesPayload,
 } from './casl-react.js';
-import { isUnauthenticated } from './casl-react.js';
+import { isUnauthenticated, unpackPayload } from './casl-react.js';
 
 /** How many times a failed fetch of the rules is retried, as Query's default. */
 const RETRIES = 3;
@@ -22,7 +22,8 @@ const RETRIES = 3;
  *
  * The Client ability allows nothing while the query loads and whenever it
  * last failed, a 401 included, even though Query keeps the old data. A 401 is
- * not retried. Refreshing is invalidating the query: `refresh()` does just
+ * not retried. A result that is not `{ rules }` with packed rules allows
+ * nothing too, and settles as a `MalformedRulesError` in `error`. Refreshing is invalidating the query: `refresh()` does just
  * that, and so does any invalidation of its key.
  */
 export function useQueryAbility<
@@ -50,6 +51,15 @@ export function useQueryAbility<
 
   const payload = query.status === 'success' ? query.data : undefined;
   const ability = useMemo(() => casl.createAbility(payload), [casl, payload]);
+  const malformed = useMemo(() => {
+    if (payload === undefined) return undefined;
+    try {
+      unpackPayload(payload);
+      return undefined;
+    } catch (error) {
+      return error;
+    }
+  }, [payload]);
 
   return useMemo(
     () => ({
@@ -57,9 +67,9 @@ export function useQueryAbility<
       isLoading: query.isLoading,
       isUnauthenticated:
         query.status === 'error' && isUnauthenticated(query.error),
-      error: query.status === 'error' ? query.error : undefined,
+      error: query.status === 'error' ? query.error : malformed,
       refresh,
     }),
-    [ability, query.isLoading, query.status, query.error, refresh],
+    [ability, query.isLoading, query.status, query.error, malformed, refresh],
   );
 }

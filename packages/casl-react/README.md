@@ -101,7 +101,7 @@ function Root() {
 }
 ```
 
-Refreshing is invalidating that query: `refresh()` does it, and so does any `queryClient.invalidateQueries` that matches its key. The Client ability allows nothing while the query loads and whenever its last fetch failed, a 401 included, even though TanStack Query keeps the previous data. A 401 is not retried.
+Refreshing is invalidating that query: `refresh()` does it, and so does any `queryClient.invalidateQueries` that matches its key. The Client ability allows nothing while the query loads and whenever its last fetch failed, a 401 included, even though TanStack Query keeps the previous data. A 401 is not retried. A result that is not `{ rules }` with packed rules allows nothing too, and settles as a `MalformedRulesError` in `error`, as with `fetchRules`.
 
 ## Protecting routes
 
