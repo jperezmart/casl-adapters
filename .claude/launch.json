@@ -47,6 +47,18 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "tanstack-start-orpc", "dev"],
       "port": 3201
+    },
+    {
+      "name": "backend-hono",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "backend-hono", "dev"],
+      "port": 3003
+    },
+    {
+      "name": "backend-orpc-hono",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "backend-orpc-hono", "dev"],
+      "port": 3004
     }
   ],
   "version": "0.0.1"
