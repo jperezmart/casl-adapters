@@ -1,5 +1,11 @@
 # @jperezmart/casl-react
 
+## 0.1.1
+
+### Patch Changes
+
+- [#55](https://github.com/jperezmart/casl-adapters/pull/55) [`ec9edd5`](https://github.com/jperezmart/casl-adapters/commit/ec9edd5f1ecd31d27e44b59c1c95cafe8d0209d6) Thanks [@jperezmart](https://github.com/jperezmart)! - `useQueryAbility` settles a query result that is not `{ rules }` with packed rules as a `MalformedRulesError` in `error`, as `AbilityProvider` does with `fetchRules`, so an app can tell malformed rules from a Client ability that allows nothing. Its Client ability still allows nothing for such a result.
+
 ## 0.1.0
 
 ### Minor Changes

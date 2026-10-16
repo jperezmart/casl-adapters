@@ -1,6 +1,6 @@
 {
   "name": "@jperezmart/nest-casl",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Modern CASL authorization for NestJS — REST-focused, ESM + CJS, CASL v7.",
   "keywords": [
     "nestjs",
