@@ -1,0 +1,35 @@
+{
+  "name": "backend-hono",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Hono REST app — @jperezmart/hono-casl serving backend-simple's HTTP API and seed, for the plain Vite frontend.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo",
+    "dev": "node --watch src/main.ts",
+    "lint": "eslint .",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@casl/ability": "catalog:",
+    "@hono/node-server": "catalog:",
+    "@jperezmart/casl-core": "workspace:*",
+    "@jperezmart/example-shared": "workspace:*",
+    "@jperezmart/hono-casl": "workspace:*",
+    "@ucast/mongo2js": "catalog:",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@jperezmart/eslint-config": "catalog:",
+    "@jperezmart/typescript-config": "catalog:",
+    "@types/node": "catalog:",
+    "@types/supertest": "catalog:",
+    "eslint": "catalog:",
+    "supertest": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
