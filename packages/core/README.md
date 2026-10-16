@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/nest-casl.svg)](https://www.npmjs.com/package/@jperezmart/nest-casl)
 [![license](https://img.shields.io/npm/l/@jperezmart/nest-casl.svg)](./LICENSE)
 
-Modern [CASL](https://casl.js.org) authorization for [NestJS](https://nestjs.com). REST-focused, strictly typed, dual ESM/CJS, built for CASL v7 and NestJS 10/11.
+Modern [CASL](https://casl.js.org) authorization for [NestJS](https://nestjs.com). REST-focused, strictly typed, dual ESM/CJS, built for CASL v7 and NestJS 11/12.
 
 ## Install
 
@@ -11,7 +11,7 @@ Modern [CASL](https://casl.js.org) authorization for [NestJS](https://nestjs.com
 pnpm add @jperezmart/nest-casl @jperezmart/casl-core @casl/ability
 ```
 
-Peer dependencies: `@jperezmart/casl-core`, `@nestjs/common`, `@nestjs/core`, `@casl/ability@^7`, `reflect-metadata`, `rxjs`.
+Peer dependencies: `@jperezmart/casl-core`, `@nestjs/common` and `@nestjs/core` (`^11 || ^12`), `@casl/ability@^7`, `reflect-metadata`, `rxjs`.
 
 This package is the NestJS Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core), which holds the Role permissions, the Ability construction, the Denial rule and the Access conditions. The core decides; this package turns its answers into NestJS exceptions (`UnauthorizedException`, `ForbiddenException`, `NotFoundException`). The core is a peer dependency so that an app using several Adapters has exactly one copy of it.
 
