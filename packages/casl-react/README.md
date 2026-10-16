@@ -3,11 +3,11 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/casl-react.svg)](https://www.npmjs.com/package/@jperezmart/casl-react)
 [![license](https://img.shields.io/npm/l/@jperezmart/casl-react.svg)](./LICENSE)
 
-The browser side of the [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core) Adapters. It fetches the current user's rules from your server's Rules endpoint and turns them into a **Client ability**, which `Can` and the hooks read, typed by your own Ability type. A `/tanstack-query` subpath builds it from a TanStack Query instead, such as the one oRPC's TanStack Query integration gives you.
+The browser side of the [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core) Adapters. It fetches the current user's rules from your server's Rules endpoint and turns them into a **Client ability**, which `Can` and the hooks read, typed by your own Ability type. A `/tanstack-query` subpath builds it from a TanStack Query instead, such as the one oRPC's TanStack Query integration gives you.
 
 Every Adapter serves the Rules endpoint with the same shape (`{ rules }`, the packed rules of the user's Ability, and 401 without a session), so this package works whatever the server: NestJS (`CaslModule.forRulesEndpoint`), oRPC (`casl.rulesProcedure`), Next.js or TanStack Start.
 
-> The Client ability only decides what the UI shows. Hiding a button or a route is not enforcement: what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
+> The Client ability only decides what the UI shows. Hiding a button or a route is not enforcement: what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
 
 ## Install
 
@@ -105,7 +105,7 @@ Refreshing is invalidating that query: `refresh()` does it, and so does any `que
 
 ## Protecting routes
 
-There is no router helper: the Client ability is a plain CASL ability you can put wherever your router reads from. The [TanStack Router example](https://github.com/jperezmart/nest-casl/tree/main/apps/frontend-orpc) puts it in the router context and checks it in `beforeLoad`.
+There is no router helper: the Client ability is a plain CASL ability you can put wherever your router reads from. The [TanStack Router example](https://github.com/jperezmart/casl-adapters/tree/main/apps/frontend-orpc) puts it in the router context and checks it in `beforeLoad`.
 
 ## License
 

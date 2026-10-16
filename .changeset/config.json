@@ -5,7 +5,7 @@
   },
   "access": "public",
   "baseBranch": "main",
-  "changelog": ["@changesets/changelog-github", { "repo": "jperezmart/nest-casl" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "jperezmart/casl-adapters" }],
   "commit": false,
   "fixed": [],
   "ignore": [],

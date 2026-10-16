@@ -10,13 +10,13 @@
     "abilities",
     "tanstack-query"
   ],
-  "homepage": "https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react#readme",
+  "homepage": "https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-react#readme",
   "bugs": {
-    "url": "https://github.com/jperezmart/nest-casl/issues"
+    "url": "https://github.com/jperezmart/casl-adapters/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jperezmart/nest-casl.git",
+    "url": "git+https://github.com/jperezmart/casl-adapters.git",
     "directory": "packages/casl-react"
   },
   "license": "MIT",

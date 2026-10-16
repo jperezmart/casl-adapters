@@ -3,8 +3,8 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/casl-testing.svg)](https://www.npmjs.com/package/@jperezmart/casl-testing)
 [![license](https://img.shields.io/npm/l/@jperezmart/casl-testing.svg)](./LICENSE)
 
-Testing utilities for [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core)
-and every Adapter built on it, such as [`@jperezmart/nest-casl`](https://github.com/jperezmart/nest-casl/tree/main/packages/core).
+Testing utilities for [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core)
+and every Adapter built on it, such as [`@jperezmart/nest-casl`](https://github.com/jperezmart/casl-adapters/tree/main/packages/core).
 Build the Ability straight from your Role permissions and a user, so they can
 be unit-tested without booting any framework.
 

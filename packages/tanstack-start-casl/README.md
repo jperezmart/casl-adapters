@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@jperezmart/tanstack-start-casl.svg)](https://www.npmjs.com/package/@jperezmart/tanstack-start-casl)
 [![license](https://img.shields.io/npm/l/@jperezmart/tanstack-start-casl.svg)](./LICENSE)
 
-The [TanStack Start](https://tanstack.com/start) Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials the way Start does, following the Denial rule ([ADR 0004](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)).
+The [TanStack Start](https://tanstack.com/start) Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core): it finds the Authorizable user of a request, builds their [CASL](https://casl.js.org) Ability and answers denials the way Start does, following the Denial rule ([ADR 0004](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md)).
 
 It covers server functions and server routes, and works unchanged in SPA mode, where both still run on the server. It offers:
 
@@ -249,7 +249,7 @@ In a server route, return a `Response` (a redirect is one): the route middleware
 
 ## The Rules endpoint
 
-`casl.rulesHandler` is the Rules endpoint as a server route handler. It answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability, and 401 to an Unauthenticated request. Its body is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Every answer, the 401 included, carries `Cache-Control: private, no-store`: the rules are the user's own, so no CDN or proxy may store them and serve them to someone else. Mount it at `/api/me/abilities`, the path [`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react) fetches by default, or anywhere else:
+`casl.rulesHandler` is the Rules endpoint as a server route handler. It answers `{ rules }`, the packed rules (`packRules` from `@casl/ability/extra`) of the user's Ability, for the browser to rebuild a Client ability, and 401 to an Unauthenticated request. Its body is `RulesResponse<AppAbility>`, declared by `@jperezmart/casl-core` for every Adapter and re-exported here. Every answer, the 401 included, carries `Cache-Control: private, no-store`: the rules are the user's own, so no CDN or proxy may store them and serve them to someone else. Mount it at `/api/me/abilities`, the path [`@jperezmart/casl-react`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-react) fetches by default, or anywhere else:
 
 ```ts
 // src/routes/api/me/abilities.ts
@@ -262,15 +262,15 @@ export const Route = createFileRoute('/api/me/abilities')({
 });
 ```
 
-The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
+The Client ability only decides what the UI shows; what the server allows is decided by the server's Ability alone ([ADR 0006](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0006-each-app-builds-its-own-ability.md)).
 
 ## With oRPC
 
-To serve oRPC from a Start server route, use [`@jperezmart/orpc-casl`](https://github.com/jperezmart/nest-casl/tree/main/packages/orpc-casl) in the procedures and hand them the web `Request` as their context. The [`tanstack-start-orpc` example](https://github.com/jperezmart/nest-casl/tree/main/apps/tanstack-start-orpc) does this.
+To serve oRPC from a Start server route, use [`@jperezmart/orpc-casl`](https://github.com/jperezmart/casl-adapters/tree/main/packages/orpc-casl) in the procedures and hand them the web `Request` as their context. The [`tanstack-start-orpc` example](https://github.com/jperezmart/casl-adapters/tree/main/apps/tanstack-start-orpc) does this.
 
 ## Testing
 
-Server functions only run inside Start's runtime, so test them over HTTP against your app's server; the [`tanstack-start` example](https://github.com/jperezmart/nest-casl/tree/main/apps/tanstack-start) builds the app and drives its production server that way. Build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing).
+Server functions only run inside Start's runtime, so test them over HTTP against your app's server; the [`tanstack-start` example](https://github.com/jperezmart/casl-adapters/tree/main/apps/tanstack-start) builds the app and drives its production server that way. Build abilities for unit tests of your Role permissions with [`@jperezmart/casl-testing`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-testing).
 
 ## License
 

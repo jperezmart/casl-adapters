@@ -13,7 +13,7 @@ pnpm add @jperezmart/nest-casl @jperezmart/casl-core @casl/ability
 
 Peer dependencies: `@jperezmart/casl-core`, `@nestjs/common`, `@nestjs/core`, `@casl/ability@^7`, `reflect-metadata`, `rxjs`.
 
-This package is the NestJS Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-core), which holds the Role permissions, the Ability construction, the Denial rule and the Access conditions. The core decides; this package turns its answers into NestJS exceptions (`UnauthorizedException`, `ForbiddenException`, `NotFoundException`). The core is a peer dependency so that an app using several Adapters has exactly one copy of it.
+This package is the NestJS Adapter of [`@jperezmart/casl-core`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-core), which holds the Role permissions, the Ability construction, the Denial rule and the Access conditions. The core decides; this package turns its answers into NestJS exceptions (`UnauthorizedException`, `ForbiddenException`, `NotFoundException`). The core is a peer dependency so that an app using several Adapters has exactly one copy of it.
 
 ## API surface
 
@@ -248,7 +248,7 @@ someone probing IDs learns nothing; an author who can read an article still
 gets an honest 403 when they may not edit it. The check against the subject
 type only ever denies: a hook that loads nothing is never allowed through on
 it, as that would let a conditional rule through without its conditions. The reasons are in
-[ADR 0004](https://github.com/jperezmart/nest-casl/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md).
+[ADR 0004](https://github.com/jperezmart/casl-adapters/blob/main/docs/adr/0004-hide-what-the-user-cannot-read.md).
 
 "Can read" means the `'read'` action. If your app names it differently, set it
 once in `forRoot`:
@@ -315,7 +315,7 @@ the conditions outside the guard from getting no restriction at all.
 
 The browser builds its Client ability from the rules of the current user's
 Ability, fetched from a Rules endpoint
-([`@jperezmart/casl-react`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-react)
+([`@jperezmart/casl-react`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-react)
 fetches `/api/me/abilities` by default). Import `CaslModule.forRulesEndpoint`
 to serve one at the path of your choice, instead of writing the controller.
 Every answer, the 401 included, carries `Cache-Control: private, no-store`:
@@ -457,7 +457,7 @@ string subject with no tagged instance, or for `all`, any hook goes.
 ## Testing your permissions
 
 Permission maps are plain functions, so they can be tested without booting Nest.
-[`@jperezmart/casl-testing`](https://github.com/jperezmart/nest-casl/tree/main/packages/casl-testing)
+[`@jperezmart/casl-testing`](https://github.com/jperezmart/casl-adapters/tree/main/packages/casl-testing)
 builds the ability this package would build, from the same map:
 
 ```ts
