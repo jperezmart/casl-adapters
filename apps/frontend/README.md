@@ -39,7 +39,8 @@ pnpm --filter frontend dev            # http://localhost:5173
 
 Requests go to `/api/*` and Vite proxies them to the backend (see
 [`vite.config.ts`](vite.config.ts)), so the session cookie stays same-origin.
-Override the target with `API_TARGET`.
+Override the target with `API_TARGET`, e.g. `API_TARGET=http://127.0.0.1:3003`
+for the same API on Hono ([`backend-hono`](../backend-hono)).
 
 ## What to try
 

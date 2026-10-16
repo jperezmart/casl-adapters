@@ -22,6 +22,7 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 | [`@jperezmart/orpc-casl`](./packages/orpc-casl)                     | `packages/orpc-casl`           | The oRPC Adapter: a middleware adding the Ability to the context, `assertCan`, the Rules endpoint.       |
 | [`@jperezmart/next-casl`](./packages/next-casl)                     | `packages/next-casl`           | The Next.js Pages Router Adapter: `getServerSideProps` and API route wrappers, the Rules endpoint.       |
 | [`@jperezmart/tanstack-start-casl`](./packages/tanstack-start-casl) | `packages/tanstack-start-casl` | The TanStack Start Adapter: middleware for server functions and routes, `assertCan`, the Rules endpoint. |
+| [`@jperezmart/hono-casl`](./packages/hono-casl)                     | `packages/hono-casl`           | The Hono Adapter: a middleware adding the Ability to the typed context, `assertCan`, the Rules endpoint. |
 | [`@jperezmart/casl-react`](./packages/casl-react)                   | `packages/casl-react`          | The browser side: a Client ability from a Rules endpoint, a typed `Can`, hooks, TanStack Query.          |
 | [`@jperezmart/casl-testing`](./packages/casl-testing)               | `packages/casl-testing`        | Helpers to unit-test Role permissions without booting any framework.                                     |
 | `@jperezmart/nest-casl-testing`                                     | `packages/testing`             | Deprecated re-export of `@jperezmart/casl-testing`.                                                      |
@@ -38,6 +39,8 @@ Existing NestJS + CASL integrations are abandoned or stuck on `@casl/ability@^5`
 | [`next-pages-orpc`](./apps/next-pages-orpc)                         | `apps/next-pages-orpc`         | Next.js Pages Router with oRPC in an API route (`orpc-casl`), `casl-react/tanstack-query`.               |
 | [`tanstack-start`](./apps/tanstack-start)                           | `apps/tanstack-start`          | TanStack Start over REST: server functions and routes with the Adapter, `casl-react`'s default fetch.    |
 | [`tanstack-start-orpc`](./apps/tanstack-start-orpc)                 | `apps/tanstack-start-orpc`     | TanStack Start over oRPC: the contract in a server route with `orpc-casl`, `casl-react/tanstack-query`.  |
+| [`backend-hono`](./apps/backend-hono)                               | `apps/backend-hono`            | Hono REST API with `hono-casl`: the same HTTP API and seed as `backend-simple`, for `frontend`.          |
+| [`backend-orpc-hono`](./apps/backend-orpc-hono)                     | `apps/backend-orpc-hono`       | Hono with oRPC mounted: the same contract as `backend-orpc`, with `orpc-casl`, for `frontend-orpc`.      |
 
 ## Two ways to feed `permissions`
 
@@ -114,6 +117,20 @@ pnpm build
 pnpm --filter backend-orpc dev     # :3002
 pnpm --filter frontend-orpc dev    # :5174
 ```
+
+[`backend-orpc-hono`](./apps/backend-orpc-hono) implements the same contract on
+Hono instead of NestJS, with the same Adapter; point the frontend at it with
+`API_TARGET`:
+
+```bash
+pnpm --filter backend-orpc-hono dev                                # :3004
+API_TARGET=http://127.0.0.1:3004 pnpm --filter frontend-orpc dev   # :5174
+```
+
+Likewise [`backend-hono`](./apps/backend-hono) serves `backend-simple`'s REST API
+on Hono with [`@jperezmart/hono-casl`](./packages/hono-casl), for `frontend`
+(`pnpm --filter backend-hono dev`, on :3003, then
+`API_TARGET=http://127.0.0.1:3003 pnpm --filter frontend dev`).
 
 ## Develop
 
